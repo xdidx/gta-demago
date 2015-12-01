@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{E262AFA6-F6CE-4DA7-9C01-50EDD1AA83B1}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DemagoScript</RootNamespace>
+    <AssemblyName>DemagoScript</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\..\..\..\..\..\Program Files\Rockstar Games\Grand Theft Auto V\scripts\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ScriptHookVDotNet">
+      <HintPath>..\GTA folder\ScriptHookVDotNet.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DemagoScript.cs" />
+    <Compile Include="menu\DemagoMenu.cs" />
+    <Compile Include="menu\UIMenuEditableNumericItem.cs" />
+    <Compile Include="missions\goals\PlayInstrument.cs" />
+    <Compile Include="missions\goals\GoToPosition.cs" />
+    <Compile Include="missions\goals\GoToPositionInVehicle.cs" />
+    <Compile Include="missions\goals\EnterInVehicle.cs" />
+    <Compile Include="missions\goals\SurviveInZone.cs" />
+    <Compile Include="missions\goals\Goal.cs" />
+    <Compile Include="missions\Justice.cs" />
+    <Compile Include="missions\Joe.cs" />
+    <Compile Include="Timer.cs" />
+    <Compile Include="Tools.cs" />
+    <Compile Include="Mission.cs" />
+    <Compile Include="menu\InstructionalButton.cs" />
+    <Compile Include="menu\MenuPool.cs" />
+    <Compile Include="menu\Sprite.cs" />
+    <Compile Include="menu\StringMeasurer.cs" />
+    <Compile Include="menu\UIMenu.cs" />
+    <Compile Include="menu\UIMenuCheckboxItem.cs" />
+    <Compile Include="menu\UIMenuItem.cs" />
+    <Compile Include="menu\UIMenuListItem.cs" />
+    <Compile Include="menu\UIResRectangle.cs" />
+    <Compile Include="menu\UIResText.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="missions\Speed.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

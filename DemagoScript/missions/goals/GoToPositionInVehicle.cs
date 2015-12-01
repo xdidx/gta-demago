@@ -1,0 +1,191 @@
+﻿using GTA;
+using GTA.Math;
+using GTA.Native;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DemagoScript
+{
+    class GoToPositionInVehicle : Goal
+    {
+        public delegate void FirstTimeOnVehicleEvent(Goal sender, Vehicle vehicle);
+        public event FirstTimeOnVehicleEvent OnFirstTimeOnVehicle;
+
+        private Vector3 destination;
+        private Blip destinationBlip = null; 
+        private Vehicle vehicle = null; 
+        private VehicleHash vehicleHash;
+        private Vector3 vehiclePosition;
+        private Vector3 vehicleRotation;
+        private bool teleportPlayerInVehicle;
+        private int errorsNumber = 0;
+        private bool alreadyMountedOnBike = false;
+        private int destinationCheckpoint = -1;
+
+        public GoToPositionInVehicle(Vector3 position, VehicleHash newVehicleHash, Vector3 newVehiclePosition, Vector3 newVehicleRotation, bool newTeleportPlayerInVehicle)
+        {
+            destination = position;
+            vehicleHash = newVehicleHash;
+            vehiclePosition = newVehiclePosition;
+            vehicleRotation = newVehicleRotation;
+            teleportPlayerInVehicle = newTeleportPlayerInVehicle;
+        }
+
+        public GoToPositionInVehicle(Vector3 position, Vehicle mandatoryVehicule)
+        {
+            destination = position;
+            vehicle = mandatoryVehicule;
+            vehiclePosition = Vector3.Zero;
+            vehicleRotation = Vector3.Zero;
+            teleportPlayerInVehicle = false;
+        }
+
+        public override bool initialize()
+        {
+            if (!base.initialize())
+                return false;
+
+            alreadyMountedOnBike = false;
+
+            if (!vehicleHasBeenGivenInConstruct())
+            {
+                vehicle = World.CreateVehicle(vehicleHash, vehiclePosition);
+                if (vehicle == null)
+                {
+                    errorsNumber++;
+                    if (errorsNumber > 10)
+                    {
+                        fail("Impossible d'initaliser la voiture");
+                        reset();
+                        return false;
+                    }
+                }
+                
+                vehicle.Rotation = vehicleRotation;
+                if (teleportPlayerInVehicle)
+                    Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+            else if (vehicle == null || !vehicle.Exists())      
+                fail("Le véhicule obligatoire n'existe plus");
+
+            createDestinationBlip();
+
+            destination = Tools.GetGroundedPosition(destination);
+
+            return true;
+        }
+
+        public bool vehicleHasBeenGivenInConstruct()
+        {
+            /*
+            If no position is set, the vehicle was given in constructor. If that's, we have to check if vehicle is available
+            */
+            if (vehiclePosition == Vector3.Zero)
+                return true;
+            return false;
+        }
+
+        public void createDestinationBlip()
+        {
+            destinationBlip = World.CreateBlip(destination);
+            destinationBlip.Sprite = BlipSprite.Crosshair;
+            destinationBlip.Color = BlipColor.Green;
+            destinationBlip.IsFlashing = true;
+            destinationBlip.ShowRoute = true;
+            destinationBlip.Position = destination;
+        }
+
+        public void createdDestinationCheckpoint()
+        {
+            destinationCheckpoint = Function.Call<int>(Hash.CREATE_CHECKPOINT, 24, destination.X, destination.Y, Tools.GetGroundedPosition(destination).Z, destination.X, destination.Y, Tools.GetGroundedPosition(destination).Z, 10f, 254, 207, 12, 100, 40);
+            Function.Call(Hash._SET_CHECKPOINT_ICON_RGBA, destinationCheckpoint, 0, 0, 256, 60);
+        }
+
+        public override bool update()
+        {
+            if (!base.update())
+                return false;
+
+            Ped player = Game.Player.Character;
+            if (!vehicle.IsDriveable || vehicle.IsOnFire)
+            {
+                fail("Le véhicule a été détruit");
+                return false;
+            }
+
+            if (isArrived())
+            {
+                accomplish();
+                return false;
+            }
+
+            if (player.IsInVehicle() && player.CurrentVehicle == vehicle)
+            {
+                if (vehicle.CurrentBlip != null && vehicle.CurrentBlip.Exists())
+                    vehicle.CurrentBlip.Remove();
+                
+                if (destinationBlip == null)
+                    createDestinationBlip();
+
+                if (destinationCheckpoint < 0)
+                    createdDestinationCheckpoint();
+
+                if (!isArrived())
+                    setGoalText("Rejoins l'endroit indiqué par le GPS");
+
+                if (!alreadyMountedOnBike)
+                    OnFirstTimeOnVehicle?.Invoke(this, vehicle);
+                alreadyMountedOnBike = true;
+            }
+            else
+            {
+                if (player.IsInVehicle())
+                    player.Task.LeaveVehicle();
+
+                if (destinationBlip != null && destinationBlip.Exists())
+                {
+                    destinationBlip.Remove();
+                    destinationBlip = null;
+                }
+
+                if (!vehicle.CurrentBlip.Exists())
+                {
+                    vehicle.AddBlip();
+                    vehicle.CurrentBlip.Sprite = BlipSprite.PersonalVehicleCar;
+                    vehicle.CurrentBlip.Color = BlipColor.Red;
+                    vehicle.CurrentBlip.IsFlashing = true;
+                    vehicle.CurrentBlip.ShowRoute = true;
+                }
+
+                setGoalText("Rejoins ton véhicule pour continuer la mission");
+            }
+            return true;
+        }
+
+        public bool isArrived()
+        {
+            return isOver() || destination.DistanceTo(Game.Player.Character.Position) < 8;
+        }
+
+        public override void clear(bool removePhysicalElements = false)
+        {
+            if (vehicle != null && vehicle.Exists())
+            {
+                if (removePhysicalElements && vehicleHasBeenGivenInConstruct())
+                    vehicle.Delete();
+
+                if (vehicle.CurrentBlip != null)
+                    vehicle.CurrentBlip.Remove();
+            }
+
+            if (destinationCheckpoint >= 0)
+                Function.Call(Hash.DELETE_CHECKPOINT, destinationCheckpoint);
+
+            if (destinationBlip != null && destinationBlip.Exists())
+                destinationBlip.Remove();
+        }
+    }
+}
