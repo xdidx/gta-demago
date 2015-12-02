@@ -13,6 +13,12 @@ using System.Windows.Forms;
 
 namespace DemagoScript
 {
+    enum DemagoModel {
+        Joe,
+        Fourras,
+        Gastrow
+    }
+
     static class PlacesPositions
     {
         public static Vector3 GrooveStreet { get; } = new Vector3(110f, -1950f, 21.0f);
@@ -98,6 +104,155 @@ namespace DemagoScript
             }
         }
 
+        public static void setModel(Model newModel)
+        {
+            if (newModel.IsInCdImage && newModel.IsValid)
+            {
+                Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, newModel.Hash);
+            }
+        }
+
+        public static Ped GetClosestPedAroundPlayer()
+        {
+            float minDistance = 16000f;//mapLength
+            Ped closestPed = null;
+
+            Ped[] peds = World.GetAllPeds();
+            for (int i = 0; i < peds.Length; i++)
+            {
+                if (peds[i] != Game.Player.Character)
+                {
+                    float pedDistanceToPlayer = peds[i].Position.DistanceTo(Game.Player.Character.Position);
+                    if (pedDistanceToPlayer < minDistance)
+                    {
+                        closestPed = peds[i];
+                        minDistance = pedDistanceToPlayer;
+                        Tools.log("minDistance : " + minDistance);
+                    }
+                }
+            }
+            Tools.log("minDistance FINAL : " + minDistance);
+
+            return closestPed;
+        }
+
+        public static void setDemagoModel(DemagoModel newModel)
+        {
+            if (newModel == DemagoModel.Joe)
+            {
+                Model joeModel = new Model(PedHash.Acult01AMO);
+                joeModel.Request(500);
+                if (joeModel.IsInCdImage && joeModel.IsValid)
+                {
+                    while (!joeModel.IsLoaded)
+                        Script.Wait(0);
+
+                    Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, joeModel.Hash);
+                    Function.Call(Hash.SET_PED_DEFAULT_COMPONENT_VARIATION, Game.Player.Character.Handle);
+
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 0, 0, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 1, 0, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 2, 1, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 3, 1, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 4, 0, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 5, 0, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 6, 0, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 7, 0, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 8, 2, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 9, 1, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 10, 0, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 11, 0, 0, 2);
+
+                    Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 0, -1, -1, 2);
+                    Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 1, 0, 0, 2);
+                    Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 2, -1, -1, 2);
+                    Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 3, -1, -1, 2);
+                    Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 4, -1, -1, 2);
+                    Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 5, -1, -1, 2);
+                    Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 6, -1, -1, 2);
+                    Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 7, -1, -1, 2);
+                    Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 8, -1, -1, 2);
+                    Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 9, -1, -1, 2);
+                }
+            }
+
+            if (newModel == DemagoModel.Fourras)
+            {
+                Model fourasModel = new Model(PedHash.PriestCutscene);
+                fourasModel.Request(500);
+                if (fourasModel.IsInCdImage && fourasModel.IsValid)
+                {
+                    while (!fourasModel.IsLoaded)
+                        Script.Wait(0);
+
+                    Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, fourasModel.Hash);
+                    Function.Call(Hash.SET_PED_DEFAULT_COMPONENT_VARIATION, Game.Player.Character.Handle);
+
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 0, 0, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 1, 0, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 2, 0, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 3, 0, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 4, 0, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 5, 0, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 6, 0, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 7, 0, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 8, 0, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 9, 0, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 10, 0, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 11, 0, 0, 2);
+
+                    Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 0, -1, -1, 2);
+                    Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 1, -1, -1, 2);
+                    Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 2, -1, -1, 2);
+                    Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 3, -1, -1, 2);
+                    Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 4, -1, -1, 2);
+                    Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 5, -1, -1, 2);
+                    Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 6, -1, -1, 2);
+                    Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 7, -1, -1, 2);
+                    Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 8, -1, -1, 2);
+                    Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 9, -1, -1, 2);
+                }
+            }
+
+            if (newModel == DemagoModel.Gastrow)
+            {
+                Model gastrowModel = new Model(PedHash.Migrant01SFY);
+                gastrowModel.Request(500);
+                if (gastrowModel.IsInCdImage && gastrowModel.IsValid)
+                {
+                    while (!gastrowModel.IsLoaded)
+                        Script.Wait(0);
+
+                    Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, gastrowModel.Hash);
+                    Function.Call(Hash.SET_PED_DEFAULT_COMPONENT_VARIATION, Game.Player.Character.Handle);
+
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 0, 1, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 1, 0, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 2, 1, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 3, 1, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 4, 1, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 5, 0, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 6, 0, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 7, 0, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 8, 0, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 9, 0, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 10, 0, 0, 2);
+                    Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 11, 0, 0, 2);
+
+                    Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 0, -1, -1, 2);
+                    Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 1, -1, -1, 2);
+                    Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 2, -1, -1, 2);
+                    Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 3, -1, -1, 2);
+                    Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 4, -1, -1, 2);
+                    Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 5, -1, -1, 2);
+                    Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 6, -1, -1, 2);
+                    Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 7, -1, -1, 2);
+                    Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 8, -1, -1, 2);
+                    Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 9, -1, -1, 2);
+                }
+            }
+        }
+
         public static bool playerMoved()
         {
             return lastPlayerPosition != Game.Player.Character.Position;
@@ -125,8 +280,7 @@ namespace DemagoScript
             {
                 clockTransitionTimer.stop();
             }
-
-            Tools.log("Clock time " + newHour);
+            
             if (transitionDuration <= 0)
             {
                 Function.Call(Hash.SET_CLOCK_TIME, newHour, 0, 0);
@@ -139,9 +293,7 @@ namespace DemagoScript
                     float floatingHour = (currentHour + (hoursToAdd * elapsedPourcent)) % 24;
                     int hour = (int)Math.Floor(floatingHour),
                         minute = (int)Math.Floor(((floatingHour - hour) * 60) % 60);
-
-                    Tools.log("Hour : "+hour+" / Minute : "+minute);
-
+                    
                     Function.Call(Hash.SET_CLOCK_TIME, hour, minute, 0);
                 };
                 clockTransitionTimer.OnTimerStop += (sender) =>

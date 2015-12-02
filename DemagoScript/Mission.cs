@@ -22,7 +22,6 @@ namespace DemagoScript
         private bool initialized = false;
         private bool failed = false;
         private DateTime startMissionTime;
-        private Model oldModel;
 
         /// <summary>
         /// Called when user start the mission.
@@ -49,7 +48,6 @@ namespace DemagoScript
             initialized = true;
             over = false;
             failed = false;
-            oldModel = Game.Player.Character.Model;
 
             return true;
         }
@@ -70,7 +68,6 @@ namespace DemagoScript
 
         public void reset()
         {
-            Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
             foreach (Goal goal in goals)
                 goal.clear(false);
         }
@@ -94,8 +91,6 @@ namespace DemagoScript
 
             active = false;
             over = true;
-            
-            Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
 
             clear(false);
 
@@ -142,27 +137,15 @@ namespace DemagoScript
             }
 
             initialize();
-
+            
             if (Game.Player.Character.IsDead)
             {
-                if (Game.Player.Character.Model != oldModel)
-                {
-                    Ped replacementPed = Function.Call<Ped>(Hash.CLONE_PED, Game.Player.Character, Function.Call<int>(Hash.GET_ENTITY_HEADING, Function.Call<int>(Hash.PLAYER_PED_ID)), false, true);
-                    replacementPed.Kill();
-
-                    Game.Player.Character.IsVisible = false;
-
-                    Script.Wait(200);
-                    Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
-
-                    while (Game.Player.IsDead)
-                        Script.Wait(100);
-
-                    Game.Player.Character.IsVisible = true;
-                }
-
                 fail("Vous êtes mort");
-                return false;
+            }
+
+            if (Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true))
+            {
+                fail("Vous vous êtes fait arrêté");
             }
 
             bool waitingGoals = false;
@@ -197,7 +180,7 @@ namespace DemagoScript
                 goals.Clear();
         }
 
-        public virtual void fillMenu(ref UIMenu menu)
+        public virtual UIMenuItem addStartItem(ref UIMenu menu)
         {
             var startItem = new UIMenuItem("Démarrer la mission");
             menu.AddItem(startItem);
@@ -210,6 +193,10 @@ namespace DemagoScript
                     sender.Visible = false;
                 }
             };
+
+            return startItem;
         }
+
+        public virtual void fillMenu(ref UIMenu menu) { }
     }
 }

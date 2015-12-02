@@ -36,7 +36,18 @@ namespace DemagoScript
             foreach (Mission mission in missions)
             {
                 var missionMenu = menuPool.AddSubMenu(missionsMenu, mission.getName());
-                mission.fillMenu(ref missionMenu);
+                var startItem = mission.addStartItem(ref missionMenu);
+
+                missionMenu.OnItemSelect += (sender, item, index) =>
+                {
+                    if (item == startItem)
+                    {
+                        if (oldModel == null)
+                        {
+                            oldModel = Game.Player.Character.Model;
+                        }
+                    }
+                };
             }
 
             var teleportToTaxiItem = new UIMenuItem("Se téléporter à la mission taxi");
@@ -55,87 +66,73 @@ namespace DemagoScript
             var joeModelItem = new UIMenuItem("Joe l'anticonformiste");
             var fourasModelItem = new UIMenuItem("Père Fourras", "La fonctionnalité est en cours de développement");
             var gastrowModelItem = new UIMenuItem("Gastrow Nomie", "La fonctionnalité est en cours de développement");
+            var dissociateModelItem = new UIMenuItem("Dissocier", "Dissocier son corps avec le personnage le plus proche");
             var resetModelItem = new UIMenuItem("Récupérer le modèle de base");
 
-            
+
             var modelMenu = menuPool.AddSubMenu(mainMenu, "Modèles");
             modelMenu.AddItem(joeModelItem);
             modelMenu.AddItem(fourasModelItem);
             modelMenu.AddItem(gastrowModelItem);
+            modelMenu.AddItem(dissociateModelItem);
             modelMenu.AddItem(resetModelItem);
 
             modelMenu.OnItemSelect += (sender, item, index) =>
             {
+                if (oldModel == null)
+                {
+                    oldModel = Game.Player.Character.Model;                    
+                }
+                
+                if (oldModel != Game.Player.Character.Model)
+                {
+                    //Reset to old model
+                    Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
+                }
+
+                if (item == resetModelItem && oldModel == null)
+                {
+                    UI.Notify("Vous possédez déjà le modèle de base !");    
+                }
+                
+
+                if (item == dissociateModelItem)
+                {
+                    Ped closestPed = Tools.GetClosestPedAroundPlayer();
+                    if (closestPed != null && closestPed.Exists())
+                    {
+                        Tools.setModel(closestPed.Model);
+
+                        if (closestPed.Position != Vector3.Zero)
+                        {
+                            Vector3 oldPlayerPosition = Game.Player.Character.Position;
+                            Game.Player.Character.Position = closestPed.Position;
+                            closestPed.Position = oldPlayerPosition;
+                        }
+                        else
+                        {
+                            Tools.log("Closest ped position == 0 ...");
+                        }
+                    }
+                    else
+                    {
+                        GTA.UI.Notify("Pas de personnage proche...");
+                    }
+                }
+
                 if (item == joeModelItem)
                 {
-                    if (oldModel != null)
-                    {
-                        Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
-                    }
-                    else
-                    {
-                        oldModel = Game.Player.Character.Model;
-                    }
-
-                    Model joeModel = new Model(PedHash.Acult01AMO);
-                    joeModel.Request(500);
-                    if (joeModel.IsInCdImage && joeModel.IsValid)
-                    {
-                        while (!joeModel.IsLoaded)
-                            Script.Wait(0);
-
-                        Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, joeModel.Hash);
-                        Function.Call(Hash.SET_PED_DEFAULT_COMPONENT_VARIATION, Game.Player.Character.Handle);
-
-                        Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 1, 0, 0, 2);
-                        Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 2, 1, 0, 2);
-                        Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 3, 1, 0, 2);
-                        Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 4, 0, 0, 2);
-                        Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 5, 0, 0, 2);
-                        Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 6, 0, 0, 2);
-                        Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 7, 0, 0, 2);
-                        Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 8, 2, 0, 2);
-                        Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 9, 1, 0, 2);
-                        Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 10, 0, 0, 2);
-                        Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 11, 0, 0, 2);
-
-                        Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 0, -1, -1, 2);
-                        Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 1, 0, 0, 2);
-                        Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 2, -1, -1, 2);
-                        Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 3, -1, -1, 2);
-                        Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 4, -1, -1, 2);
-                        Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 5, -1, -1, 2);
-                        Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 6, -1, -1, 2);
-                        Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 7, -1, -1, 2);
-                        Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 8, -1, -1, 2);
-                        Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 9, -1, -1, 2);
-                    }
+                    Tools.setDemagoModel(DemagoModel.Joe);
                 }
+
                 if (item == fourasModelItem)
                 {
-                    if (oldModel != null)
-                        Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
-                    oldModel = Game.Player.Character.Model;
-                    //TODO : transformation en Fourras
+                    Tools.setDemagoModel(DemagoModel.Fourras);
                 }
+
                 if (item == gastrowModelItem)
                 {
-                    if (oldModel != null)
-                        Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
-                    oldModel = Game.Player.Character.Model;
-                    //TODO : transformation en Gastrow
-                }
-                if (item == resetModelItem)
-                {
-                    if (oldModel != null)
-                    {
-                        Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
-                        oldModel = null;
-                    }
-                    else
-                    {
-                        UI.Notify("Vous possédez déjà un modèle de base !");
-                    }
+                    Tools.setDemagoModel(DemagoModel.Gastrow);
                 }
             };
 
@@ -290,9 +287,8 @@ namespace DemagoScript
             toolsMenu.AddItem(seeVehicleActiveItem);
             toolsMenu.AddItem(godVehicleActiveItem);
 
-            toolsMenu.OnCheckboxChange += (sender, item, checked_) =>
+            toolsMenu.OnItemSelect += (sender, item, checked_) =>
             {
-                Ped player = Game.Player.Character;
                 if (item == showPositionItem)
                 {
                     GTA.UI.Notify("player X : " + Game.Player.Character.Position.X + " / Y : " + Game.Player.Character.Position.Y + " / Z : " + Game.Player.Character.Position.Z);
@@ -315,6 +311,11 @@ namespace DemagoScript
                     if (Game.Player.WantedLevel < 5)
                         Game.Player.WantedLevel++;
                 }
+            };
+
+            toolsMenu.OnCheckboxChange += (sender, item, checked_) =>
+            {
+                Ped player = Game.Player.Character;
                 if (item == gravityActiveItem)
                 {
                     zeroGravity = checked_;
@@ -380,6 +381,23 @@ namespace DemagoScript
         public void process()
         {
             menuPool.ProcessMenus();
+
+            Ped player = Game.Player.Character;
+            if ((player.IsDead || Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true)) && player.Model != oldModel)
+            {
+                Ped replacementPed = Function.Call<Ped>(Hash.CLONE_PED, Game.Player.Character, Function.Call<int>(Hash.GET_ENTITY_HEADING, Function.Call<int>(Hash.PLAYER_PED_ID)), false, true);
+                replacementPed.Kill();
+
+                player.IsVisible = false;
+
+                Script.Wait(200);
+                Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
+
+                while (Game.Player.IsDead)
+                    Script.Wait(100);
+
+                player.IsVisible = true;
+            }
         }
 
         public void show()

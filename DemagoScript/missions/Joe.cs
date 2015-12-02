@@ -58,40 +58,7 @@ namespace DemagoScript
 
             World.Weather = Weather.ExtraSunny;
             Tools.setClockTime(10);
-
-            Model joeModel = new Model(PedHash.Acult01AMO);
-            joeModel.Request(500);
-            if (joeModel.IsInCdImage && joeModel.IsValid)
-            {
-                while (!joeModel.IsLoaded)
-                    Script.Wait(0);
-
-                Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, joeModel.Hash);
-                Function.Call(Hash.SET_PED_DEFAULT_COMPONENT_VARIATION, Game.Player.Character.Handle);
-
-                Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 1, 0, 0, 2);
-                Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 2, 1, 0, 2);
-                Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 3, 1, 0, 2);
-                Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 4, 0, 0, 2);
-                Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 5, 0, 0, 2);
-                Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 6, 0, 0, 2);
-                Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 7, 0, 0, 2);
-                Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 8, 2, 0, 2);
-                Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 9, 1, 0, 2);
-                Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 10, 0, 0, 2);
-                Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 11, 0, 0, 2);
-
-                Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 0, -1, -1, 2);
-                Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 1, 0, 0, 2);
-                Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 2, -1, -1, 2);
-                Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 3, -1, -1, 2);
-                Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 4, -1, -1, 2);
-                Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 5, -1, -1, 2);
-                Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 6, -1, -1, 2);
-                Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 7, -1, -1, 2);
-                Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 8, -1, -1, 2);
-                Function.Call(Hash.SET_PED_PROP_INDEX, Game.Player.Character.Handle, 9, -1, -1, 2);
-            }
+            Tools.setDemagoModel(DemagoModel.Joe);
 
             Ped player = Game.Player.Character;
             player.MaxHealth = 300;
@@ -261,6 +228,10 @@ namespace DemagoScript
                     Function.Call(Hash.SET_PED_AS_COP, ped, true);
                     ped.MarkAsNoLongerNeeded();
                 }
+
+                player.Health = 300;
+                player.Armor = 100;
+
                 Game.Player.WantedLevel = 1;
                 GTA.UI.ShowSubtitle("Policier : Si tu ne sors pas, c'est nous qui allons te faire sortir !", 4000);
                 World.Weather = Weather.Raining;
@@ -408,11 +379,6 @@ namespace DemagoScript
             Game.Player.Character.Weapons.RemoveAll();
 
             return true;
-        }
-
-        public override void fillMenu(ref UIMenu menu)
-        {
-            base.fillMenu(ref menu);
         }
     }
 }

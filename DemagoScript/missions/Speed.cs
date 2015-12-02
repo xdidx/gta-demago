@@ -384,8 +384,6 @@ namespace DemagoScript
 
         public override void fillMenu(ref UIMenu menu)
         {
-            base.fillMenu(ref menu);
-
             var explosionsItem = new UIMenuCheckboxItem("Activer les explosions", activatedExplosion, "Activer les explosions quand le vehicule passe en dessous des 40km/h ?");
             menu.AddItem(explosionsItem);
 
