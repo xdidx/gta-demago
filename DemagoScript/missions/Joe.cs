@@ -1,6 +1,7 @@
 ﻿using GTA;
 using GTA.Math;
 using GTA.Native;
+using IrrKlang;
 using NativeUI;
 using System;
 using System.Collections.Generic;
@@ -20,7 +21,6 @@ namespace DemagoScript
         public static Vector3 thirdSongBikePosition { get; } = new Vector3(681f, 565f, 128f);
         public static Vector3 thirdSongPosition { get; } = new Vector3(686f, 578f, 131f);
         public static Vector3 joeStart { get; } = new Vector3(2353.457f, 2522.366f, 47.68944f);
-        private System.Media.SoundPlayer soundPlayer;
 
         private Vehicle bike;
         private List<Ped> spectatorsPeds = new List<Ped>();
@@ -34,6 +34,9 @@ namespace DemagoScript
         private int cameraChangeTimer;
         private Ped introPed;
         private float startTime = 0;
+
+        ISoundEngine engine = new ISoundEngine();
+        ISound sound;
 
         public override string getName()
         {
@@ -290,8 +293,14 @@ namespace DemagoScript
             };
 
             startTime = DemagoScript.getScriptTime();
-            soundPlayer = new System.Media.SoundPlayer(@"C:\Program Files\Rockstar Games\Grand Theft Auto V\Music\intro.wav");
-            soundPlayer.Play();
+
+            try {
+                sound = engine.Play2D(@"C:\Program Files\Rockstar Games\Grand Theft Auto V\Music\intro.wav");
+            }
+            catch (Exception ex)
+            {
+                Tools.log(ex.Message);
+            }
 
             return true;
         }
@@ -328,10 +337,15 @@ namespace DemagoScript
 
         public override bool update()
         {
+            if (Game.IsPaused)
+                sound.Paused = true;
+            else
+                sound.Paused = false;
+
             if (!base.update())
                 return false;
 
-            Ped player = Game.Player.Character;
+                Ped player = Game.Player.Character;
 
             if (playerDown || !playerWalked || !introEnded)
             {

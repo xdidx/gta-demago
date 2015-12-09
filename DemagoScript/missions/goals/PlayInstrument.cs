@@ -2,6 +2,7 @@
 using GTA.Math;
 using GTA.Native;
 using System;
+using IrrKlang;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,8 +20,9 @@ namespace DemagoScript
         private DateTime startTime;
         private Prop instrumentProp;
         private InstrumentHash instrumentHash;
-        private System.Media.SoundPlayer soundPlayer;
         private String musicToPlay;
+        private ISoundEngine engine = new ISoundEngine();
+        private ISound sound;
 
         public float SecondsToPlay { get; set; }
 
@@ -38,18 +40,29 @@ namespace DemagoScript
                 return false;
             }
 
-            soundPlayer = new System.Media.SoundPlayer(@"C:\Program Files\Rockstar Games\Grand Theft Auto V\Music\" + musicToPlay + ".wav");
+            try
+            {
+                sound = engine.Play2D(@"C:\Program Files\Rockstar Games\Grand Theft Auto V\Music\" + musicToPlay + ".wav");
+            }
+            catch (Exception ex)
+            {
+                Tools.log(ex.Message);
+            }
 
             startTime = DateTime.Now;
 
             startAnimation();
-            soundPlayer.Play(); 
 
             return true;
         }
 
         public override bool update()
         {
+            if (Game.IsPaused)
+                sound.Paused = true;
+            else
+                sound.Paused = false;
+
             if (!base.update())
                 return false;
 

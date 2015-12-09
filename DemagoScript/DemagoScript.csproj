@@ -32,6 +32,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="irrKlang.NET4, Version=1.0.5235.21387, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\irrKlang.NET4.dll</HintPath>
+    </Reference>
     <Reference Include="ScriptHookVDotNet">
       <HintPath>..\GTA folder\ScriptHookVDotNet.dll</HintPath>
       <Private>False</Private>
