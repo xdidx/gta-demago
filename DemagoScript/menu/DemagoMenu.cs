@@ -334,18 +334,39 @@ namespace DemagoScript
                 if (item == seePlayerActiveItem)
                 {
                     seePlayer = checked_;
+                    player.IsVisible = !seePlayer;
                 }
                 if (item == godPlayerActiveItem)
                 {
                     godPlayer = checked_;
+                    Game.Player.IsInvincible = godPlayer;
                 }
                 if (item == seeVehicleActiveItem)
                 {
-                    seeVehicle = checked_;
+                    if (player.IsInVehicle())
+                    {
+                        seeVehicle = checked_;
+                        toChangeVehicle.IsVisible = !seeVehicle;
+                    }
+                    else
+                    {
+                        seeVehicleActiveItem.Checked = false;
+                        UI.Notify("Impossible , vous êtes à pied !");
+                    }
                 }
                 if (item == godVehicleActiveItem)
                 {
-                    godVehicle = checked_;
+                    if (player.IsInVehicle())
+                    {
+                        godVehicle = checked_;
+                        toChangeVehicle.IsInvincible = godVehicle;
+                        toChangeVehicle.CanTiresBurst = godVehicle;
+                    }
+                    else
+                    {
+                        godVehicleActiveItem.Checked = false;
+                        UI.Notify("Impossible , vous êtes à pied !");
+                    }
                 }
             };
 
@@ -358,16 +379,6 @@ namespace DemagoScript
             Ped player = Game.Player.Character;
             if ((player.IsDead || Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true)) && player.Model != oldModel && oldModel != null)
             {
-                godPlayer = false;
-                godPlayerActiveItem.Checked = false;
-                seePlayer = false;
-                seePlayerActiveItem.Checked = false;
-                godVehicle = false;
-                godVehicleActiveItem.Checked = false;
-                seeVehicle = false;
-                seeVehicleActiveItem.Checked = false;
-
-
                 Ped replacementPed = Function.Call<Ped>(Hash.CLONE_PED, Game.Player.Character, Function.Call<int>(Hash.GET_ENTITY_HEADING, Function.Call<int>(Hash.PLAYER_PED_ID)), false, true);
                 replacementPed.Kill();
 
@@ -381,35 +392,34 @@ namespace DemagoScript
 
                 player.IsVisible = true;
             }
-
-            Game.Player.IsInvincible = godPlayer;
-            player.IsVisible = !seePlayer;
-
-            if (player.IsInVehicle())
-            {
-                toChangeVehicle = player.CurrentVehicle;
-                toChangeVehicle.IsInvincible = godVehicle;
-                toChangeVehicle.CanTiresBurst = godVehicle;
-                toChangeVehicle.IsVisible = !seeVehicle;
-            }
             else
             {
-                if (toChangeVehicle != null)
+                if (player.IsInVehicle() && toChangeVehicle == null)
                 {
-                    toChangeVehicle.IsInvincible = false;
-                    toChangeVehicle.CanTiresBurst = false;
-                    toChangeVehicle.IsVisible = true;
+                    toChangeVehicle = player.CurrentVehicle;
+                }
+
+                if (!player.IsInVehicle() && toChangeVehicle != null)
+                {
+                    if (godVehicle)
+                    {
+                        godVehicle = false;
+                        godVehicleActiveItem.Checked = false;
+                        toChangeVehicle.IsInvincible = false;
+                        toChangeVehicle.CanTiresBurst = false;
+                    }
+
+                    if (seeVehicle)
+                    {
+                        seeVehicle = false;
+                        seeVehicleActiveItem.Checked = false;
+                        toChangeVehicle.IsVisible = true;
+                        player.IsVisible = !seePlayer;
+                    }
+
                     toChangeVehicle = null;
                 }
-                if (godVehicle || seeVehicle)
-                {
-                    godVehicle = false;
-                    godVehicleActiveItem.Checked = false;
-                    seeVehicle = false;
-                    seeVehicleActiveItem.Checked = false;
-                    UI.Notify("Impossible , vous êtes à pied !");
-                }
-            }
+            }          
         }
 
         public void show()

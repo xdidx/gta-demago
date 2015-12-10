@@ -21,15 +21,16 @@ namespace DemagoScript
         private Prop instrumentProp;
         private InstrumentHash instrumentHash;
         private String musicToPlay;
-        private ISoundEngine engine = new ISoundEngine();
-        private ISound sound;
+        private ISoundEngine engine;
+        private ISound sound = null;
 
         public float SecondsToPlay { get; set; }
 
-        public PlayInstrument(InstrumentHash instrumentHash, float secondsToPlay, String musicToPlay)
+        public PlayInstrument(InstrumentHash instrumentHash, float secondsToPlay, String musicToPlay, ISoundEngine engine)
         {
             this.instrumentHash = instrumentHash;
             this.musicToPlay = musicToPlay;
+            this.engine = engine;
             SecondsToPlay = secondsToPlay;
         }
 
@@ -42,6 +43,7 @@ namespace DemagoScript
 
             try
             {
+                engine.RemoveAllSoundSources();
                 sound = engine.Play2D(@"C:\Program Files\Rockstar Games\Grand Theft Auto V\Music\" + musicToPlay + ".wav");
             }
             catch (Exception ex)

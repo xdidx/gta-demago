@@ -80,7 +80,6 @@
     <Compile Include="missions\Speed.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ikpFlac.dll" />
     <Content Include="ikpMP3.dll" />
     <Content Include="irrKlang.NET4.dll" />
   </ItemGroup>

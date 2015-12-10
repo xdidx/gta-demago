@@ -50,6 +50,8 @@ namespace DemagoScript
                 return false;
             }
 
+            engine.SoundVolume = 0.7f;
+
             bikeRegen = false;
             playerDown = true;
             playerWalked = false;
@@ -125,11 +127,17 @@ namespace DemagoScript
 
             addGoal(new GoToPosition(firstSongPosition));
 
-            Goal firstSongGoals = new PlayInstrument(InstrumentHash.Guitar, 25, "joeAnticonformiste");
+            Goal firstSongGoals = new PlayInstrument(InstrumentHash.Guitar, 25, "joeAnticonformiste", engine);
             addGoal(firstSongGoals);
             firstSongGoals.OnGoalStart += (sender) =>
             {
                 Tools.setClockTime(11, 10000);
+
+                foreach (Ped spectator in spectatorsPeds)
+                {
+                    spectator.Task.ClearAllImmediately();
+                    spectator.Task.PlayAnimation("gestures@m@standing@casual", "gesture_displeased", 8f, 20000, false, -1f);
+                }
             };
 
             firstSongGoals.OnGoalAccomplished += (sender, elaspedTime) =>
@@ -258,7 +266,7 @@ namespace DemagoScript
             
             addGoal(new GoToPosition(thirdSongPosition));
 
-            Goal thirdSongGoals = new PlayInstrument(InstrumentHash.Guitar, 55, "joeDegueulasse");
+            Goal thirdSongGoals = new PlayInstrument(InstrumentHash.Guitar, 55, "joeDegueulasse", engine);
             addGoal(thirdSongGoals);
 
             thirdSongGoals.OnGoalStart += (sender) =>
@@ -294,8 +302,9 @@ namespace DemagoScript
 
             startTime = DemagoScript.getScriptTime();
 
-            try {
-                sound = engine.Play2D(@"C:\Program Files\Rockstar Games\Grand Theft Auto V\Music\intro.wav");
+            try
+            {
+               sound = engine.Play2D(@"C:\Program Files\Rockstar Games\Grand Theft Auto V\Music\intro.wav");
             }
             catch (Exception ex)
             {
