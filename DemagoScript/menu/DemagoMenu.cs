@@ -22,6 +22,9 @@ namespace DemagoScript
         private bool godPlayer = false;
         private bool godVehicle = false;
         private Model oldModel = null;
+        private Vehicle toChangeVehicle = null;
+
+        private UIMenuCheckboxItem godVehicleActiveItem, seeVehicleActiveItem, godPlayerActiveItem, seePlayerActiveItem;
 
         public delegate void MenuAction();
         
@@ -264,10 +267,10 @@ namespace DemagoScript
             };
         
             //Outils
-            var seePlayerActiveItem = new UIMenuCheckboxItem("Personnage invisible", seePlayer, "Si la case est cochée, votre personnage est invisible");
-            var godPlayerActiveItem = new UIMenuCheckboxItem("Personnage invincible", godPlayer, "Si la case est cochée, votre personnage est invincible");
-            var seeVehicleActiveItem = new UIMenuCheckboxItem("Vehicle invisible", seeVehicle, "Si la case est cochée, votre véhicule est invisible");
-            var godVehicleActiveItem = new UIMenuCheckboxItem("Vehicle invincible", godVehicle, "Si la case est cochée, votre véhicule est invincible");
+            seePlayerActiveItem = new UIMenuCheckboxItem("Personnage invisible", seePlayer, "Si la case est cochée, votre personnage est invisible");
+            godPlayerActiveItem = new UIMenuCheckboxItem("Personnage invincible", godPlayer, "Si la case est cochée, votre personnage est invincible");
+            seeVehicleActiveItem = new UIMenuCheckboxItem("Vehicle invisible", seeVehicle, "Si la case est cochée, votre véhicule est invisible");
+            godVehicleActiveItem = new UIMenuCheckboxItem("Vehicle invincible", godVehicle, "Si la case est cochée, votre véhicule est invincible");
             var wantedUpItem = new UIMenuItem("Ajouter une étoile");
             var wantedDownItem = new UIMenuItem("Supprimer une étoile");
             var wantedLevelItem = new UIMenuItem("Supprimer toute les étoiles");
@@ -330,49 +333,19 @@ namespace DemagoScript
                 }
                 if (item == seePlayerActiveItem)
                 {
-                    seePlayer = !checked_;
-                    player.IsVisible = seePlayer;
+                    seePlayer = checked_;
                 }
                 if (item == godPlayerActiveItem)
                 {
                     godPlayer = checked_;
-                    Game.Player.IsInvincible = godPlayer;
                 }
                 if (item == seeVehicleActiveItem)
                 {
                     seeVehicle = checked_;
-                    if (player.IsInVehicle())
-                    {
-                        player.CurrentVehicle.IsVisible = !seeVehicle;
-                    }
-                    else
-                    {
-                        if (Game.Player.LastVehicle != null)
-                        {
-                            Game.Player.LastVehicle.IsVisible = false;
-                        }
-                        seeVehicle = false;
-                        UI.Notify("Impossible , vous êtes à pied !");
-                    }
                 }
                 if (item == godVehicleActiveItem)
                 {
                     godVehicle = checked_;
-                    if (player.IsInVehicle())
-                    {
-                        player.CurrentVehicle.IsInvincible = godVehicle;
-                        player.CurrentVehicle.CanTiresBurst = godVehicle;
-                    }
-                    else
-                    {
-                        if (Game.Player.LastVehicle != null)
-                        {
-                            Game.Player.LastVehicle.IsInvincible = false;
-                            Game.Player.LastVehicle.CanTiresBurst = false;
-                        }
-                        godVehicle = false;
-                        UI.Notify("Impossible , vous êtes à pied !");
-                    }
                 }
             };
 
@@ -385,6 +358,16 @@ namespace DemagoScript
             Ped player = Game.Player.Character;
             if ((player.IsDead || Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true)) && player.Model != oldModel && oldModel != null)
             {
+                godPlayer = false;
+                godPlayerActiveItem.Checked = false;
+                seePlayer = false;
+                seePlayerActiveItem.Checked = false;
+                godVehicle = false;
+                godVehicleActiveItem.Checked = false;
+                seeVehicle = false;
+                seeVehicleActiveItem.Checked = false;
+
+
                 Ped replacementPed = Function.Call<Ped>(Hash.CLONE_PED, Game.Player.Character, Function.Call<int>(Hash.GET_ENTITY_HEADING, Function.Call<int>(Hash.PLAYER_PED_ID)), false, true);
                 replacementPed.Kill();
 
@@ -397,6 +380,35 @@ namespace DemagoScript
                     Script.Wait(100);
 
                 player.IsVisible = true;
+            }
+
+            Game.Player.IsInvincible = godPlayer;
+            player.IsVisible = !seePlayer;
+
+            if (player.IsInVehicle())
+            {
+                toChangeVehicle = player.CurrentVehicle;
+                toChangeVehicle.IsInvincible = godVehicle;
+                toChangeVehicle.CanTiresBurst = godVehicle;
+                toChangeVehicle.IsVisible = !seeVehicle;
+            }
+            else
+            {
+                if (toChangeVehicle != null)
+                {
+                    toChangeVehicle.IsInvincible = false;
+                    toChangeVehicle.CanTiresBurst = false;
+                    toChangeVehicle.IsVisible = true;
+                    toChangeVehicle = null;
+                }
+                if (godVehicle || seeVehicle)
+                {
+                    godVehicle = false;
+                    godVehicleActiveItem.Checked = false;
+                    seeVehicle = false;
+                    seeVehicleActiveItem.Checked = false;
+                    UI.Notify("Impossible , vous êtes à pied !");
+                }
             }
         }
 

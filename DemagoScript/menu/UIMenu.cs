@@ -219,7 +219,7 @@ namespace NativeUI
             SetKey(MenuControls.Down, Keys.NumPad2);
             SetKey(MenuControls.Left, Keys.NumPad4);
             SetKey(MenuControls.Right, Keys.NumPad6);
-            SetKey(MenuControls.Select, Keys.Enter);
+            SetKey(MenuControls.Select, Keys.NumPad5);
 
             SetKey(MenuControls.Back, Keys.Escape);
             SetKey(MenuControls.Back, Keys.Back);
