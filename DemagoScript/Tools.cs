@@ -268,14 +268,18 @@ namespace DemagoScript
             return (float)Math.Round(speed * 3);
         }
 
-        public static void setClockTime(int newHour, float transitionDuration = 0)
+        public static void setClockTime(int newHour, float transitionDuration = 0, bool onlyForward = false)
         {
             int currentHour = Function.Call<int>(Hash.GET_CLOCK_HOURS);
 
             newHour = newHour % 24;
 
             float hoursToAdd = (newHour > currentHour) ? (newHour - currentHour) : ((newHour + 24) - currentHour);
-            
+            if (!onlyForward && hoursToAdd > 12)
+            {
+                hoursToAdd = 24 - hoursToAdd;
+            }
+
             if (clockTransitionTimer != null)
             {
                 clockTransitionTimer.stop();

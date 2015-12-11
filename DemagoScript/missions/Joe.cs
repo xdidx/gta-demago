@@ -172,15 +172,14 @@ namespace DemagoScript
             foreach (PedHash hash in spectatorsHashesFirstSong)
             {
                 Ped ped = World.CreatePed(hash, firstSongPosition.Around(50), 0);
-
-                TaskSequence incomingSpectator = new TaskSequence();
-                incomingSpectator.AddTask.GoTo(firstSongPosition.Around(7).Around(2));
-                incomingSpectator.AddTask.TurnTo(player);
-                incomingSpectator.AddTask.LookAt(player);
-                incomingSpectator.AddTask.PlayAnimation("facials@gen_male@variations@angry", "mood_angry_1", 8f, -1, true, -1f);
-
                 if (ped != null && ped.Exists())
                 {
+                    TaskSequence incomingSpectator = new TaskSequence();
+                    incomingSpectator.AddTask.GoTo(firstSongPosition.Around(7).Around(2));
+                    incomingSpectator.AddTask.TurnTo(player);
+                    incomingSpectator.AddTask.LookAt(player);
+                    incomingSpectator.AddTask.PlayAnimation("facials@gen_male@variations@angry", "mood_angry_1", 8f, -1, true, -1f);
+
                     ped.Task.PerformSequence(incomingSpectator);
                     spectatorsPeds.Add(ped);
                 }
@@ -205,8 +204,11 @@ namespace DemagoScript
             {
                 foreach (Ped spectator in spectatorsPeds)
                 {
-                    spectator.Task.ClearAllImmediately();
-                    spectator.Task.UseMobilePhone();
+                    if (spectator != null && spectator.Exists())
+                    {
+                        spectator.Task.ClearAllImmediately();
+                        spectator.Task.UseMobilePhone();
+                    }
                 }
 
                 player.Health = 300;
@@ -275,9 +277,12 @@ namespace DemagoScript
 
                 foreach (Ped spectator in World.GetNearbyPeds(player, 12))
                 {
-                    spectator.Task.ClearAllImmediately();
-                    Function.Call(Hash.TASK_TURN_PED_TO_FACE_ENTITY, spectator.Handle, player.Handle);
-                    spectator.Task.LookAt(Game.Player.Character);
+                    if (spectator != null && spectator.Exists())
+                    {
+                        spectator.Task.ClearAllImmediately();
+                        Function.Call(Hash.TASK_TURN_PED_TO_FACE_ENTITY, spectator.Handle, player.Handle);
+                        spectator.Task.LookAt(Game.Player.Character);
+                    }
                 }
 
                 TaskSequence policeSurrounding = new TaskSequence();
@@ -290,16 +295,24 @@ namespace DemagoScript
                 player.Heading = 90;
 
                 foreach (Ped spectator in copsPeds)
-                    spectator.Task.PerformSequence(policeSurrounding);
+                {
+                    if (spectator != null && spectator.Exists())
+                    {
+                        spectator.Task.PerformSequence(policeSurrounding);
+                    }
+                }
             };
             
             secondSongGoals.OnGoalAccomplished += (sender, elaspedTime) =>
             {
                 foreach( Ped ped in copsPeds)
                 {
-                    ped.Weapons.Give(WeaponHash.Pistol, 1, true, true);
-                    Function.Call(Hash.SET_PED_AS_COP, ped, true);
-                    ped.MarkAsNoLongerNeeded();
+                    if (ped != null && ped.Exists())
+                    {
+                        ped.Weapons.Give(WeaponHash.Pistol, 1, true, true);
+                        Function.Call(Hash.SET_PED_AS_COP, ped, true);
+                        ped.MarkAsNoLongerNeeded();
+                    }
                 }
 
                 player.Health = 300;
