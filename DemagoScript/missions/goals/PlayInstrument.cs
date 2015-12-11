@@ -21,17 +21,16 @@ namespace DemagoScript
         private Prop instrumentProp;
         private InstrumentHash instrumentHash;
         private String musicToPlay;
-        private ISoundEngine engine;
-        private ISound sound = null;
+        private Music musiques;
 
         public float SecondsToPlay { get; set; }
 
-        public PlayInstrument(InstrumentHash instrumentHash, float secondsToPlay, String musicToPlay, ISoundEngine engine)
+        public PlayInstrument(InstrumentHash instrumentHash, float secondsToPlay, String musicToPlay, Music musics)
         {
             this.instrumentHash = instrumentHash;
             this.musicToPlay = musicToPlay;
-            this.engine = engine;
             SecondsToPlay = secondsToPlay;
+            musiques = musics;
         }
 
         public override bool initialize()
@@ -40,16 +39,8 @@ namespace DemagoScript
             {
                 return false;
             }
-
-            try
-            {
-                engine.RemoveAllSoundSources();
-                sound = engine.Play2D(@"C:\Program Files\Rockstar Games\Grand Theft Auto V\Music\" + musicToPlay + ".wav");
-            }
-            catch (Exception ex)
-            {
-                Tools.log(ex.Message);
-            }
+            
+            musiques.playMusic(musicToPlay);
 
             startTime = DateTime.Now;
 
@@ -60,10 +51,7 @@ namespace DemagoScript
 
         public override bool update()
         {
-            if (Game.IsPaused)
-                sound.Paused = true;
-            else
-                sound.Paused = false;
+            musiques.playMusic(musicToPlay);
 
             if (!base.update())
                 return false;

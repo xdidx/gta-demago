@@ -47,10 +47,8 @@ namespace DemagoScript
         {
             initialize();
 
-            if (!Game.IsPaused) {
-                scriptTime += (Game.LastFrameTime * 1000);
-            }
-
+            scriptTime += (Game.LastFrameTime * 1000);
+            
             Tools.update();
             Timer.updateAllTimers();
 

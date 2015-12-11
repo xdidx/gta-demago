@@ -127,9 +127,6 @@ namespace DemagoScript
 
         public virtual bool update()
         {
-            if (Game.IsPaused)
-                return false;
-
             if (!isInProgress())
             {
                 active = false;
@@ -138,7 +135,7 @@ namespace DemagoScript
 
             initialize();
             
-            if (Game.Player.Character.IsDead)
+            if (Game.Player.IsDead)
             {
                 fail("Vous êtes mort");
             }
@@ -189,7 +186,6 @@ namespace DemagoScript
             {
                 if (item == startItem)
                 {
-                    start();
                     sender.Visible = false;
                 }
             };

@@ -93,7 +93,7 @@ namespace DemagoScript
                 }
 
                 travelingHasTarget = false;
-                travelingCamera = World.CreateCamera(positions.First<Vector3>(), Vector3.Zero, 60);
+                travelingCamera = World.CreateCamera(positions.First<Vector3>(), Vector3.Zero, GameplayCamera.FieldOfView);
                 if(target != null)
                 {
                     travelingCamera.PointAt(target);

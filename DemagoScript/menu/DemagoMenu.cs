@@ -49,6 +49,7 @@ namespace DemagoScript
                         {
                             oldModel = Game.Player.Character.Model;
                         }
+                        mission.start();
                     }
                 };
             }

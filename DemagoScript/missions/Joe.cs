@@ -22,6 +22,10 @@ namespace DemagoScript
         public static Vector3 thirdSongPosition { get; } = new Vector3(686f, 578f, 131f);
         public static Vector3 joeStart { get; } = new Vector3(2353.457f, 2522.366f, 47.68944f);
 
+        private static string[] sonsEtape1 = new string[] { "flics1", "dialogue1", "dialogue2", "dialogue3" };
+        private static string[] sonsEtape2 = new string[] { "flics2", "flics3", "flics4", "dialogue4", "dialogue5", "dialogue6" };
+        private static string[] sonsEtape3 = new string[] { "dialogue8", "dialogue9" };
+
         private Vehicle bike;
         private List<Ped> spectatorsPeds = new List<Ped>();
         private List<Ped> spectatorsPeds2 = new List<Ped>();
@@ -31,16 +35,70 @@ namespace DemagoScript
         private bool playerDown;
         private bool playerWalked;
         private bool introEnded;
-        private int cameraChangeTimer;
+        private int  nbMusiqueEtape;
+        private int cameraChangeTimer, etapeMission;
         private Ped introPed;
         private float startTime = 0;
+        private Random r = new Random();
 
-        ISoundEngine engine = new ISoundEngine();
-        ISound sound;
+        private List<string[]> musiques = new List<string[]>();
+        private Music musicPlaylist = null;
+        private string currentPlay = null;
+        private string interruptPlay = null;
+        private string currentInterruptPlay = null;
 
         public override string getName()
         {
             return "Joe l'anticonformiste";
+        }
+
+        private void loadMusic()
+        {
+            musiques.Clear();
+            musiques.Add(new string[] { "balle1", "joeBalle1.wav" });
+            musiques.Add(new string[] { "balle2", "joeBalle2.wav" });
+            musiques.Add(new string[] { "balle3", "joeBalle3.wav" });
+            musiques.Add(new string[] { "balle4", "joeBalle4.wav" });
+            musiques.Add(new string[] { "balle5", "joeBalle5.wav" });
+            musiques.Add(new string[] { "balle6", "joeBalle6.wav" });
+            musiques.Add(new string[] { "balle7", "joeBalle7.wav" });
+            musiques.Add(new string[] { "balle8", "joeBalle8.wav" });
+            musiques.Add(new string[] { "balle9", "joeBalle9.wav" });
+            musiques.Add(new string[] { "balle10", "joeBalle10.wav" });
+            musiques.Add(new string[] { "insulte1", "joeInsulte1.wav" });
+            musiques.Add(new string[] { "insulte2", "joeInsulte2.wav" });
+            musiques.Add(new string[] { "insulte3", "joeInsulte3.wav" });
+            musiques.Add(new string[] { "insulte4", "joeInsulte4.wav" });
+            musiques.Add(new string[] { "insulte5", "joeInsulte5.wav" });
+            musiques.Add(new string[] { "insulte6", "joeInsulte6.wav" });
+            musiques.Add(new string[] { "insulte7", "joeInsulte7.wav" });
+            musiques.Add(new string[] { "voiture1", "joeVoiture1.wav" });
+            musiques.Add(new string[] { "voiture2", "joeVoiture2.wav" });
+            musiques.Add(new string[] { "voiture3", "joeVoiture3.wav" });
+            musiques.Add(new string[] { "voiture4", "joeVoiture4.wav" });
+            musiques.Add(new string[] { "voiture5", "joeVoiture5.wav" });
+            musiques.Add(new string[] { "voiture6", "joeVoiture6.wav" });
+            musiques.Add(new string[] { "voiture7", "joeVoiture7.wav" });
+            musiques.Add(new string[] { "voiture8", "joeVoiture8.wav" });
+            musiques.Add(new string[] { "dialogue0", "joeDialogue0.wav" });
+            musiques.Add(new string[] { "dialogue1", "joeDialogue1.wav" });
+            musiques.Add(new string[] { "dialogue2", "joeDialogue2.wav" });
+            musiques.Add(new string[] { "dialogue3", "joeDialogue3.wav" });
+            musiques.Add(new string[] { "dialogue4", "joeDialogue4.wav" });
+            musiques.Add(new string[] { "dialogue5", "joeDialogue5.wav" });
+            musiques.Add(new string[] { "dialogue6", "joeDialogue6.wav" });
+            musiques.Add(new string[] { "dialogue7", "joeDialogue7.wav" });
+            musiques.Add(new string[] { "dialogue8", "joeDialogue8.wav" });
+            musiques.Add(new string[] { "dialogue9", "joeDialogue9.wav" });
+            musiques.Add(new string[] { "dialogue10", "joeDialogue10.wav" });
+            musiques.Add(new string[] { "musique1", "joeAnticonformiste.wav" });
+            musiques.Add(new string[] { "musique2", "joeHippie.wav" });
+            musiques.Add(new string[] { "musique3", "joeDegueulasse.wav" });
+            musiques.Add(new string[] { "flics1", "joeFlics1.wav" });
+            musiques.Add(new string[] { "flics2", "joeFlics2.wav" });
+            musiques.Add(new string[] { "flics3", "joeFlics3.wav" });
+            musiques.Add(new string[] { "flics4", "joeFlics4.wav" });
+            //musiques.Add(new string[] { "flics5", "joeFlics5.wav" });
         }
 
         public override bool initialize()
@@ -49,14 +107,17 @@ namespace DemagoScript
             {
                 return false;
             }
-
-            engine.SoundVolume = 0.7f;
+            loadMusic();
+            musicPlaylist = new Music(musiques);
+            musicPlaylist.setVolume(0.4f);
 
             bikeRegen = false;
             playerDown = true;
             playerWalked = false;
             introEnded = false;
             cameraChangeTimer = 0;
+            etapeMission = 0;
+            nbMusiqueEtape = -1;
 
             Function.Call(Hash.DISPLAY_HUD, false);
             Function.Call(Hash.DISPLAY_RADAR, false);
@@ -124,10 +185,10 @@ namespace DemagoScript
                     spectatorsPeds.Add(ped);
                 }
             }
-
+            
             addGoal(new GoToPosition(firstSongPosition));
 
-            Goal firstSongGoals = new PlayInstrument(InstrumentHash.Guitar, 25, "joeAnticonformiste", engine);
+            Goal firstSongGoals = new PlayInstrument(InstrumentHash.Guitar, 25, "musique1", musicPlaylist);
             addGoal(firstSongGoals);
             firstSongGoals.OnGoalStart += (sender) =>
             {
@@ -155,6 +216,7 @@ namespace DemagoScript
                 Tools.setClockTime(12, 10000);
                 Game.Player.WantedLevel = 2;
                 World.Weather = Weather.Clouds;
+                etapeMission = 1;
             };
 
             foreach (PedHash hash in spectatorsHashesSecondSong)
@@ -195,7 +257,7 @@ namespace DemagoScript
                 pedWaiting.Task.UseMobilePhone();
                 spectatorsPeds2.Add(pedWaiting);
             }
-
+            
             GoToPositionInVehicle goToPoliceWithBikeGoal = new GoToPositionInVehicle(roadFaceToPoliceStationPosition, bike);
             addGoal(goToPoliceWithBikeGoal);
             goToPoliceWithBikeGoal.OnFirstTimeOnVehicle += (sender, vehicle) =>
@@ -203,10 +265,9 @@ namespace DemagoScript
                 Tools.setClockTime(14, 10000);
             };
 
-
             addGoal(new GoToPosition(secondSongPosition));
 
-            Goal secondSongGoals = new PlayInstrument(InstrumentHash.Guitar, 20, "joeHippie");
+            Goal secondSongGoals = new PlayInstrument(InstrumentHash.Guitar, 20, "musique2", musicPlaylist);
             addGoal(secondSongGoals);
             secondSongGoals.OnGoalStart += (sender) =>
             {
@@ -231,6 +292,7 @@ namespace DemagoScript
                 foreach (Ped spectator in copsPeds)
                     spectator.Task.PerformSequence(policeSurrounding);
             };
+            
             secondSongGoals.OnGoalAccomplished += (sender, elaspedTime) =>
             {
                 foreach( Ped ped in copsPeds)
@@ -247,6 +309,7 @@ namespace DemagoScript
                 GTA.UI.ShowSubtitle("Policier : Si tu ne sors pas, c'est nous qui allons te faire sortir !", 4000);
                 World.Weather = Weather.Raining;
                 Tools.setClockTime(17, 10000);
+                etapeMission = 2;
             };
 
             GoToPositionInVehicle goToTheaterWithBikeGoal = new GoToPositionInVehicle(thirdSongBikePosition, bike);
@@ -266,7 +329,7 @@ namespace DemagoScript
             
             addGoal(new GoToPosition(thirdSongPosition));
 
-            Goal thirdSongGoals = new PlayInstrument(InstrumentHash.Guitar, 55, "joeDegueulasse", engine);
+            Goal thirdSongGoals = new PlayInstrument(InstrumentHash.Guitar, 55, "musique3", musicPlaylist);
             addGoal(thirdSongGoals);
 
             thirdSongGoals.OnGoalStart += (sender) =>
@@ -287,6 +350,7 @@ namespace DemagoScript
                 World.Weather = Weather.ThunderStorm;
 
                 GTA.UI.ShowSubtitle("Spectateurs : C'est nul ! Casse toi ! On a encore appelé les flics ! Tu vas avoir des problèmes !", 3000);
+                etapeMission = 3;
             };
             GoToPositionInVehicle goToHome = new GoToPositionInVehicle(joeHomePosition, bike);
             addGoal(goToHome);
@@ -298,25 +362,28 @@ namespace DemagoScript
             goToHome.OnGoalAccomplished += (sender, elapsedTime) =>
             {
                 Tools.setClockTime(23, 10000);
+                musicPlay("dialogue10");
             };
-
+            
             startTime = DemagoScript.getScriptTime();
 
-            try
-            {
-               sound = engine.Play2D(@"C:\Program Files\Rockstar Games\Grand Theft Auto V\Music\intro.wav");
-            }
-            catch (Exception ex)
-            {
-                Tools.log(ex.Message);
-            }
+            musicPlay("dialogue0");
 
             return true;
+        }
+
+        private void musicPlay(string musique)
+        {
+            currentPlay = musique;
+            musicPlaylist.playMusic(currentPlay);
         }
 
         public override void clear(bool removePhysicalElements = false)
         {
             base.clear(removePhysicalElements);
+            if (musicPlaylist != null)
+                musicPlaylist.dispose();
+
             World.Weather = Weather.Clear;
 
             if (removePhysicalElements)
@@ -344,13 +411,126 @@ namespace DemagoScript
             }
         }
 
+        public void playAmbiance()
+        {
+            if (!musicPlaylist.isPlaying(currentPlay))
+            {
+                switch (etapeMission)
+                {
+                    case 1:
+                        nbMusiqueEtape++;
+                        if (nbMusiqueEtape < sonsEtape1.Length)
+                        {
+                            currentPlay = sonsEtape1[nbMusiqueEtape];
+                            musicPlay(currentPlay);
+                        }
+                        else
+                        {
+                            nbMusiqueEtape = -1;
+                            etapeMission = 0;
+                        }
+
+                        break;
+                    case 2:
+                        nbMusiqueEtape++;
+                        if (nbMusiqueEtape < sonsEtape2.Length)
+                        {
+                            currentPlay = sonsEtape2[nbMusiqueEtape];
+                            musicPlay(currentPlay);
+                        }
+                        else
+                        {
+                            nbMusiqueEtape = -1;
+                            etapeMission = 0;
+                        }
+                        break;
+                    case 3:
+                        nbMusiqueEtape++;
+                        if (nbMusiqueEtape < sonsEtape3.Length)
+                        {
+                            currentPlay = sonsEtape3[nbMusiqueEtape];
+                            musicPlay(currentPlay);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            if (interruptPlay == null)
+            {
+                if (Function.Call<Boolean>(Hash.HAS_PED_BEEN_DAMAGED_BY_WEAPON, Game.Player.Character, 0, 2))
+                {
+                    int next = r.Next(10) + 1;
+                    interruptPlay = "balle" + next;
+                }
+                else
+                {
+                    if (Function.Call<Boolean>(Hash.HAS_ENTITY_BEEN_DAMAGED_BY_ANY_VEHICLE, Game.Player.Character))
+                    {
+                        int next = r.Next(8) + 1;
+                        interruptPlay = "voiture" + next;
+                    }
+                    else
+                    {
+                        if (Function.Call<Boolean>(Hash.HAS_ENTITY_BEEN_DAMAGED_BY_ANY_OBJECT, Game.Player.Character))
+                        {
+                            int next = r.Next(7) + 1;
+                            interruptPlay = "insulte" + next;
+                        }
+                    }
+                }
+            }
+        }
+
         public override bool update()
         {
-            if (Game.IsPaused)
-                sound.Paused = true;
-            else
-                sound.Paused = false;
+            if (currentPlay != null)
+            {                
+                if (interruptPlay != null && currentInterruptPlay == null)
+                {
+                    currentInterruptPlay = interruptPlay;
+                    interruptPlay = null;
 
+                    if (!currentPlay.StartsWith("flic"))
+                        musicPlaylist.pauseMusic(currentPlay);
+
+                    musicPlaylist.playMusic(currentInterruptPlay);
+                }
+
+                if (!musicPlaylist.isPlaying(currentInterruptPlay) && currentInterruptPlay != null)
+                {
+                    musicPlaylist.playMusic(currentPlay);
+                    musicPlaylist.restart(currentInterruptPlay);
+                    musicPlaylist.pauseMusic(currentInterruptPlay);
+                    Function.Call(Hash.CLEAR_ENTITY_LAST_DAMAGE_ENTITY, Game.Player.Character);
+                    Function.Call(Hash.CLEAR_ENTITY_LAST_WEAPON_DAMAGE, Game.Player.Character);
+                    currentInterruptPlay = null;
+                }
+
+                if (!musicPlaylist.isPlaying(currentPlay))
+                    currentPlay = null;
+            }
+            else
+            {
+                if (interruptPlay != null && currentInterruptPlay == null)
+                {
+                    currentInterruptPlay = interruptPlay;
+                    interruptPlay = null;
+                    musicPlaylist.playMusic(currentInterruptPlay);
+                }
+
+                if (!musicPlaylist.isPlaying(currentInterruptPlay) && currentInterruptPlay != null)
+                {
+                    musicPlaylist.restart(currentInterruptPlay);
+                    musicPlaylist.pauseMusic(currentInterruptPlay);
+                    Function.Call(Hash.CLEAR_ENTITY_LAST_DAMAGE_ENTITY, Game.Player.Character);
+                    Function.Call(Hash.CLEAR_ENTITY_LAST_WEAPON_DAMAGE, Game.Player.Character);
+                    currentInterruptPlay = null;
+                }
+            }
+
+            playAmbiance();
+            
             if (!base.update())
                 return false;
 

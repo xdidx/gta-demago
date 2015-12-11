@@ -63,6 +63,7 @@
     <Compile Include="missions\goals\Goal.cs" />
     <Compile Include="missions\Justice.cs" />
     <Compile Include="missions\Joe.cs" />
+    <Compile Include="Music.cs" />
     <Compile Include="Timer.cs" />
     <Compile Include="Tools.cs" />
     <Compile Include="Mission.cs" />
