@@ -20,12 +20,13 @@ namespace DemagoScript
                 {
                     Tools.log("Loading " + musicLocation + keyValue[1]);
                     musicTable.Add(keyValue[0], engine.Play2D(musicLocation + keyValue[1]));
+                    musicTable[keyValue[0]].Paused = true;
                 }
                 catch (Exception ex)
                 {
                     Tools.log("Error loading " + musicLocation + keyValue[1] + " : " + ex.Message);
+                    musicTable.Remove(keyValue[0]);
                 }
-                musicTable[keyValue[0]].Paused = true;
             }
             Tools.log("---------- End music loading ----------");
         }
@@ -45,7 +46,7 @@ namespace DemagoScript
         {
             if (musicTable.ContainsKey(key))
             {
-                    musicTable[key].Paused = false;
+                musicTable[key].Paused = false;
             }
         }
 

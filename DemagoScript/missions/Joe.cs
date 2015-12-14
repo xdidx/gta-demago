@@ -23,8 +23,8 @@ namespace DemagoScript
         public static Vector3 joeStart { get; } = new Vector3(2353.457f, 2522.366f, 47.68944f);
 
         private static string[] sonsEtape1 = new string[] { "flics1", "dialogue1", "dialogue2", "dialogue3" };
-        private static string[] sonsEtape2 = new string[] { "flics2", "flics3", "flics4", "dialogue4", "dialogue5", "dialogue6" };
-        private static string[] sonsEtape3 = new string[] { "dialogue8", "dialogue9" };
+        private static string[] sonsEtape2 = new string[] { "flics2", "flics3", "dialogue4", "dialogue5", "dialogue6" };
+        private static string[] sonsEtape3 = new string[] { "flics4", "dialogue7", "dialogue8", "dialogue9" };
 
         private Vehicle bike;
         private List<Ped> spectatorsPeds = new List<Ped>();
@@ -98,7 +98,6 @@ namespace DemagoScript
             musiques.Add(new string[] { "flics2", "joeFlics2.wav" });
             musiques.Add(new string[] { "flics3", "joeFlics3.wav" });
             musiques.Add(new string[] { "flics4", "joeFlics4.wav" });
-            //musiques.Add(new string[] { "flics5", "joeFlics5.wav" });
         }
 
         public override bool initialize()
@@ -273,6 +272,12 @@ namespace DemagoScript
             addGoal(secondSongGoals);
             secondSongGoals.OnGoalStart += (sender) =>
             {
+                if (currentPlay != null)
+                {
+                    musicPlaylist.pauseMusic(currentPlay);
+                    currentPlay = null;
+                }
+
                 Tools.setClockTime(16, 10000);
 
                 foreach (Ped spectator in World.GetNearbyPeds(player, 12))
@@ -347,6 +352,12 @@ namespace DemagoScript
 
             thirdSongGoals.OnGoalStart += (sender) =>
             {
+                if (currentPlay != null)
+                {
+                    musicPlaylist.pauseMusic(currentPlay);
+                    currentPlay = null;
+                }
+
                 player.Heading = 180;
                 Game.Player.WantedLevel = 0;
                 Function.Call(Hash.TASK_TURN_PED_TO_FACE_COORD, player.Handle, 640f, 448f, 100f, -1);
