@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using IrrKlang;
-using System.Threading;
+using System.IO;
 
 namespace DemagoScript
 {
@@ -9,7 +9,7 @@ namespace DemagoScript
     {
         private ISoundEngine engine = new ISoundEngine();
         private Dictionary<string, ISound> musicTable = new Dictionary<string, ISound>();
-        private static string musicLocation = @"D:\Grand Theft Auto V\Music\";
+        private static string musicLocation = Environment.CurrentDirectory + @"\Music\";
 
         public Music(List<string[]> liste)
         {

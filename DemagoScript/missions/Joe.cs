@@ -104,8 +104,6 @@ namespace DemagoScript
         {
             base.doInitialization();
 
-            Tools.log( "Joe::doInitialization" );
-
             loadMusic();
             musicPlaylist = new Music(musiques);
             musicPlaylist.setVolume(0.4f);

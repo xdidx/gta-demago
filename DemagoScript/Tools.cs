@@ -1,15 +1,10 @@
 ﻿using GTA;
 using GTA.Math;
 using GTA.Native;
-using NativeUI;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace DemagoScript
 {
@@ -27,6 +22,8 @@ namespace DemagoScript
 
     static class Tools
     {
+        private static string pathToLogFile = Environment.CurrentDirectory + "/scripts/test.log";
+
         private static Vector3 lastPlayerPosition = Vector3.Zero;
         private static Timer clockTransitionTimer;
 
@@ -446,7 +443,7 @@ namespace DemagoScript
 
         public static void log(string message)
         {
-            using (StreamWriter logStreamWriter = new StreamWriter("C:/Program Files/Rockstar Games/Grand Theft Auto V/scripts/test.log", true))
+            using (StreamWriter logStreamWriter = new StreamWriter( Tools.pathToLogFile, true))
             {
                 try
                 {
