@@ -25,6 +25,7 @@ namespace DemagoScript
                 catch (Exception ex)
                 {
                     Tools.log("Error loading " + musicLocation + keyValue[1] + " : " + ex.Message);
+                    musicTable.Remove(keyValue[0]);
                 }
             }
             Tools.log("---------- End music loading ----------");

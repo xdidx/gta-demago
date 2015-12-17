@@ -342,12 +342,14 @@ namespace DemagoScript
                     godPlayer = checked_;
                     Game.Player.IsInvincible = godPlayer;
                 }
+
                 if (item == seeVehicleActiveItem)
                 {
                     if (player.IsInVehicle())
                     {
                         seeVehicle = checked_;
                         toChangeVehicle.IsVisible = !seeVehicle;
+                        player.IsVisible = seePlayer;
                     }
                     else
                     {
@@ -398,8 +400,13 @@ namespace DemagoScript
                 if (player.IsInVehicle() && toChangeVehicle == null)
                 {
                     toChangeVehicle = player.CurrentVehicle;
-                }
 
+                    godVehicle = toChangeVehicle.IsInvincible;
+                    godVehicleActiveItem.Checked = toChangeVehicle.IsInvincible;
+                    seeVehicle = toChangeVehicle.IsVisible;
+                    seeVehicleActiveItem.Checked = !toChangeVehicle.IsVisible;
+                }
+                
                 if (!player.IsInVehicle() && toChangeVehicle != null)
                 {
                     if (godVehicle)
