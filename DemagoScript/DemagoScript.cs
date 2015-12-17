@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Drawing;
 using System.Windows.Forms;
 using GTA;
-using GTA.Native;
-using GTA.Math;
-using NativeUI;
 using System.Reflection;
 using System.Linq;
 using System.Collections.Generic;
@@ -29,12 +25,12 @@ namespace DemagoScript
 
         private void initialize()
         {
-            if (initialized)
-            {
+            if ( initialized ) {
                 return;
             }
             
             menu = new DemagoMenu(getMissions());
+
             initialized = true;
         }
 
@@ -45,7 +41,9 @@ namespace DemagoScript
 
         void OnTick(object sender, EventArgs e)
         {
-            initialize();
+            if ( !initialized ) {
+                initialize();
+            }
 
             scriptTime += (Game.LastFrameTime * 1000);
             

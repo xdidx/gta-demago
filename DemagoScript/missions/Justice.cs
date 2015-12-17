@@ -13,13 +13,15 @@ namespace DemagoScript
     class Justice : Mission
     {
         public static Vector3 buzzardPosition { get; } = new Vector3(-206f, -1997f, 27.0f);
-
-        public override bool initialize()
+        
+        public override string getName()
         {
-            if (!base.initialize())
-            {
-                return false;
-            }
+            return "La justice";
+        }
+
+        protected override void doInitialization()
+        {
+            base.doInitialization();
 
             Game.Player.Character.Weapons.RemoveAll();
             foreach (WeaponHash hash in Enum.GetValues(typeof(WeaponHash)))
@@ -39,23 +41,6 @@ namespace DemagoScript
 
             addGoal(new SurviveInZone(PlacesPositions.GrooveStreet, startPositions, 120, 50));
             addGoal(new EnterInVehicle(buzzardPosition, VehicleHash.Buzzard));
-
-            return true;
-        }
-
-        public override string getName()
-        {
-            return "La justice";
-        }
-
-        public override bool update()
-        {
-            if (!base.update())
-            {
-                return false;
-            }
-
-            return true;
         }
     }
 }

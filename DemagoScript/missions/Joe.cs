@@ -101,12 +101,12 @@ namespace DemagoScript
             //musiques.Add(new string[] { "flics5", "joeFlics5.wav" });
         }
 
-        public override bool initialize()
+        protected override void doInitialization()
         {
-            if (!base.initialize())
-            {
-                return false;
-            }
+            base.doInitialization();
+
+            Tools.log( "Joe::doInitialization" );
+
             loadMusic();
             musicPlaylist = new Music(musiques);
             musicPlaylist.setVolume(0.4f);
@@ -128,10 +128,10 @@ namespace DemagoScript
 
             Ped player = Game.Player.Character;
             player.MaxHealth = 300;
-            Function.Call(Hash.SET_PED_MAX_HEALTH, player, 300);
-            player.Health = 300;
             player.Armor = 100;
-
+            player.Health = player.MaxHealth;
+            Function.Call(Hash.SET_PED_MAX_HEALTH, player, player.MaxHealth);
+            
             Tools.TeleportPlayer(joeStart);
             introPed = Function.Call<Ped>(Hash.CLONE_PED, Game.Player.Character, Function.Call<int>(Hash.GET_ENTITY_HEADING, Function.Call<int>(Hash.PLAYER_PED_ID)), false, true);
             Tools.TeleportPlayer(joeHomePosition);
@@ -146,12 +146,17 @@ namespace DemagoScript
             positions.Add(new Vector3(2351.906f, 2530.494f, 48f));
 
             Tools.traveling(positions, 37000, introPed, true);
-            
-            bike = World.CreateVehicle(VehicleHash.TriBike, bikePositionAtHome);
-            bike.EnginePowerMultiplier = 100;
-            bike.IsInvincible = true;
-            bike.CanTiresBurst = false;
 
+            bike = null;
+            while ( bike == null ) {
+                bike = World.CreateVehicle( VehicleHash.TriBike, bikePositionAtHome );
+            }
+            if ( bike.Exists() ) {
+                bike.EnginePowerMultiplier = 100;
+                bike.IsInvincible = true;
+                bike.CanTiresBurst = false;
+            }
+            
             List<PedHash> spectatorsHashesFirstSong = new List<PedHash>();
             spectatorsHashesFirstSong.Add(PedHash.Ashley);
             spectatorsHashesFirstSong.Add(PedHash.Car3Guy2);
@@ -381,8 +386,6 @@ namespace DemagoScript
             startTime = DemagoScript.getScriptTime();
 
             musicPlay("dialogue0");
-
-            return true;
         }
 
         private void musicPlay(string musique)
@@ -394,6 +397,7 @@ namespace DemagoScript
         public override void clear(bool removePhysicalElements = false)
         {
             base.clear(removePhysicalElements);
+
             if (musicPlaylist != null)
                 musicPlaylist.dispose();
 
@@ -495,9 +499,11 @@ namespace DemagoScript
             }
         }
 
-        public override bool update()
+        public override void update()
         {
-            if (currentPlay != null)
+            base.update();
+
+            if ( currentPlay != null)
             {                
                 if (interruptPlay != null && currentInterruptPlay == null)
                 {
@@ -543,11 +549,8 @@ namespace DemagoScript
             }
 
             playAmbiance();
-            
-            if (!base.update())
-                return false;
 
-                Ped player = Game.Player.Character;
+            Ped player = Game.Player.Character;
 
             if (playerDown || !playerWalked || !introEnded)
             {
@@ -593,8 +596,6 @@ namespace DemagoScript
             }
 
             Game.Player.Character.Weapons.RemoveAll();
-
-            return true;
         }
     }
 }

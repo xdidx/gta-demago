@@ -41,12 +41,9 @@ namespace DemagoScript
             return "Mission Speed";
         }
 
-        public override bool initialize()
+        protected override void doInitialization()
         {
-            if (!base.initialize())
-            {
-                return false;
-            }
+            base.doInitialization();
 
             if (activatedEscort)
             {
@@ -66,8 +63,6 @@ namespace DemagoScript
             {
                 addGoal(new GoToPositionInVehicle(checkpoint, bus));
             }
-
-            return true;
         }
 
         public void initializeBus(Vector3 startPosition)
@@ -164,12 +159,9 @@ namespace DemagoScript
             }
         }
         
-        public override bool update()
+        public override void update()
         {
-            if (!base.update())
-            {
-                return false;
-            }
+            base.update();
 
             if (activatedSpeedCounter)
             {
@@ -195,8 +187,6 @@ namespace DemagoScript
             {
                 escort();
             }
-
-            return true;
         }
 
         private void checkExplosion()
