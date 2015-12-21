@@ -1230,7 +1230,8 @@ namespace NativeUI
 
         private readonly Scaleform _instructionalButtonsScaleform;
         /// <summary>
-        /// Manually update the instructional buttons scaleform.
+        /// Manually 
+        /// the instructional buttons scaleform.
         /// </summary>
         public void UpdateScaleform()
         {   

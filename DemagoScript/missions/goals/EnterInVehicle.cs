@@ -21,12 +21,9 @@ namespace DemagoScript
             this.vehicleHash = vehicleHash; 
         }
 
-        public override bool initialize()
+        protected override void doInitialization()
         {
-            if (!base.initialize())
-            {
-                return false;
-            }
+            base.doInitialization();
 
             vehicle = World.CreateVehicle(vehicleHash, position);
             vehicle.AddBlip();
@@ -34,16 +31,11 @@ namespace DemagoScript
             vehicle.CurrentBlip.Color = BlipColor.Green;
             vehicle.CurrentBlip.IsFlashing = true;
             vehicle.CurrentBlip.ShowRoute = true;
-
-            return true;
         }
 
-        public override bool update()
+        public override void update()
         {
-            if (!base.update())
-            {
-                return false;
-            }
+            base.update();
 
             if (vehicle.IsDead || !vehicle.IsDriveable)
             {
@@ -76,8 +68,6 @@ namespace DemagoScript
                     setGoalText("Rejoins le véhicule pour t'enfuir");
                 }
             }
-
-            return true;
         }
 
         public override void clear(bool removePhysicalElements = false)

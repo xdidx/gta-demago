@@ -11,7 +11,7 @@ namespace DemagoScript
         protected bool initialized = false;
         private bool over = false;
         private bool failed = false;
-        private DateTime startGoalTime;
+        private DateTime startingTime;
 
         private UIResText goalUIText = null;
         private UIResText goalShadow = null;
@@ -40,17 +40,71 @@ namespace DemagoScript
         /// </summary>
         public event GoalFailEvent OnGoalFail;
 
-        public bool isOver()
+        /*public Goal()
         {
-            return over;
+            this.initialize();
+            OnGoalStart?.Invoke( this );
+        }*/
+
+        /**
+         * Commence l'objectif
+         */
+        /*public void start()
+        {
+            OnGoalStart?.Invoke( this );
+
+            this.reset();
+            this.initialize();
+            this.startingTime = DateTime.Now;
+        }*/
+
+        /**
+         * Reset l'objectif
+         */
+        public virtual void reset()
+        {
+            this.clear( true );
+            this.initialized = false;
         }
 
-        public virtual bool update()
+        // DONT TOUCH HERE
+        public void initialize()
         {
-            initialize();
-            if (over)
-            {
-                return false;
+            if ( this.initialized ) {
+                return;
+            }
+
+            this.doInitialization();
+
+            this.initialized = true;
+
+
+            OnGoalStart?.Invoke( this );
+        }
+
+        // TOUCH HERE INSTEAD
+        protected virtual void doInitialization()
+        {
+            //goalUIText = new UIResText("", new Point(330, Game.ScreenResolution.Height - 100), 0.7f, Color.WhiteSmoke, GTA.Font.ChaletComprimeCologne, UIResText.Alignment.Left);
+            //goalShadow = new UIResText("", new Point(332, Game.ScreenResolution.Height - 98), 0.7f, Color.Black, GTA.Font.ChaletComprimeCologne, UIResText.Alignment.Left);
+            goalUIText = new UIResText( "", new Point( Game.ScreenResolution.Width / 2, Game.ScreenResolution.Height / 5 ), 0.7f, Color.WhiteSmoke, GTA.Font.ChaletComprimeCologne, UIResText.Alignment.Centered );
+            goalShadow = new UIResText( "", new Point( Game.ScreenResolution.Width / 2 + 2, Game.ScreenResolution.Height / 5 + 2 ), 0.7f, Color.Black, GTA.Font.ChaletComprimeCologne, UIResText.Alignment.Centered );
+
+            adviceUIText = new UIResText( "", new Point( Game.ScreenResolution.Width / 2, Game.ScreenResolution.Height / 5 + 40 ), 0.6f, Color.Green, GTA.Font.ChaletComprimeCologne, UIResText.Alignment.Centered );
+            adviceShadow = new UIResText( "", new Point( Game.ScreenResolution.Width / 2 + 2, Game.ScreenResolution.Height / 5 + 42 ), 0.6f, Color.Black, GTA.Font.ChaletComprimeCologne, UIResText.Alignment.Centered );
+
+            startingTime = DateTime.Now;
+            
+            over = false;
+            failed = false;
+        }
+
+        public virtual void update()
+        {
+            //initialize();
+            if ( this.isOver() ) {
+                this.reset();
+                return;
             }
 
             if (!Function.Call<bool>(Hash.IS_HUD_HIDDEN))
@@ -69,50 +123,23 @@ namespace DemagoScript
                     adviceUIText.Draw();
                 }
             }
-
-            return true;
-        }
-
-        public virtual bool initialize()
-        {
-            if (initialized)
-            {
-                return false;
-            }
-
-            //goalUIText = new UIResText("", new Point(330, Game.ScreenResolution.Height - 100), 0.7f, Color.WhiteSmoke, GTA.Font.ChaletComprimeCologne, UIResText.Alignment.Left);
-            //goalShadow = new UIResText("", new Point(332, Game.ScreenResolution.Height - 98), 0.7f, Color.Black, GTA.Font.ChaletComprimeCologne, UIResText.Alignment.Left);
-            goalUIText = new UIResText("", new Point(Game.ScreenResolution.Width / 2, Game.ScreenResolution.Height / 5), 0.7f, Color.WhiteSmoke, GTA.Font.ChaletComprimeCologne, UIResText.Alignment.Centered);
-            goalShadow = new UIResText("", new Point(Game.ScreenResolution.Width / 2 + 2, Game.ScreenResolution.Height / 5 + 2), 0.7f, Color.Black, GTA.Font.ChaletComprimeCologne, UIResText.Alignment.Centered);
-
-            adviceUIText = new UIResText("", new Point(Game.ScreenResolution.Width / 2, Game.ScreenResolution.Height / 5 + 40), 0.6f, Color.Green, GTA.Font.ChaletComprimeCologne, UIResText.Alignment.Centered);
-            adviceShadow = new UIResText("", new Point(Game.ScreenResolution.Width / 2 + 2, Game.ScreenResolution.Height / 5 + 42), 0.6f, Color.Black, GTA.Font.ChaletComprimeCologne, UIResText.Alignment.Centered);
-
-            startGoalTime = DateTime.Now;
-
-            initialized = true;
-            over = false;
-            failed = false;
-
-            OnGoalStart?.Invoke(this);
-            return true;
-        }
-
-        public virtual void reset()
-        {
-            initialized = false;
         }
 
         public abstract void clear(bool removePhysicalElements = false);
+        
+        public bool isOver()
+        {
+            return this.over;
+        }
 
         public bool isFailed()
         {
-            return failed;
+            return this.failed;
         }
 
         public bool isAccomplished()
         {
-            return over && !failed;
+            return this.over && !this.failed;
         }
 
         public void accomplish()
@@ -122,7 +149,7 @@ namespace DemagoScript
 
             clear(false);
 
-            TimeSpan elapsedTime = DateTime.Now - startGoalTime;
+            TimeSpan elapsedTime = DateTime.Now - startingTime;
             OnGoalAccomplished?.Invoke(this, elapsedTime);
         }
 

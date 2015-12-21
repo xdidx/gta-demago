@@ -4,13 +4,14 @@ using GTA;
 using System.Reflection;
 using System.Linq;
 using System.Collections.Generic;
+using DemagoScript.GUI;
 
 namespace DemagoScript
 {
     public class DemagoScript : Script
     {
         private List<Mission> missions = null;
-        private DemagoMenu menu;
+
         private static float scriptTime = 0;
         private bool initialized = false;
         private bool isSitting = false;
@@ -18,6 +19,8 @@ namespace DemagoScript
         public DemagoScript()
         {
             Tools.log("-------------Initialisation du mod GTA Démago------------");
+
+            createMissions();
 
             Tick += OnTick;
             KeyDown += OnKeyDown;
@@ -29,7 +32,7 @@ namespace DemagoScript
                 return;
             }
             
-            menu = new DemagoMenu(getMissions());
+            GUIManager.Instance.initialize( missions );
 
             initialized = true;
         }
@@ -50,9 +53,8 @@ namespace DemagoScript
             Tools.update();
             Timer.updateAllTimers();
 
-            menu.process();
+            GUIManager.Instance.update();
 
-            var missions = getMissions();
             foreach (Mission mission in missions)
             {
                 if (mission.isInProgress())
@@ -66,7 +68,7 @@ namespace DemagoScript
         {
             if (e.KeyCode == Keys.F5)
             {
-                menu.toggleDisplay();
+                GUIManager.Instance.toggleMenuDisplay();
             }
             if (e.KeyCode == Keys.Decimal)
             {
@@ -92,46 +94,38 @@ namespace DemagoScript
             }
         }
 
-        private List<Mission> getMissions()
+        private void createMissions()
         {
-            if (missions == null)
-            {
-                missions = new List<Mission>();
+            missions = new List<Mission>();
 
-                Type[] missionsClassesList = Assembly.GetExecutingAssembly().GetTypes().Where(type => type.IsSubclassOf(typeof(Mission))).ToArray();
-                foreach (Type missionClass in missionsClassesList)
+            Type[] missionsClassesList = Assembly.GetExecutingAssembly().GetTypes().Where( type => type.IsSubclassOf( typeof( Mission ) ) ).ToArray();
+            foreach ( Type missionClass in missionsClassesList ) {
+                Mission newMission = (Mission)Activator.CreateInstance( missionClass );
+
+                newMission.OnMissionStart += ( sender ) =>
                 {
-                    Mission newMission = (Mission)Activator.CreateInstance(missionClass);
+                    foreach ( Mission mission in missions ) {
+                        mission.stop( "Une autre mission a été démarrée" );
+                    }
+                    GTA.UI.Notify( sender.getName() );
+                };
 
-                    newMission.OnMissionStart += (sender) =>
-                    {
-                        foreach (Mission mission in missions)
-                        {
-                            mission.stop("Une autre mission a été démarrée");
-                        }
-                        GTA.UI.Notify(sender.getName());
-                    };
+                newMission.OnMissionAccomplished += ( sender, time ) =>
+                {
+                    var successMessage = sender.getName() + " : Mission accomplie";
+                    if ( Tools.getTextFromTimespan( time ) != "" ) {
+                        successMessage += " en " + Tools.getTextFromTimespan( time );
+                    }
+                    GTA.UI.Notify( successMessage );
+                };
 
-                    newMission.OnMissionAccomplished += (sender, time) =>
-                    {
-                        var successMessage = sender.getName() + " : Mission accomplie";
-                        if (Tools.getTextFromTimespan(time) != "")
-                        {
-                            successMessage += " en " + Tools.getTextFromTimespan(time);
-                        }
-                        GTA.UI.Notify(successMessage);
-                    };
+                newMission.OnMissionFail += ( sender, reason ) =>
+                {
+                    GTA.UI.Notify( "La mission a échouée : " + reason );
+                };
 
-                    newMission.OnMissionFail += (sender, reason) =>
-                    {
-                        GTA.UI.Notify("La mission a échouée : " + reason);
-                    };
-
-                    missions.Add(newMission);
-                }
+                missions.Add( newMission );
             }
-
-            return missions;
         }
         
     }

@@ -20,12 +20,9 @@ namespace DemagoScript
             destination = position;
         }
 
-        public override bool initialize()
+        protected override void doInitialization()
         {
-            if (!base.initialize())
-            {
-                return false;
-            }
+            base.doInitialization();
            
             if (destinationBlip != null)
             {
@@ -35,8 +32,6 @@ namespace DemagoScript
 
             finishCheckpoint = Function.Call<int>(Hash.CREATE_CHECKPOINT, 24, destination.X, destination.Y, Tools.GetGroundedPosition(destination).Z, destination.X, destination.Y, Tools.GetGroundedPosition(destination).Z, 2f, 254, 207, 12, 100, 40);
             Function.Call(Hash._SET_CHECKPOINT_ICON_RGBA, finishCheckpoint, 0, 0, 256, 60);
-
-            return true;
         }
 
         public void createDestinationBlip()
@@ -49,12 +44,9 @@ namespace DemagoScript
             destinationBlip.Position = destination;
         }
 
-        public override bool update()
+        public override void update()
         {
-            if (!base.update())
-            {
-                return false;
-            }
+            base.update();
 
             Ped player = Game.Player.Character;
 
@@ -62,7 +54,7 @@ namespace DemagoScript
             {
                 destinationBlip.Remove();
                 accomplish();
-                return false;
+                return;
             }
             else
             {
@@ -72,8 +64,6 @@ namespace DemagoScript
                 }
                 setGoalText("Rejoins l'endroit indiqué par le GPS");
             }
-
-            return true;
         }
 
         public override void clear(bool removePhysicalElements = false)

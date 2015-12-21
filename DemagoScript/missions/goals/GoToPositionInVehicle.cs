@@ -43,10 +43,9 @@ namespace DemagoScript
             teleportPlayerInVehicle = false;
         }
 
-        public override bool initialize()
+        protected override void doInitialization()
         {
-            if (!base.initialize())
-                return false;
+            base.doInitialization();
 
             alreadyMountedOnBike = false;
 
@@ -60,7 +59,7 @@ namespace DemagoScript
                     {
                         fail("Impossible d'initaliser la voiture");
                         reset();
-                        return false;
+                        return;
                     }
                 }
                 
@@ -74,8 +73,6 @@ namespace DemagoScript
             createDestinationBlip();
 
             destination = Tools.GetGroundedPosition(destination);
-
-            return true;
         }
 
         public bool vehicleHasBeenGivenInConstruct()
@@ -104,22 +101,21 @@ namespace DemagoScript
             Function.Call(Hash._SET_CHECKPOINT_ICON_RGBA, destinationCheckpoint, 0, 0, 256, 60);
         }
 
-        public override bool update()
+        public override void update()
         {
-            if (!base.update())
-                return false;
+            base.update();
 
             Ped player = Game.Player.Character;
             if (!vehicle.IsDriveable || vehicle.IsOnFire)
             {
                 fail("Le véhicule a été détruit");
-                return false;
+                return;
             }
 
             if (isArrived())
             {
                 accomplish();
-                return false;
+                return;
             }
 
             if (player.IsInVehicle() && player.CurrentVehicle == vehicle)
@@ -162,7 +158,6 @@ namespace DemagoScript
 
                 setGoalText("Rejoins ton véhicule pour continuer la mission");
             }
-            return true;
         }
 
         public bool isArrived()

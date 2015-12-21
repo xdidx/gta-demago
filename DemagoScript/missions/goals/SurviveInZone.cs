@@ -35,12 +35,9 @@ namespace DemagoScript
             ennemyRelationshipGroup = World.AddRelationshipGroup("SurviveInZoneGoalEnnemies");
         }
 
-        public override bool initialize()
+        protected override void doInitialization()
         {
-            if (!base.initialize())
-            {
-                return false;
-            }
+            base.doInitialization();
 
             int ballasGroup = World.AddRelationshipGroup("Ballas");
 
@@ -49,16 +46,11 @@ namespace DemagoScript
             startPositionBlip.Color = BlipColor.Red;
             startPositionBlip.IsFlashing = true;
             startPositionBlip.ShowRoute = true;
-
-            return true;
         }
 
-        public override bool update()
+        public override void update()
         {
-            if (!base.update())
-            {
-                return false;
-            }
+            base.update();
 
             currentDuration = (int)(DateTime.Now - startTime).TotalSeconds;
             
@@ -162,7 +154,7 @@ namespace DemagoScript
                     else
                     {
                         accomplish();
-                        return false;
+                        return;
                     }
 
                     if (Game.Player.Character.Position.DistanceTo(startPosition) > (maximumDistance * 0.9))
@@ -178,7 +170,7 @@ namespace DemagoScript
                 else
                 {
                     fail("Vous êtes sorti de la zone");
-                    return false;
+                    return;
                 }
             }
             else
@@ -194,8 +186,6 @@ namespace DemagoScript
                 }
             }
             #endregion
-
-            return true;
         }
 
         public override void clear(bool removePhysicalElements = false)

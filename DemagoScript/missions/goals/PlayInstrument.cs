@@ -33,40 +33,31 @@ namespace DemagoScript
             musiques = musics;
         }
 
-        public override bool initialize()
+        protected override void doInitialization()
         {
-            if (!base.initialize())
-            {
-                return false;
-            }
+            base.doInitialization();
             
             musiques.playMusic(musicToPlay);
 
             startTime = DateTime.Now;
 
             startAnimation();
-
-            return true;
         }
 
-        public override bool update()
+        public override void update()
         {
             musiques.playMusic(musicToPlay);
 
-            if (!base.update())
-                return false;
-
+            base.update();
+            
             SecondsToPlay -= Game.LastFrameTime;
-            if (SecondsToPlay <= 0)
-            {
+            if ( SecondsToPlay <= 0 ) {
                 Game.Player.Character.Task.ClearAllImmediately();
                 accomplish();
-                return false;
+                return;
+            } else {
+                setGoalText( "Attend que les spéctateurs aient assez apprécié la musique de Joe (Encore " + Tools.getTextFromSeconds( SecondsToPlay ) + ")" );
             }
-            else if (SecondsToPlay >= 0)
-                    setGoalText("Attend que les spéctateurs aient assez apprécié la musique de Joe (Encore " + Tools.getTextFromSeconds(SecondsToPlay) + ")");
-
-            return true;
         }
 
         private void startAnimation()

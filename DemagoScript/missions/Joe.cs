@@ -186,8 +186,9 @@ namespace DemagoScript
                     spectatorsPeds.Add(ped);
                 }
             }
-            
-            addGoal(new GoToPosition(firstSongPosition));
+
+            Goal gotoFirstSongPosition = new GoToPosition( firstSongPosition );
+            addGoal(gotoFirstSongPosition);
 
             Goal firstSongGoals = new PlayInstrument(InstrumentHash.Guitar, 25, "musique1", musicPlaylist);
             addGoal(firstSongGoals);

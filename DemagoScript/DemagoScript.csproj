@@ -53,8 +53,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DemagoScript.cs" />
-    <Compile Include="menu\DemagoMenu.cs" />
-    <Compile Include="menu\UIMenuEditableNumericItem.cs" />
+    <Compile Include="GUI\menu\DemagoMenu.cs" />
+    <Compile Include="GUI\GUIManager.cs" />
+    <Compile Include="GUI\IUIElement.cs" />
+    <Compile Include="GUI\popup\PopupManager.cs" />
+    <Compile Include="GUI\elements\UITextElement.cs" />
+    <Compile Include="GUI\popup\Popup.cs" />
+    <Compile Include="GUI\menu\UIMenuEditableNumericItem.cs" />
     <Compile Include="missions\goals\PlayInstrument.cs" />
     <Compile Include="missions\goals\GoToPosition.cs" />
     <Compile Include="missions\goals\GoToPositionInVehicle.cs" />
@@ -67,16 +72,16 @@
     <Compile Include="Timer.cs" />
     <Compile Include="Tools.cs" />
     <Compile Include="Mission.cs" />
-    <Compile Include="menu\InstructionalButton.cs" />
-    <Compile Include="menu\MenuPool.cs" />
-    <Compile Include="menu\Sprite.cs" />
-    <Compile Include="menu\StringMeasurer.cs" />
-    <Compile Include="menu\UIMenu.cs" />
-    <Compile Include="menu\UIMenuCheckboxItem.cs" />
-    <Compile Include="menu\UIMenuItem.cs" />
-    <Compile Include="menu\UIMenuListItem.cs" />
-    <Compile Include="menu\UIResRectangle.cs" />
-    <Compile Include="menu\UIResText.cs" />
+    <Compile Include="GUI\menu\InstructionalButton.cs" />
+    <Compile Include="GUI\menu\MenuPool.cs" />
+    <Compile Include="GUI\menu\Sprite.cs" />
+    <Compile Include="GUI\menu\StringMeasurer.cs" />
+    <Compile Include="GUI\menu\UIMenu.cs" />
+    <Compile Include="GUI\menu\UIMenuCheckboxItem.cs" />
+    <Compile Include="GUI\menu\UIMenuItem.cs" />
+    <Compile Include="GUI\menu\UIMenuListItem.cs" />
+    <Compile Include="GUI\menu\UIResRectangle.cs" />
+    <Compile Include="GUI\menu\UIResText.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="missions\Speed.cs" />
   </ItemGroup>

@@ -15,10 +15,11 @@ namespace DemagoScript
         private List<Goal> goals = new List<Goal>();
 
         private bool active = false;
+
         private bool over = false;
         private bool initialized = false;
         private bool failed = false;
-        private DateTime startMissionTime;
+        private DateTime startingTime;
 
         /// <summary>
         /// Called when user start the mission.
@@ -43,12 +44,11 @@ namespace DemagoScript
             OnMissionStart?.Invoke( this );
 
             this.reset();
-            this.initialized = false; // TODO: inclure dans le reset ?
-
             this.initialize();
-
+            this.startingTime = DateTime.Now;
+            
+            // TODO: Mettre dans une fonction type doStarting()
             this.active = true;
-            this.startMissionTime = DateTime.Now;
             Game.Player.WantedLevel = 0;
         }
 
@@ -58,8 +58,9 @@ namespace DemagoScript
         public void reset()
         {
             foreach ( Goal goal in this.goals ) {
-                goal.clear( false );
+                goal.reset();
             }
+            this.initialized = false;
         }
 
         // DO NOT TOUCH
@@ -99,7 +100,7 @@ namespace DemagoScript
 
         public virtual void accomplish()
         {
-            TimeSpan elapsedTime = DateTime.Now - startMissionTime;
+            TimeSpan elapsedTime = DateTime.Now - startingTime;
             OnMissionAccomplished?.Invoke(this, elapsedTime);
 
             this.active = false;
@@ -135,27 +136,23 @@ namespace DemagoScript
             {
                 fail(reason);
             };
-            goals.Add(goal);
+            goals.Add( goal );
         }
 
         public virtual void update()
         {
-            if ( !isInProgress() ) {
-                //this.active = false;
-                // this.clear( true ); ?
-                // this.initialized = false; ?
+            if ( !this.isInProgress() ) {
                 this.stop();
                 return;
             }
-
-            // initialize(); Déjà initialized lors du start();
 
             this.isPlayerDeadOrArrested();
 
             bool waitingGoals = false;
 
             foreach ( Goal goal in goals ) {
-                if ( !goal.isOver() && goal.update() || goal.isFailed() ) {
+                goal.update();
+                if ( !goal.isOver() || goal.isFailed() ) {
                     waitingGoals = true;
                     break;
                 }

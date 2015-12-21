@@ -1,17 +1,19 @@
-﻿using GTA;
+﻿using DemagoScript.GUI;
+using DemagoScript.GUI.elements;
+using GTA;
 using GTA.Math;
 using GTA.Native;
 using NativeUI;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DemagoScript
 {
     class DemagoMenu
     {
+        private Popup testPopup = null;
+
+
         private MenuPool menuPool;
         private UIMenu mainMenu;
         private Vector3 teleportationPosition = Joe.joeHomePosition;
@@ -25,11 +27,15 @@ namespace DemagoScript
         private Vehicle toChangeVehicle = null;
 
         private UIMenuCheckboxItem godVehicleActiveItem, seeVehicleActiveItem, godPlayerActiveItem, seePlayerActiveItem;
-
+        
         public delegate void MenuAction();
         
-        public DemagoMenu(List<Mission> missions)
+        public DemagoMenu(List<Mission> missions = null)
         {
+            if ( missions == null ) {
+                missions = new List<Mission>();
+            }
+
             menuPool = new MenuPool();
             mainMenu = new UIMenu("GTA Demago", "~b~Configuration du mod");
             menuPool.Add(mainMenu);
@@ -279,6 +285,11 @@ namespace DemagoScript
             var showPositionItem = new UIMenuItem("Afficher la position");
             var showRotationItem = new UIMenuItem("Afficher la rotation");
 
+            var addMessageItem = new UIMenuItem( "addPopup" );
+            var showMessageItem = new UIMenuItem( "showPopup" );
+            var hideMessageItem = new UIMenuItem( "hidePopup" );
+
+
             var toolsMenu = menuPool.AddSubMenu(mainMenu, "Outils");
             toolsMenu.AddItem(wantedLevelItem);
             toolsMenu.AddItem(wantedDownItem);
@@ -291,8 +302,25 @@ namespace DemagoScript
             toolsMenu.AddItem(seeVehicleActiveItem);
             toolsMenu.AddItem(godVehicleActiveItem);
 
+            /*toolsMenu.AddItem( addMessageItem );
+            toolsMenu.AddItem( showMessageItem );
+            toolsMenu.AddItem( hideMessageItem );*/
+
             toolsMenu.OnItemSelect += (sender, item, checked_) =>
             {
+                if (item == addMessageItem ) {
+                    this.testPopup = new Popup();
+                    UITextElement text = new UITextElement( "Hello world", 0.14, 0.49, 2.9, true, 1, new Vector3( 255, 0, 0 ) );
+                    this.testPopup.add( text );
+                    GUIManager.Instance.popupManager.add( this.testPopup );
+                }
+                if (item == showMessageItem) {
+                    this.testPopup.show();
+                }
+                if ( item == hideMessageItem ) {
+                    this.testPopup.hide();
+                }
+
                 if (item == showPositionItem)
                 {
                     GTA.UI.Notify("player X : " + Game.Player.Character.Position.X + " / Y : " + Game.Player.Character.Position.Y + " / Z : " + Game.Player.Character.Position.Z);

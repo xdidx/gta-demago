@@ -44,15 +44,26 @@ namespace DemagoScript
 
         public void playMusic( string key )
         {
+            /*if ( this.isPlaying( key ) ) {
+                Tools.log( "Music::playMusic - key: " + key + " already playing" );
+                return;
+            }*/
+
             if ( keyExistInMusicTable(key) ) {
-                Tools.log( "key: " + key + " musictable: " + musicTable );
+                Tools.log( "Music::playMusic - key: " + key + " musictable: " + musicTable );
                 musicTable[key].Paused = false;
             }
         }
 
         public void pauseMusic( string key )
         {
+            /*if ( !this.isPlaying( key ) ) {
+                Tools.log( "Music::pauseMusic - key: " + key + " is not playing" );
+                return;
+            }*/
+
             if ( keyExistInMusicTable(key) ) {
+                Tools.log( "Music::pauseMusic - key: " + key + " paused" );
                 musicTable[key].Paused = true;
             }
         }
