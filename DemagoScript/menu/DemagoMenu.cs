@@ -62,6 +62,9 @@ namespace DemagoScript
                 {
                     Function.Call(Hash.SET_NEW_WAYPOINT, -197f, 4213f);
                     Game.Player.Character.Position = PlacesPositions.TaxiMission;
+                   /* Vehicle taxi = World.CreateVehicle(VehicleHash.Taxi, Tools.GetSafeRoadPos(PlacesPositions.TaxiMission));
+                    Ped taxiDriver = World.CreatePed(PedHash.FreemodeFemale01, PlacesPositions.TaxiMission);
+                    taxiDriver.SetIntoVehicle(taxi, VehicleSeat.Driver);*/
                 }
             };
 
@@ -239,7 +242,6 @@ namespace DemagoScript
                 }
                 if (item == safeTeleportItem)
                 {
-                    /*Tools.GetGroundedPosition() HAVE TO BE UPDATE*/
                     Tools.TeleportPlayer(Tools.GetGroundedPosition(teleportationPosition));
                 }
                 if (item == teleportItem)
@@ -275,6 +277,8 @@ namespace DemagoScript
             var wantedUpItem = new UIMenuItem("Ajouter une étoile");
             var wantedDownItem = new UIMenuItem("Supprimer une étoile");
             var wantedLevelItem = new UIMenuItem("Supprimer toute les étoiles");
+            var addMoney = new UIMenuItem("Ajouter 50.000$");
+            var removeMoney = new UIMenuItem("Enlever 50.000$");
             var gravityActiveItem = new UIMenuCheckboxItem("Zéro gravité", zeroGravity, "Si la case est cochée, il n'y aura plus de gravité sur la map entière");
             var showPositionItem = new UIMenuItem("Afficher la position");
             var showRotationItem = new UIMenuItem("Afficher la rotation");
@@ -285,6 +289,8 @@ namespace DemagoScript
             toolsMenu.AddItem(wantedUpItem);
             toolsMenu.AddItem(showPositionItem);
             toolsMenu.AddItem(showRotationItem);
+            toolsMenu.AddItem(addMoney);
+            toolsMenu.AddItem(removeMoney);
             toolsMenu.AddItem(gravityActiveItem);
             toolsMenu.AddItem(seePlayerActiveItem);
             toolsMenu.AddItem(godPlayerActiveItem);
@@ -314,6 +320,15 @@ namespace DemagoScript
                 {
                     if (Game.Player.WantedLevel < 5)
                         Game.Player.WantedLevel++;
+                }
+                if (item == addMoney)
+                {
+                    Game.Player.Money += 50000;
+                }
+                if (item == removeMoney)
+                {
+                    if (Game.Player.Money > 50000)
+                        Game.Player.Money -= 50000;
                 }
             };
 

@@ -34,7 +34,7 @@ namespace DemagoScript
 
         public static Vector3 startPosition { get; } = new Vector3(50f, -1200f, 40f);
         public static Vector3 aeroportPosition { get; } = new Vector3(-1685, -2930, 13f);
-        public static List<Vector3> checkPoints { get; } = new List<Vector3> { new Vector3(-452f, -1403f, 33f), aeroportPosition };
+        public static List<Vector3> checkPoints { get; } = new List<Vector3> { new Vector3(-452f, -1403f, 33f), new Vector3(-946f, -2755, 13f), aeroportPosition };
 
         public override string getName()
         {

@@ -108,7 +108,7 @@ namespace DemagoScript
             }
             loadMusic();
             musicPlaylist = new Music(musiques);
-            musicPlaylist.setVolume(0.4f);
+            musicPlaylist.setVolume(0.9f);
 
             bikeRegen = false;
             playerDown = true;
@@ -131,7 +131,7 @@ namespace DemagoScript
             player.Health = 300;
             player.Armor = 100;
 
-            Tools.TeleportPlayer(joeStart);
+            Tools.TeleportPlayer(joeStart, false);
             introPed = Function.Call<Ped>(Hash.CLONE_PED, Game.Player.Character, Function.Call<int>(Hash.GET_ENTITY_HEADING, Function.Call<int>(Hash.PLAYER_PED_ID)), false, true);
             Tools.TeleportPlayer(joeHomePosition);
             player.Heading += 35;
@@ -143,7 +143,6 @@ namespace DemagoScript
             List<Vector3> positions = new List<Vector3>();
             positions.Add(new Vector3(2361.558f, 2527.512f, 46.66772f));
             positions.Add(new Vector3(2351.906f, 2530.494f, 48f));
-
             Tools.traveling(positions, 37000, introPed, true);
             
             bike = World.CreateVehicle(VehicleHash.TriBike, bikePositionAtHome);
@@ -185,12 +184,25 @@ namespace DemagoScript
             }
             
             addGoal(new GoToPosition(firstSongPosition));
-
-            Goal firstSongGoals = new PlayInstrument(InstrumentHash.Guitar, 25, "musique1", musicPlaylist);
+            
+            Goal firstSongGoals = new PlayInstrument(InstrumentHash.Guitar, musicPlaylist.length("musique1"), "musique1", musicPlaylist);
             addGoal(firstSongGoals);
             firstSongGoals.OnGoalStart += (sender) =>
             {
-                Tools.setClockTime(11, 10000);
+                Tools.setClockTime(11, musicPlaylist.length("musique1"));
+
+                List<Vector3> travelingPositions = new List<Vector3>();
+                Vector3 cameraPosition = firstSongPosition;
+                cameraPosition.X += 8;
+                cameraPosition.Z = 1;
+                positions.Add(cameraPosition);
+                cameraPosition.X -= 8;
+                cameraPosition.Y += 8;
+                positions.Add(cameraPosition);
+                cameraPosition.X -= 8;
+                cameraPosition.Y -= 8;
+                positions.Add(cameraPosition);
+                Tools.traveling(positions, musicPlaylist.length("musique1"), Game.Player.Character, true);
 
                 foreach (Ped spectator in spectatorsPeds)
                 {
@@ -207,6 +219,7 @@ namespace DemagoScript
                     {
                         spectator.Task.ClearAllImmediately();
                         spectator.Task.UseMobilePhone();
+                        spectator.Task.FightAgainst(Game.Player.Character);
                     }
                 }
 
@@ -217,6 +230,7 @@ namespace DemagoScript
                 Tools.setClockTime(12, 10000);
                 Game.Player.WantedLevel = 2;
                 World.Weather = Weather.Clouds;
+
                 etapeMission = 1;
             };
 
@@ -268,7 +282,7 @@ namespace DemagoScript
 
             addGoal(new GoToPosition(secondSongPosition));
 
-            Goal secondSongGoals = new PlayInstrument(InstrumentHash.Guitar, 20, "musique2", musicPlaylist);
+            Goal secondSongGoals = new PlayInstrument(InstrumentHash.Guitar, musicPlaylist.length("musique2"), "musique2", musicPlaylist);
             addGoal(secondSongGoals);
             secondSongGoals.OnGoalStart += (sender) =>
             {
@@ -278,7 +292,7 @@ namespace DemagoScript
                     currentPlay = null;
                 }
 
-                Tools.setClockTime(16, 10000);
+                Tools.setClockTime(16, musicPlaylist.length("musique2"));
 
                 foreach (Ped spectator in World.GetNearbyPeds(player, 12))
                 {
@@ -306,6 +320,19 @@ namespace DemagoScript
                         spectator.Task.PerformSequence(policeSurrounding);
                     }
                 }
+
+                List<Vector3> travelingPositions = new List<Vector3>();
+                Vector3 cameraPosition = secondSongPosition;
+                cameraPosition.X += 8;
+                cameraPosition.Z = 1;
+                positions.Add(cameraPosition);
+                cameraPosition.X -= 8;
+                cameraPosition.Y += 8;
+                positions.Add(cameraPosition);
+                cameraPosition.X -= 8;
+                cameraPosition.Y -= 8;
+                positions.Add(cameraPosition);
+                Tools.traveling(positions, musicPlaylist.length("musique2"), Game.Player.Character, true);
             };
             
             secondSongGoals.OnGoalAccomplished += (sender, elaspedTime) =>
@@ -346,8 +373,8 @@ namespace DemagoScript
             };
             
             addGoal(new GoToPosition(thirdSongPosition));
-
-            Goal thirdSongGoals = new PlayInstrument(InstrumentHash.Guitar, 55, "musique3", musicPlaylist);
+            
+            Goal thirdSongGoals = new PlayInstrument(InstrumentHash.Guitar, musicPlaylist.length("musique3"), "musique3", musicPlaylist);
             addGoal(thirdSongGoals);
 
             thirdSongGoals.OnGoalStart += (sender) =>
@@ -361,7 +388,20 @@ namespace DemagoScript
                 player.Heading = 180;
                 Game.Player.WantedLevel = 0;
                 Function.Call(Hash.TASK_TURN_PED_TO_FACE_COORD, player.Handle, 640f, 448f, 100f, -1);
-                Tools.setClockTime(20, 10000);
+                Tools.setClockTime(20, musicPlaylist.length("musique3"));
+
+                List<Vector3> travelingPositions = new List<Vector3>();
+                Vector3 cameraPosition = thirdSongPosition;
+                cameraPosition.X += 8;
+                cameraPosition.Z = 1;
+                positions.Add(cameraPosition);
+                cameraPosition.X -= 8;
+                cameraPosition.Y += 8;
+                positions.Add(cameraPosition);
+                cameraPosition.X -= 8;
+                cameraPosition.Y -= 8;
+                positions.Add(cameraPosition);
+                Tools.traveling(positions, musicPlaylist.length("musique3"), Game.Player.Character, true);
             };
 
             thirdSongGoals.OnGoalAccomplished += (sender, elaspedTime) =>
@@ -372,6 +412,16 @@ namespace DemagoScript
                 Game.Player.WantedLevel = 4;
                 Tools.setClockTime(21, 10000);
                 World.Weather = Weather.ThunderStorm;
+
+                Ped[] nearbyPeds = World.GetNearbyPeds(Game.Player.Character.Position, 30);
+                foreach (Ped ped in nearbyPeds)
+                {
+                    if (ped != null && ped.Exists())
+                    {
+                        ped.Task.ClearAllImmediately();
+                        ped.Task.FightAgainst(Game.Player.Character);
+                    }
+                }
 
                 GTA.UI.ShowSubtitle("Spectateurs : C'est nul ! Casse toi ! On a encore appelé les flics ! Tu vas avoir des problèmes !", 3000);
                 etapeMission = 3;

@@ -66,6 +66,15 @@ namespace DemagoScript
             }
         }
 
+        public int length(string key)
+        {
+            if (musicTable.ContainsKey(key))
+            {
+                return (int) musicTable[key].PlayLength;
+            }
+            return -1;
+        }
+
         public void dispose()
         {
             engine.Dispose();

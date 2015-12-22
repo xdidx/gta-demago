@@ -313,52 +313,31 @@ namespace DemagoScript
         /*TO IMPROVE => POSSIBLE BUG : GROUND DON'T LOAD QUICKLY ENOUGH ?*/
         private static Dictionary<Vector2, Vector3> savedGroundedPositions = new Dictionary<Vector2, Vector3>();
         public static Vector3 GetGroundedPosition(Vector3 position)
-        {            
-            bool groundFound = false;
+        {
+            float height;
             Vector2 position2d = new Vector2(position.X, position.Y);
+
             if (savedGroundedPositions.ContainsKey(position2d))
             {
-                log("Tools.GetGroundedPosition() => Ground FOUND IN CACHE : x : " + position.X + " / y : " + position.Y + " / z : " + position.Z);
                 return savedGroundedPositions[position2d];
             }
-            
-            Ped heightTestPed = World.CreatePed(PedHash.Abigail, Game.Player.Character.Position);
-            if (heightTestPed == null || !heightTestPed.Exists())
+
+            for (int i = 5000; i >= 0; i -= 500)
             {
-                return position;
-            }
-
-            for (int pedGroundHeight = 0; pedGroundHeight > 0; pedGroundHeight += 50)
-            {
-                position.Z = pedGroundHeight;
-                heightTestPed.Position = position;
-
-                Script.Wait(100);
-
                 unsafe
                 {
-                    //But now, I have another issue of course ^^ If player is far from point on map, 
-                    OutputArgument outArg = new OutputArgument();
-                    if (Function.Call<bool>(Hash.GET_GROUND_Z_FOR_3D_COORD, position.X, position.Y, pedGroundHeight, outArg))
+                    if (Function.Call<bool>(Hash.GET_GROUND_Z_FOR_3D_COORD, position.X, position.Y, (float)i, &height))
                     {
-                        float output = outArg.GetResult<float>();
-                        position.Z = output;
-                        log("Tools.GetGroundedPosition() => Ground FOUND ! : x : " + position.X + " / y : " + position.Y + " / z : " + position.Z);
-                        GTA.UI.Notify("Ground FOUND ! : x: " + position.X + " / y : " + position.Y + " / z : " + position.Z);
-                        groundFound = true;
-                        position.Z += 4.0f;
-                        savedGroundedPositions.Add(new Vector2(position.X, position.Y), position);
-                        break;
+                        if (height != 0)
+                        {
+                            position.Z = height  + 4.0f;
+                            savedGroundedPositions.Add(new Vector2(position.X, position.Y), position);
+                            break;
+                        }
                     }
-                    else
-                        log("Tools.GetGroundedPosition() => Ground : x : " + position.X + " / y : " + position.Y + " / z : " + position.Z);
+                    Script.Wait(100);
                 }
             }
-            heightTestPed.Delete();
-
-            if (!groundFound)
-                log("Tools.GetGroundedPosition() => Ground NOT FOUND : x : " + position.X + " / y : " + position.Y + " / z : " + position.Z);
-                //position.Z = 50;
 
             return position;
         }
@@ -382,7 +361,7 @@ namespace DemagoScript
                 Vector3 waypointCoord = Function.Call<Vector3>(Hash.GET_BLIP_COORDS, waypointID);
                 waypointCoord = GetGroundedPosition(waypointCoord);
 
-                TeleportPlayer(waypointCoord, false);
+                TeleportPlayer(waypointCoord);
             }
             else
                 GTA.UI.Notify("Marqueur inexistant !");

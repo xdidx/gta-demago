@@ -29,7 +29,7 @@ namespace DemagoScript
         {
             this.instrumentHash = instrumentHash;
             this.musicToPlay = musicToPlay;
-            SecondsToPlay = secondsToPlay;
+            SecondsToPlay = secondsToPlay / 1000;
             musiques = musics;
         }
 
