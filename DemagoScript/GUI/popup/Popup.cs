@@ -15,8 +15,10 @@ namespace DemagoScript
         
         public virtual void draw()
         {
-            foreach ( IUIElement element in this.elements ) {
-                element.draw();
+            if ( this.visible ) {
+                foreach ( IUIElement element in this.elements ) {
+                    element.draw();
+                }
             }
         }
 
