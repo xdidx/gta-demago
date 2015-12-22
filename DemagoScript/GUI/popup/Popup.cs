@@ -13,19 +13,19 @@ namespace DemagoScript
             this.elements.Add( element );
         }
         
-        public void draw()
+        public virtual void draw()
         {
             foreach ( IUIElement element in this.elements ) {
                 element.draw();
             }
         }
 
-        public void show()
+        public virtual void show()
         {
             this.visible = true;
         }
 
-        public void hide()
+        public virtual void hide()
         {
             this.visible = false;
         }

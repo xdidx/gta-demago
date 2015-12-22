@@ -30,7 +30,7 @@ namespace DemagoScript.GUI.elements
         public void draw()
         {
             Function.Call( Hash.SET_TEXT_FONT, this.font );
-            Function.Call( Hash.SET_TEXT_SCALE, this.scale, this.scale );
+            Function.Call( Hash.SET_TEXT_SCALE, (double)this.scale, (double)this.scale );
             Function.Call( Hash.SET_TEXT_COLOUR, (int)this.color.X, (int)this.color.Y, (int)this.color.Z, 255 );
             Function.Call( Hash.SET_TEXT_WRAP, 0.0, 1.0 );
             Function.Call( Hash.SET_TEXT_CENTRE, this.center );
@@ -38,7 +38,7 @@ namespace DemagoScript.GUI.elements
             Function.Call( Hash._SET_TEXT_ENTRY, "STRING" );
             Function.Call( Hash.SET_TEXT_DROPSHADOW, 2, 0, 0, 0, 205 );
             Function.Call( Hash._ADD_TEXT_COMPONENT_STRING, this.text );
-            Function.Call( Hash._DRAW_TEXT, this.y, this.x );
+            Function.Call( Hash._DRAW_TEXT, (double)this.y, (double)this.x );
         }
         
         public static void drawText( string text, double x, double y, double scale, bool center, int font, int r, int g, int b )

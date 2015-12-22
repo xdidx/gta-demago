@@ -5,7 +5,7 @@ namespace DemagoScript.GUI
 {
     class GUIManager
     {
-        private DemagoMenu menu = null;
+        public DemagoMenu menu = null;
         public PopupManager popupManager = null; 
 
         private static GUIManager instance;

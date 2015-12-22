@@ -53,9 +53,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DemagoScript.cs" />
+    <Compile Include="GUI\elements\UIRectElement.cs" />
     <Compile Include="GUI\menu\DemagoMenu.cs" />
     <Compile Include="GUI\GUIManager.cs" />
     <Compile Include="GUI\IUIElement.cs" />
+    <Compile Include="GUI\popup\NotificationPopup.cs" />
     <Compile Include="GUI\popup\PopupManager.cs" />
     <Compile Include="GUI\elements\UITextElement.cs" />
     <Compile Include="GUI\popup\Popup.cs" />

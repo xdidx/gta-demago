@@ -1,5 +1,6 @@
 ﻿using DemagoScript.GUI;
 using DemagoScript.GUI.elements;
+using DemagoScript.GUI.popup;
 using GTA;
 using GTA.Math;
 using GTA.Native;
@@ -11,9 +12,8 @@ namespace DemagoScript
 {
     class DemagoMenu
     {
-        private Popup testPopup = null;
-
-
+        //private Popup testPopup = null;
+        
         private MenuPool menuPool;
         private UIMenu mainMenu;
         private Vector3 teleportationPosition = Joe.joeHomePosition;
@@ -285,9 +285,9 @@ namespace DemagoScript
             var showPositionItem = new UIMenuItem("Afficher la position");
             var showRotationItem = new UIMenuItem("Afficher la rotation");
 
-            var addMessageItem = new UIMenuItem( "addPopup" );
+            /*var addMessageItem = new UIMenuItem( "addPopup" );
             var showMessageItem = new UIMenuItem( "showPopup" );
-            var hideMessageItem = new UIMenuItem( "hidePopup" );
+            var hideMessageItem = new UIMenuItem( "hidePopup" );*/
 
 
             var toolsMenu = menuPool.AddSubMenu(mainMenu, "Outils");
@@ -308,10 +308,18 @@ namespace DemagoScript
 
             toolsMenu.OnItemSelect += (sender, item, checked_) =>
             {
-                if (item == addMessageItem ) {
-                    this.testPopup = new Popup();
-                    UITextElement text = new UITextElement( "Hello world", 0.14, 0.49, 2.9, true, 1, new Vector3( 255, 0, 0 ) );
-                    this.testPopup.add( text );
+                /*if (item == addMessageItem ) {
+                    UIRectElement background = new UIRectElement( 0, 0, 2, 2, new Vector3( 0, 0, 0 ), 220 );
+                    UITextElement title = new UITextElement( "Hello world", 0.15, 0.5, 2.9, true, 1, new Vector3( 255, 0, 0 ) );
+                    UITextElement content = new UITextElement( "How are you today", 0.30, 0.5, 1.3, true, 2, new Vector3( 255, 255, 255 ) );
+                    UITextElement footer = new UITextElement( "Im fine thank you", 0.45, 0.5, 1, true, 3, new Vector3( 255, 255, 255 ) );
+
+                    this.testPopup = new NotificationPopup();
+                    this.testPopup.add( background );
+                    this.testPopup.add( title );
+                    this.testPopup.add( content );
+                    this.testPopup.add( footer );
+
                     GUIManager.Instance.popupManager.add( this.testPopup );
                 }
                 if (item == showMessageItem) {
@@ -319,7 +327,7 @@ namespace DemagoScript
                 }
                 if ( item == hideMessageItem ) {
                     this.testPopup.hide();
-                }
+                }*/
 
                 if (item == showPositionItem)
                 {
