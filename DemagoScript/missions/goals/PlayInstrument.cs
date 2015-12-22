@@ -11,7 +11,8 @@ using System.Threading.Tasks;
 namespace DemagoScript
 {
 
-    enum InstrumentHash {
+    enum InstrumentHash
+    {
         Guitar
     }
 
@@ -25,7 +26,7 @@ namespace DemagoScript
 
         public float SecondsToPlay { get; set; }
 
-        public PlayInstrument(InstrumentHash instrumentHash, float secondsToPlay, String musicToPlay, Music musics)
+        public PlayInstrument( InstrumentHash instrumentHash, float secondsToPlay, String musicToPlay, Music musics )
         {
             this.instrumentHash = instrumentHash;
             this.musicToPlay = musicToPlay;
@@ -33,31 +34,37 @@ namespace DemagoScript
             musiques = musics;
         }
 
-        protected override void doInitialization()
+        public override bool initialize()
         {
-            base.doInitialization();
-            
-            musiques.playMusic(musicToPlay);
+            if ( !base.initialize() ) {
+                return false;
+            }
+
+            musiques.playMusic( musicToPlay );
 
             startTime = DateTime.Now;
 
             startAnimation();
+
+            return true;
         }
 
-        public override void update()
+        public override bool update()
         {
-            musiques.playMusic(musicToPlay);
+            musiques.playMusic( musicToPlay );
 
-            base.update();
-            
+            if ( !base.update() )
+                return false;
+
             SecondsToPlay -= Game.LastFrameTime;
             if ( SecondsToPlay <= 0 ) {
                 Game.Player.Character.Task.ClearAllImmediately();
                 accomplish();
-                return;
-            } else {
+                return false;
+            } else if ( SecondsToPlay >= 0 )
                 setGoalText( "Attend que les spéctateurs aient assez apprécié la musique de Joe (Encore " + Tools.getTextFromSeconds( SecondsToPlay ) + ")" );
-            }
+
+            return true;
         }
 
         private void startAnimation()
@@ -66,29 +73,26 @@ namespace DemagoScript
 
             player.Task.ClearAllImmediately();
 
-            if (instrumentProp == null)
-            {
-                if (instrumentHash == InstrumentHash.Guitar) { 
-                    instrumentProp = World.CreateProp("prop_acc_guitar_01", player.Position + player.ForwardVector * 4.0f, true, true);
-                    if (instrumentProp != null)
-                    {
+            if ( instrumentProp == null ) {
+                if ( instrumentHash == InstrumentHash.Guitar ) {
+                    instrumentProp = World.CreateProp( "prop_acc_guitar_01", player.Position + player.ForwardVector * 4.0f, true, true );
+                    if ( instrumentProp != null ) {
                         instrumentProp.HasCollision = true;
                         instrumentProp.HasGravity = true;
-                        instrumentProp.AttachTo(player, player.GetBoneIndex(Bone.SKEL_Pelvis), new Vector3(-0.18f, 0.28f, -0.1f), new Vector3(195f, -24f, 0f));
+                        instrumentProp.AttachTo( player, player.GetBoneIndex( Bone.SKEL_Pelvis ), new Vector3( -0.18f, 0.28f, -0.1f ), new Vector3( 195f, -24f, 0f ) );
                     }
 
-                    player.Task.PlayAnimation("amb@world_human_musician@guitar@male@base", "base", 8f, -1, true, -1f);
+                    player.Task.PlayAnimation( "amb@world_human_musician@guitar@male@base", "base", 8f, -1, true, -1f );
                 }
             }
         }
 
-        public override void clear(bool removePhysicalElements = false)
+        public override void clear( bool removePhysicalElements = false )
         {
-            if (instrumentProp != null && instrumentProp.Exists())
-            {
+            if ( instrumentProp != null && instrumentProp.Exists() ) {
                 instrumentProp.Delete();
                 instrumentProp = null;
-            }            
+            }
         }
     }
 }

@@ -8,18 +8,17 @@ namespace DemagoScript
 {
     abstract class Mission
     {
-        public delegate void MissionStartEvent(Mission sender);
-        public delegate void MissionFailEvent(Mission sender, string reason);
-        public delegate void MissionAccomplishedEvent(Mission sender, TimeSpan elaspedTime);
+        public delegate void MissionStartEvent( Mission sender );
+        public delegate void MissionFailEvent( Mission sender, string reason );
+        public delegate void MissionAccomplishedEvent( Mission sender, TimeSpan elaspedTime );
 
         private List<Goal> goals = new List<Goal>();
 
         private bool active = false;
-
         private bool over = false;
         private bool initialized = false;
         private bool failed = false;
-        private DateTime startingTime;
+        private DateTime startMissionTime;
 
         /// <summary>
         /// Called when user start the mission.
@@ -44,11 +43,12 @@ namespace DemagoScript
             OnMissionStart?.Invoke( this );
 
             this.reset();
+            this.initialized = false; // TODO: inclure dans le reset ?
+
             this.initialize();
-            this.startingTime = DateTime.Now;
-            
-            // TODO: Mettre dans une fonction type doStarting()
+
             this.active = true;
+            this.startMissionTime = DateTime.Now;
             Game.Player.WantedLevel = 0;
         }
 
@@ -58,9 +58,8 @@ namespace DemagoScript
         public void reset()
         {
             foreach ( Goal goal in this.goals ) {
-                goal.reset();
+                goal.clear( false );
             }
-            this.initialized = false;
         }
 
         // DO NOT TOUCH
@@ -86,13 +85,13 @@ namespace DemagoScript
         /**
          * Stop la mission en cours
          */
-        public void stop(string reason = "")
+        public void stop( string reason = "" )
         {
             if ( this.active ) {
                 if ( reason != "" ) {
                     GTA.UI.Notify( "Mission arrêtée : " + reason );
                 }
-                
+
                 this.active = false;
                 this.reset();
             }
@@ -100,12 +99,12 @@ namespace DemagoScript
 
         public virtual void accomplish()
         {
-            TimeSpan elapsedTime = DateTime.Now - startingTime;
-            OnMissionAccomplished?.Invoke(this, elapsedTime);
+            TimeSpan elapsedTime = DateTime.Now - startMissionTime;
+            OnMissionAccomplished?.Invoke( this, elapsedTime );
 
             this.active = false;
             this.over = true;
-            this.clear(false);
+            this.clear( false );
 
             Game.Player.WantedLevel = 0;
             Game.Player.Character.Armor = 100;
@@ -114,15 +113,15 @@ namespace DemagoScript
 
         public bool isInProgress()
         {
-            return (this.active && !this.over && !this.failed);
+            return ( this.active && !this.over && !this.failed );
         }
 
-        public void fail(string reason = "")
+        public void fail( string reason = "" )
         {
             if ( this.active ) {
                 OnMissionFail?.Invoke( this, reason );
             }
-            
+
             this.clear( false );
             this.reset();
             this.initialized = false;
@@ -130,34 +129,37 @@ namespace DemagoScript
             this.active = false;
         }
 
-        public void addGoal(Goal goal)
+        public void addGoal( Goal goal )
         {
-            goal.OnGoalFail += (sender, reason) =>
-            {
-                fail(reason);
+            goal.OnGoalFail += ( sender, reason ) => {
+                fail( reason );
             };
             goals.Add( goal );
         }
 
         public virtual void update()
         {
-            if ( !this.isInProgress() ) {
+            if ( !isInProgress() ) {
+                //this.active = false;
+                // this.clear( true ); ?
+                // this.initialized = false; ?
                 this.stop();
                 return;
             }
+
+            // initialize(); Déjà initialized lors du start();
 
             this.isPlayerDeadOrArrested();
 
             bool waitingGoals = false;
 
             foreach ( Goal goal in goals ) {
-                goal.update();
-                if ( !goal.isOver() || goal.isFailed() ) {
+                if ( !goal.isOver() && goal.update() || goal.isFailed() ) {
                     waitingGoals = true;
                     break;
                 }
             }
-            
+
             if ( !waitingGoals ) {
                 this.accomplish();
             }
@@ -179,24 +181,22 @@ namespace DemagoScript
 
         abstract public string getName();
 
-        public virtual void clear(bool removePhysicalElements = false)
+        public virtual void clear( bool removePhysicalElements = false )
         {
-            foreach (Goal goal in goals)
-                goal.clear(removePhysicalElements);
+            foreach ( Goal goal in goals )
+                goal.clear( removePhysicalElements );
 
-            if (removePhysicalElements)
+            if ( removePhysicalElements )
                 goals.Clear();
         }
 
-        public virtual UIMenuItem addStartItem(ref UIMenu menu)
+        public virtual UIMenuItem addStartItem( ref UIMenu menu )
         {
-            var startItem = new UIMenuItem("Démarrer la mission");
-            menu.AddItem(startItem);
+            var startItem = new UIMenuItem( "Démarrer la mission" );
+            menu.AddItem( startItem );
 
-            menu.OnItemSelect += (sender, item, index) =>
-            {
-                if (item == startItem)
-                {
+            menu.OnItemSelect += ( sender, item, index ) => {
+                if ( item == startItem ) {
                     sender.Visible = false;
                 }
             };
@@ -204,6 +204,6 @@ namespace DemagoScript
             return startItem;
         }
 
-        public virtual void fillMenu(ref UIMenu menu) { }
+        public virtual void fillMenu( ref UIMenu menu ) { }
     }
 }

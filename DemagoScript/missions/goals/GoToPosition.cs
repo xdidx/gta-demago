@@ -15,28 +15,31 @@ namespace DemagoScript
         private Blip destinationBlip = null;
         private int finishCheckpoint = -1;
 
-        public GoToPosition(Vector3 position)
+        public GoToPosition( Vector3 position )
         {
             destination = position;
         }
 
-        protected override void doInitialization()
+        public override bool initialize()
         {
-            base.doInitialization();
-           
-            if (destinationBlip != null)
-            {
+            if ( !base.initialize() ) {
+                return false;
+            }
+
+            if ( destinationBlip != null ) {
                 destinationBlip.Remove();
             }
             createDestinationBlip();
 
-            finishCheckpoint = Function.Call<int>(Hash.CREATE_CHECKPOINT, 24, destination.X, destination.Y, Tools.GetGroundedPosition(destination).Z, destination.X, destination.Y, Tools.GetGroundedPosition(destination).Z, 2f, 254, 207, 12, 100, 40);
-            Function.Call(Hash._SET_CHECKPOINT_ICON_RGBA, finishCheckpoint, 0, 0, 256, 60);
+            finishCheckpoint = Function.Call<int>( Hash.CREATE_CHECKPOINT, 24, destination.X, destination.Y, Tools.GetGroundedPosition( destination ).Z, destination.X, destination.Y, Tools.GetGroundedPosition( destination ).Z, 2f, 254, 207, 12, 100, 40 );
+            Function.Call( Hash._SET_CHECKPOINT_ICON_RGBA, finishCheckpoint, 0, 0, 256, 60 );
+
+            return true;
         }
 
         public void createDestinationBlip()
         {
-            destinationBlip = World.CreateBlip(destination);
+            destinationBlip = World.CreateBlip( destination );
             destinationBlip.Sprite = BlipSprite.Crosshair;
             destinationBlip.Color = BlipColor.Green;
             destinationBlip.IsFlashing = true;
@@ -44,35 +47,35 @@ namespace DemagoScript
             destinationBlip.Position = destination;
         }
 
-        public override void update()
+        public override bool update()
         {
-            base.update();
+            if ( !base.update() ) {
+                return false;
+            }
 
             Ped player = Game.Player.Character;
 
-            if (destination.DistanceTo(Game.Player.Character.Position) < 1.4)
-            {
+            if ( destination.DistanceTo( Game.Player.Character.Position ) < 1.4 ) {
                 destinationBlip.Remove();
                 accomplish();
-                return;
-            }
-            else
-            {
-                if (destinationBlip == null)
-                {
+                return false;
+            } else {
+                if ( destinationBlip == null ) {
                     createDestinationBlip();
                 }
-                setGoalText("Rejoins l'endroit indiqué par le GPS");
+                setGoalText( "Rejoins l'endroit indiqué par le GPS" );
             }
+
+            return true;
         }
 
-        public override void clear(bool removePhysicalElements = false)
+        public override void clear( bool removePhysicalElements = false )
         {
-            if (destinationBlip != null && destinationBlip.Exists())
+            if ( destinationBlip != null && destinationBlip.Exists() )
                 destinationBlip.Remove();
 
-            if (finishCheckpoint >= 0)
-                Function.Call(Hash.DELETE_CHECKPOINT, finishCheckpoint);
+            if ( finishCheckpoint >= 0 )
+                Function.Call( Hash.DELETE_CHECKPOINT, finishCheckpoint );
         }
     }
 }
