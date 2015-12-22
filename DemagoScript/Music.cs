@@ -10,6 +10,7 @@ namespace DemagoScript
         private ISoundEngine engine = new ISoundEngine();
         private Dictionary<string, ISound> musicTable = new Dictionary<string, ISound>();
         private static string musicLocation = @"C:\Program Files\Rockstar Games\Grand Theft Auto V\Music\";
+        private List<string> listePaused = new List<string>();
 
         public Music(List<string[]> liste)
         {
@@ -84,6 +85,27 @@ namespace DemagoScript
         public void setVolume(float volume)
         {
             engine.SoundVolume = volume;
+        }
+
+        public void stopBeforePause()
+        {
+            foreach(String key in musicTable.Keys)
+            {
+                if(!musicTable[key].Paused)
+                {
+                    listePaused.Add(key);
+                    musicTable[key].Paused = true;
+                }
+            }
+        }
+
+        public void restartAfterPause()
+        {
+            foreach(String key in listePaused)
+            {
+                musicTable[key].Paused = false;
+            }
+            listePaused.Clear();
         }
     }
 }
