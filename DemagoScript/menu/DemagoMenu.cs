@@ -17,6 +17,7 @@ namespace DemagoScript
         private UIMenu mainMenu;
         private Vector3 teleportationPosition = Joe.joeHomePosition;
         private Vehicle lastSpawnedVehicle = null;
+        private Vehicle lastSpecialVehicle = null;
         private bool zeroGravity = false;
         private bool seePlayer = false;
         private bool seeVehicle = false;
@@ -207,9 +208,20 @@ namespace DemagoScript
             specialVehiclesMenu.AddItem(carFouras);
             specialVehiclesMenu.OnItemSelect += (sender, item, index) =>
             {
+                if (lastSpecialVehicle != null && lastSpecialVehicle.Exists())
+                {
+                    lastSpecialVehicle.Delete();
+                }
+
                 if (item == bikeJoe)
                 {
-                    //TODO : Spawn du velo de Joe
+                    Vehicle bike = null;
+                    do
+                    {
+                        bike = World.CreateVehicle(VehicleHash.TriBike, Game.Player.Character.Position.Around(2));
+                    } while (bike == null || !bike.Exists());
+
+                    lastSpecialVehicle = bike;
                 }
                 if (item == carFouras)
                 {
@@ -221,7 +233,7 @@ namespace DemagoScript
             var teleportItem = new UIMenuItem("Se téléporter");
             var teleportMarkerItem = new UIMenuItem("Se téléporter au marqueur");
             var roadTeleportItem = new UIMenuItem("Se téléporter sur la route");
-            var safeTeleportItem = new UIMenuItem("Se téléporter sur le sol", "La fonctionnalité est en cours de développement");
+            var safeTeleportItem = new UIMenuItem("Se téléporter sur le sol");
             var xItem = new UIMenuEditableNumericItem("X", teleportationPosition.X, -8000, 8000, 1);
             var yItem = new UIMenuEditableNumericItem("Y", teleportationPosition.Y, -8000, 8000, 1);
             var zItem = new UIMenuEditableNumericItem("Z", teleportationPosition.Z, -8000, 8000, 1);
