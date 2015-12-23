@@ -127,11 +127,9 @@ namespace DemagoScript
                     {
                         closestPed = peds[i];
                         minDistance = pedDistanceToPlayer;
-                        Tools.log("minDistance : " + minDistance);
                     }
                 }
             }
-            Tools.log("minDistance FINAL : " + minDistance);
 
             return closestPed;
         }
@@ -425,7 +423,7 @@ namespace DemagoScript
 
         public static void log(string message)
         {
-            using (StreamWriter logStreamWriter = new StreamWriter("C:/Program Files/Rockstar Games/Grand Theft Auto V/scripts/test.log", true))
+            using (StreamWriter logStreamWriter = new StreamWriter(@"scripts/gta-demago.log", true))
             {
                 try
                 {

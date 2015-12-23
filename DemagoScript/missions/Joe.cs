@@ -332,14 +332,14 @@ namespace DemagoScript
 
                 List<Vector3> travelingPositions = new List<Vector3>();
                 Vector3 cameraPosition = secondSongPosition;
-                cameraPosition.X += 5;
+                cameraPosition.X += 4;
                 cameraPosition.Z += 2;
                 travelingPositions.Add(cameraPosition);
-                cameraPosition.X -= 5;
-                cameraPosition.Y += 5;
+                cameraPosition.X -= 4;
+                cameraPosition.Y += 4;
                 travelingPositions.Add(cameraPosition);
-                cameraPosition.X -= 5;
-                cameraPosition.Y -= 5;
+                cameraPosition.X -= 4;
+                cameraPosition.Y -= 4;
                 travelingPositions.Add(cameraPosition);
                 Tools.traveling(travelingPositions, musicPlaylist.length("musique2"), Game.Player.Character, true);
             };
@@ -444,7 +444,7 @@ namespace DemagoScript
                 Ped[] nearbyPeds = World.GetNearbyPeds(Game.Player.Character.Position, 30);
                 foreach (Ped ped in nearbyPeds)
                 {
-                    if (ped != null && ped.Exists())
+                    if (ped != null && ped.Exists() && ped != player)
                     {
                         ped.Task.ClearAllImmediately();
                         ped.Task.FightAgainst(Game.Player.Character);
@@ -480,11 +480,27 @@ namespace DemagoScript
             musicPlaylist.playMusic(currentPlay);
         }
 
+        public override void setPause(bool isPaused)
+        {
+            base.setPause(isPaused);
+            if (isPaused)
+            {
+                musicPlaylist.pauseMusic(currentPlay);
+            }
+            else
+            {
+                musicPlaylist.playMusic(currentPlay);
+            }
+        }
+
         public override void clear(bool removePhysicalElements = false)
         {
             base.clear(removePhysicalElements);
             if (musicPlaylist != null)
+            {
+                musicPlaylist.pauseMusic(currentPlay);
                 musicPlaylist.dispose();
+            }
 
             World.Weather = Weather.Clear;
             if (bike != null && bike.Exists())

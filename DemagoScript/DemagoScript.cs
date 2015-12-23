@@ -17,7 +17,8 @@ namespace DemagoScript
         private DemagoMenu menu;
         private static float scriptTime = 0;
         private bool initialized = false;
-        private bool isSitting = false;
+        private bool paused = false; 
+        private bool isSitting = false; 
 
         public DemagoScript()
         {
@@ -64,15 +65,34 @@ namespace DemagoScript
             }
         }
 
-        void OnKeyDown(object sender, KeyEventArgs e)
+        private void OnKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.F5)
-            {
-                menu.toggleDisplay();
-            }
             if (e.KeyCode == Keys.Decimal)
             {
                 playerSitting();
+            }
+
+            if (e.KeyCode == Keys.Escape)
+            {
+                togglePause();
+            }
+            menu.OnKeyDown(sender, e);
+        }
+
+        private void togglePause()
+        {
+            if (paused == false)
+            {
+                paused = true;
+            }
+            else
+            {
+                paused = false;
+            }
+            
+            foreach (Mission mission in missions)
+            {
+                mission.setPause(paused);
             }
         }
 

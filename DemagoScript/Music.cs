@@ -14,12 +14,10 @@ namespace DemagoScript
 
         public Music(List<string[]> liste)
         {
-            Tools.log("---------- Start music loading ----------");
             foreach (string[] keyValue in liste)
             {
                 try
                 {
-                    Tools.log("Loading " + musicLocation + keyValue[1]);
                     musicTable.Add(keyValue[0], engine.Play2D(musicLocation + keyValue[1]));
                     musicTable[keyValue[0]].Paused = true;
                 }
@@ -29,10 +27,9 @@ namespace DemagoScript
                     musicTable.Remove(keyValue[0]);
                 }
             }
-            Tools.log("---------- End music loading ----------");
         }
 
-        public Boolean isPlaying(string key)
+        public bool isPlaying(string key)
         {
             if (key == null)
                 return false;

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace DemagoScript
 {
@@ -388,6 +389,14 @@ namespace DemagoScript
                 }
             };
 
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Up, Keys.NumPad8);
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Down, Keys.NumPad2);
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Left, Keys.NumPad4);
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Right, Keys.NumPad6);
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Select, Keys.NumPad5);
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Select, Keys.Enter);
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Back, Keys.Escape);
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Back, Keys.Return);
         }
         
         public void process()
@@ -395,11 +404,16 @@ namespace DemagoScript
             menuPool.ProcessMenus();
 
             Ped player = Game.Player.Character;
-            if ((player.IsDead || Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true)) && player.Model != oldModel && oldModel != null)
+
+            bool playerIsDead = player.IsDead;
+            bool playerIsArrested = Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true);
+
+            if ((playerIsDead || playerIsArrested) && player.Model != oldModel && oldModel != null)
             {
-                Script.Wait(1000);
+                if (playerIsArrested)
+                    Script.Wait(1000);
+
                 Ped replacementPed = Function.Call<Ped>(Hash.CLONE_PED, Game.Player.Character, Function.Call<int>(Hash.GET_ENTITY_HEADING, Function.Call<int>(Hash.PLAYER_PED_ID)), false, true);
-                replacementPed.Rotation = player.Rotation;
                 if (player.IsDead)
                 {
                     replacementPed.Kill();
@@ -410,12 +424,13 @@ namespace DemagoScript
                 }
 
                 player.IsVisible = false;
-
-                Script.Wait(200);
                 Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
 
-                while (Game.Player.IsDead)
-                    Script.Wait(100);
+                if (playerIsDead)
+                {
+                    while (Game.Player.IsDead)
+                        Script.Wait(100);
+                }
 
                 player.IsVisible = true;
             }
@@ -452,6 +467,16 @@ namespace DemagoScript
                     toChangeVehicle = null;
                 }
             }          
+        }
+
+        public void OnKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.F5)
+            {
+                toggleDisplay();
+            }
+
+            menuPool.ProcessKey(e.KeyCode);
         }
 
         public void show()

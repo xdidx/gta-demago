@@ -148,7 +148,7 @@ namespace DemagoScript
             bool waitingGoals = false;
             foreach (Goal goal in goals)
             {
-                if (!goal.isOver() && goal.update())
+                if (goal.update())
                 {
                     waitingGoals = true;
                     break;
@@ -194,5 +194,12 @@ namespace DemagoScript
         }
 
         public virtual void fillMenu(ref UIMenu menu) { }
+        public virtual void setPause(bool isPaused)
+        {
+            foreach (Goal goal in goals)
+            {
+                goal.setPause(isPaused);
+            }
+        }
     }
 }
