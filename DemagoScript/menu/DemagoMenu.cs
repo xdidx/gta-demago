@@ -16,6 +16,7 @@ namespace DemagoScript
         private UIMenu mainMenu;
         private Vector3 teleportationPosition = Joe.joeHomePosition;
         private Vehicle lastSpawnedVehicle = null;
+        private Vehicle lastSpecialVehicle = null;
         private bool zeroGravity = false;
         private bool seePlayer = false;
         private bool seeVehicle = false;
@@ -206,13 +207,20 @@ namespace DemagoScript
             specialVehiclesMenu.AddItem(carFouras);
             specialVehiclesMenu.OnItemSelect += (sender, item, index) =>
             {
+                if (lastSpecialVehicle != null && lastSpecialVehicle.Exists())
+                {
+                    lastSpecialVehicle.Delete();
+                }
+
                 if (item == bikeJoe)
                 {
-                    Vehicle bike = World.CreateVehicle(VehicleHash.TriBike, Game.Player.Character.Position.Around(2));
-                    while (bike == null || !bike.Exists())
+                    Vehicle bike = null;
+                    do
                     {
                         bike = World.CreateVehicle(VehicleHash.TriBike, Game.Player.Character.Position.Around(2));
-                    }
+                    } while (bike == null || !bike.Exists());
+
+                    lastSpecialVehicle = bike;
                 }
                 if (item == carFouras)
                 {
