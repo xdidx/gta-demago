@@ -397,8 +397,17 @@ namespace DemagoScript
             Ped player = Game.Player.Character;
             if ((player.IsDead || Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true)) && player.Model != oldModel && oldModel != null)
             {
+                Script.Wait(1000);
                 Ped replacementPed = Function.Call<Ped>(Hash.CLONE_PED, Game.Player.Character, Function.Call<int>(Hash.GET_ENTITY_HEADING, Function.Call<int>(Hash.PLAYER_PED_ID)), false, true);
-                replacementPed.Kill();
+                replacementPed.Rotation = player.Rotation;
+                if (player.IsDead)
+                {
+                    replacementPed.Kill();
+                }
+                else
+                {
+                    replacementPed.Task.HandsUp(-1);
+                }
 
                 player.IsVisible = false;
 

@@ -26,7 +26,7 @@ namespace DemagoScript
         private static string[] sonsEtape2 = new string[] { "flics2", "flics3", "dialogue4", "dialogue5", "dialogue6" };
         private static string[] sonsEtape3 = new string[] { "flics4", "dialogue7", "dialogue8", "dialogue9" };
 
-        private Vehicle bike;
+        private Vehicle bike = null;
         private List<Ped> spectatorsPeds = new List<Ped>();
         private List<Ped> spectatorsPeds2 = new List<Ped>();
         private List<Ped> copsPeds = new List<Ped>();
@@ -194,15 +194,15 @@ namespace DemagoScript
                 List<Vector3> travelingPositions = new List<Vector3>();
                 Vector3 cameraPosition = firstSongPosition;
                 cameraPosition.X += 8;
-                cameraPosition.Z = 1;
-                positions.Add(cameraPosition);
+                cameraPosition.Z += 2;
+                travelingPositions.Add(cameraPosition);
                 cameraPosition.X -= 8;
                 cameraPosition.Y += 8;
-                positions.Add(cameraPosition);
+                travelingPositions.Add(cameraPosition);
                 cameraPosition.X -= 8;
                 cameraPosition.Y -= 8;
-                positions.Add(cameraPosition);
-                Tools.traveling(positions, musicPlaylist.length("musique1"), Game.Player.Character, true);
+                travelingPositions.Add(cameraPosition);
+                Tools.traveling(travelingPositions, musicPlaylist.length("musique1"), Game.Player.Character, true);
 
                 foreach (Ped spectator in spectatorsPeds)
                 {
@@ -217,9 +217,18 @@ namespace DemagoScript
                 {
                     if (spectator != null && spectator.Exists())
                     {
+                        spectator.MarkAsNoLongerNeeded();
                         spectator.Task.ClearAllImmediately();
-                        spectator.Task.UseMobilePhone();
-                        spectator.Task.FightAgainst(Game.Player.Character);
+                        Random random = new Random();
+                        if (random.Next(0, 1) == 0)
+                        {
+                            spectator.Task.FightAgainst(Game.Player.Character);
+                        }
+                        else
+                        {
+                            spectator.Task.UseMobilePhone();
+                        }
+                        
                     }
                 }
 
@@ -323,27 +332,46 @@ namespace DemagoScript
 
                 List<Vector3> travelingPositions = new List<Vector3>();
                 Vector3 cameraPosition = secondSongPosition;
-                cameraPosition.X += 8;
-                cameraPosition.Z = 1;
-                positions.Add(cameraPosition);
-                cameraPosition.X -= 8;
-                cameraPosition.Y += 8;
-                positions.Add(cameraPosition);
-                cameraPosition.X -= 8;
-                cameraPosition.Y -= 8;
-                positions.Add(cameraPosition);
-                Tools.traveling(positions, musicPlaylist.length("musique2"), Game.Player.Character, true);
+                cameraPosition.X += 5;
+                cameraPosition.Z += 2;
+                travelingPositions.Add(cameraPosition);
+                cameraPosition.X -= 5;
+                cameraPosition.Y += 5;
+                travelingPositions.Add(cameraPosition);
+                cameraPosition.X -= 5;
+                cameraPosition.Y -= 5;
+                travelingPositions.Add(cameraPosition);
+                Tools.traveling(travelingPositions, musicPlaylist.length("musique2"), Game.Player.Character, true);
             };
             
             secondSongGoals.OnGoalAccomplished += (sender, elaspedTime) =>
             {
-                foreach( Ped ped in copsPeds)
+                foreach (Ped ped in copsPeds)
                 {
                     if (ped != null && ped.Exists())
                     {
+                        ped.MarkAsNoLongerNeeded();
                         ped.Weapons.Give(WeaponHash.Pistol, 1, true, true);
                         Function.Call(Hash.SET_PED_AS_COP, ped, true);
                         ped.MarkAsNoLongerNeeded();
+                    }
+                }
+
+                foreach (Ped spectator in spectatorsPeds2)
+                {
+                    if (spectator != null && spectator.Exists())
+                    {
+                        spectator.MarkAsNoLongerNeeded();
+                        spectator.Task.ClearAllImmediately();
+                        Random random = new Random();
+                        if (random.Next(0, 1) == 0)
+                        {
+                            spectator.Task.FightAgainst(Game.Player.Character);
+                        }
+                        else
+                        {
+                            spectator.Task.UseMobilePhone();
+                        }
                     }
                 }
 
@@ -393,15 +421,15 @@ namespace DemagoScript
                 List<Vector3> travelingPositions = new List<Vector3>();
                 Vector3 cameraPosition = thirdSongPosition;
                 cameraPosition.X += 8;
-                cameraPosition.Z = 1;
-                positions.Add(cameraPosition);
+                cameraPosition.Z += 2;
+                travelingPositions.Add(cameraPosition);
                 cameraPosition.X -= 8;
                 cameraPosition.Y += 8;
-                positions.Add(cameraPosition);
+                travelingPositions.Add(cameraPosition);
                 cameraPosition.X -= 8;
                 cameraPosition.Y -= 8;
-                positions.Add(cameraPosition);
-                Tools.traveling(positions, musicPlaylist.length("musique3"), Game.Player.Character, true);
+                travelingPositions.Add(cameraPosition);
+                Tools.traveling(travelingPositions, musicPlaylist.length("musique3"), Game.Player.Character, true);
             };
 
             thirdSongGoals.OnGoalAccomplished += (sender, elaspedTime) =>
@@ -459,30 +487,46 @@ namespace DemagoScript
                 musicPlaylist.dispose();
 
             World.Weather = Weather.Clear;
-
-            if (removePhysicalElements)
+            if (bike != null && bike.Exists())
             {
-                if (bike != null)
+                if (removePhysicalElements)
                     bike.Delete();
 
-                foreach (Ped spectator in spectatorsPeds)
-                    if (spectator != null && spectator.Exists() && spectator.IsAlive)
-                        spectator.Delete();
+                bike.MarkAsNoLongerNeeded();
+            }
 
+            foreach (Ped spectator in spectatorsPeds)
+                if (spectator != null && spectator.Exists())
+                {
+                    spectator.MarkAsNoLongerNeeded();
+                    if (removePhysicalElements)
+                        spectator.Delete();
+                }
+
+            if (removePhysicalElements)
                 spectatorsPeds.Clear();
 
-                foreach (Ped spectator in copsPeds)
-                    if (spectator != null && spectator.Exists() && spectator.IsAlive)
+            foreach (Ped spectator in copsPeds)
+                if (spectator != null && spectator.Exists())
+                {
+                    spectator.MarkAsNoLongerNeeded();
+                    if (removePhysicalElements)
                         spectator.Delete();
+                }
 
+            if (removePhysicalElements)
                 copsPeds.Clear();
 
-                foreach (Ped spectator in spectatorsPeds2)
-                    if (spectator != null && spectator.Exists() && spectator.IsAlive)
+            foreach (Ped spectator in spectatorsPeds2)
+                if (spectator != null && spectator.Exists())
+                {
+                    spectator.MarkAsNoLongerNeeded();
+                    if (removePhysicalElements)
                         spectator.Delete();
+                }
 
+            if (removePhysicalElements)
                 spectatorsPeds2.Clear();
-            }
         }
 
         public void playAmbiance()
