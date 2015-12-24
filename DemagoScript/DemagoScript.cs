@@ -32,7 +32,7 @@ namespace DemagoScript
             if ( initialized ) {
                 return;
             }
-
+            
             createMissions();
             GUIManager.Instance.initialize( missions );
 
@@ -60,8 +60,6 @@ namespace DemagoScript
             Tools.update();
             Timer.updateAllTimers();
 
-            GUIManager.Instance.update();
-
             foreach (Mission mission in missions)
             {
                 if (mission.isInProgress())
@@ -70,15 +68,13 @@ namespace DemagoScript
                 }
             }
 
-            menu.process();
+            GUIManager.Instance.update();
         }
 
         private void OnKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.F5)
-            {
-                GUIManager.Instance.toggleMenuDisplay();
-            }
+            GUIManager.Instance.OnKeyDown(sender, e);
+
             if (e.KeyCode == Keys.Decimal)
             {
                 playerSitting();
@@ -88,7 +84,6 @@ namespace DemagoScript
             {
                 togglePause();
             }
-            menu.OnKeyDown(sender, e);
         }
 
         private void togglePause()

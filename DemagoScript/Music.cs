@@ -52,7 +52,7 @@ namespace DemagoScript
 
         public void playMusic(string key)
         {
-            if ( keyExistInMusicTable( key ) ) {
+            if ( keyExistInMusicTable( key ) )
             {
                 musicTable[key].Paused = false;
             }
