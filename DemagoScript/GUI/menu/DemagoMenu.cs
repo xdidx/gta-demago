@@ -7,17 +7,22 @@ using GTA.Native;
 using NativeUI;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace DemagoScript
 {
     class DemagoMenu
     {
         //private Popup testPopup = null;
-        
+
         private MenuPool menuPool;
         private UIMenu mainMenu;
         private Vector3 teleportationPosition = Joe.joeHomePosition;
         private Vehicle lastSpawnedVehicle = null;
+        private Vehicle lastSpecialVehicle = null;
         private bool zeroGravity = false;
         private bool seePlayer = false;
         private bool seeVehicle = false;
@@ -27,9 +32,9 @@ namespace DemagoScript
         private Vehicle toChangeVehicle = null;
 
         private UIMenuCheckboxItem godVehicleActiveItem, seeVehicleActiveItem, godPlayerActiveItem, seePlayerActiveItem;
-        
+
         public delegate void MenuAction();
-        
+
         public DemagoMenu(List<Mission> missions = null)
         {
             if ( missions == null ) {
@@ -40,7 +45,7 @@ namespace DemagoScript
             mainMenu = new UIMenu("GTA Demago", "~b~Configuration du mod");
             menuPool.Add(mainMenu);
 
-            //Missions            
+            //Missions
             var missionsMenu = menuPool.AddSubMenu(mainMenu, "Missions");
             foreach (Mission mission in missions)
             {
@@ -68,6 +73,9 @@ namespace DemagoScript
                 {
                     Function.Call(Hash.SET_NEW_WAYPOINT, -197f, 4213f);
                     Game.Player.Character.Position = PlacesPositions.TaxiMission;
+                   /* Vehicle taxi = World.CreateVehicle(VehicleHash.Taxi, Tools.GetSafeRoadPos(PlacesPositions.TaxiMission));
+                    Ped taxiDriver = World.CreatePed(PedHash.FreemodeFemale01, PlacesPositions.TaxiMission);
+                    taxiDriver.SetIntoVehicle(taxi, VehicleSeat.Driver);*/
                 }
             };
 
@@ -91,9 +99,9 @@ namespace DemagoScript
             {
                 if (oldModel == null)
                 {
-                    oldModel = Game.Player.Character.Model;                    
+                    oldModel = Game.Player.Character.Model;
                 }
-                
+
                 if (oldModel != Game.Player.Character.Model)
                 {
                     //Reset to old model
@@ -102,9 +110,9 @@ namespace DemagoScript
 
                 if (item == resetModelItem && oldModel == null)
                 {
-                    UI.Notify("Vous possédez déjà le modèle de base !");    
+                    UI.Notify("Vous possédez déjà le modèle de base !");
                 }
-                
+
 
                 if (item == dissociateModelItem)
                 {
@@ -209,9 +217,20 @@ namespace DemagoScript
             specialVehiclesMenu.AddItem(carFouras);
             specialVehiclesMenu.OnItemSelect += (sender, item, index) =>
             {
+                if (lastSpecialVehicle != null && lastSpecialVehicle.Exists())
+                {
+                    lastSpecialVehicle.Delete();
+                }
+
                 if (item == bikeJoe)
                 {
-                    //TODO : Spawn du velo de Joe
+                    Vehicle bike = null;
+                    do
+                    {
+                        bike = World.CreateVehicle(VehicleHash.TriBike, Game.Player.Character.Position.Around(2));
+                    } while (bike == null || !bike.Exists());
+
+                    lastSpecialVehicle = bike;
                 }
                 if (item == carFouras)
                 {
@@ -223,7 +242,7 @@ namespace DemagoScript
             var teleportItem = new UIMenuItem("Se téléporter");
             var teleportMarkerItem = new UIMenuItem("Se téléporter au marqueur");
             var roadTeleportItem = new UIMenuItem("Se téléporter sur la route");
-            var safeTeleportItem = new UIMenuItem("Se téléporter sur le sol", "La fonctionnalité est en cours de développement");
+            var safeTeleportItem = new UIMenuItem("Se téléporter sur le sol");
             var xItem = new UIMenuEditableNumericItem("X", teleportationPosition.X, -8000, 8000, 1);
             var yItem = new UIMenuEditableNumericItem("Y", teleportationPosition.Y, -8000, 8000, 1);
             var zItem = new UIMenuEditableNumericItem("Z", teleportationPosition.Z, -8000, 8000, 1);
@@ -245,7 +264,6 @@ namespace DemagoScript
                 }
                 if (item == safeTeleportItem)
                 {
-                    /*Tools.GetGroundedPosition() HAVE TO BE UPDATE*/
                     Tools.TeleportPlayer(Tools.GetGroundedPosition(teleportationPosition));
                 }
                 if (item == teleportItem)
@@ -272,7 +290,7 @@ namespace DemagoScript
                     teleportationPosition.Z = value;
                 }
             };
-        
+
             //Outils
             seePlayerActiveItem = new UIMenuCheckboxItem("Personnage invisible", seePlayer, "Si la case est cochée, votre personnage est invisible");
             godPlayerActiveItem = new UIMenuCheckboxItem("Personnage invincible", godPlayer, "Si la case est cochée, votre personnage est invincible");
@@ -281,6 +299,8 @@ namespace DemagoScript
             var wantedUpItem = new UIMenuItem("Ajouter une étoile");
             var wantedDownItem = new UIMenuItem("Supprimer une étoile");
             var wantedLevelItem = new UIMenuItem("Supprimer toute les étoiles");
+            var addMoney = new UIMenuItem("Ajouter 50.000$");
+            var removeMoney = new UIMenuItem("Enlever 50.000$");
             var gravityActiveItem = new UIMenuCheckboxItem("Zéro gravité", zeroGravity, "Si la case est cochée, il n'y aura plus de gravité sur la map entière");
             var showPositionItem = new UIMenuItem("Afficher la position");
             var showRotationItem = new UIMenuItem("Afficher la rotation");
@@ -296,6 +316,8 @@ namespace DemagoScript
             toolsMenu.AddItem(wantedUpItem);
             toolsMenu.AddItem(showPositionItem);
             toolsMenu.AddItem(showRotationItem);
+            toolsMenu.AddItem(addMoney);
+            toolsMenu.AddItem(removeMoney);
             toolsMenu.AddItem(gravityActiveItem);
             toolsMenu.AddItem(seePlayerActiveItem);
             toolsMenu.AddItem(godPlayerActiveItem);
@@ -350,6 +372,15 @@ namespace DemagoScript
                 {
                     if (Game.Player.WantedLevel < 5)
                         Game.Player.WantedLevel++;
+                }
+                if (item == addMoney)
+                {
+                    Game.Player.Money += 50000;
+                }
+                if (item == removeMoney)
+                {
+                    if (Game.Player.Money > 50000)
+                        Game.Player.Money -= 50000;
                 }
             };
 
@@ -408,28 +439,35 @@ namespace DemagoScript
                     }
                 }
             };
-
         }
-        
+
         public void process()
         {
             menuPool.ProcessMenus();
 
             Ped player = Game.Player.Character;
+
             if ((player.IsDead || Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true)) && player.Model != oldModel && oldModel != null)
             {
-                Ped replacementPed = Function.Call<Ped>(Hash.CLONE_PED, Game.Player.Character, Function.Call<int>(Hash.GET_ENTITY_HEADING, Function.Call<int>(Hash.PLAYER_PED_ID)), false, true);
-                replacementPed.Kill();
+                if (player.IsDead)
+                {
+                    Ped replacementPed = Function.Call<Ped>(Hash.CLONE_PED, Game.Player.Character, Function.Call<int>(Hash.GET_ENTITY_HEADING, Function.Call<int>(Hash.PLAYER_PED_ID)), false, true);
+                    replacementPed.Kill();
 
-                player.IsVisible = false;
+                    player.IsVisible = false;
 
-                Script.Wait(200);
-                Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
+                    Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
 
-                while (Game.Player.IsDead)
-                    Script.Wait(100);
+                    while (Game.Player.IsDead)
+                        Script.Wait(100);
 
-                player.IsVisible = true;
+                    player.IsVisible = true;
+                }
+                else
+                {
+                    Script.Wait(4000);
+                    Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
+                }
             }
             else
             {
@@ -442,7 +480,7 @@ namespace DemagoScript
                     seeVehicle = toChangeVehicle.IsVisible;
                     seeVehicleActiveItem.Checked = !toChangeVehicle.IsVisible;
                 }
-                
+
                 if (!player.IsInVehicle() && toChangeVehicle != null)
                 {
                     if (godVehicle)
@@ -463,22 +501,47 @@ namespace DemagoScript
 
                     toChangeVehicle = null;
                 }
-            }          
+            }
         }
 
-        public void show()
+        public void OnKeyDown(object sender, KeyEventArgs e)
         {
-            mainMenu.Visible = true;
-        }
+            menuPool.ResetKey(NativeUI.UIMenu.MenuControls.Up);
+            menuPool.ResetKey(NativeUI.UIMenu.MenuControls.Down);
+            menuPool.ResetKey(NativeUI.UIMenu.MenuControls.Left);
+            menuPool.ResetKey(NativeUI.UIMenu.MenuControls.Right);
+            menuPool.ResetKey(NativeUI.UIMenu.MenuControls.Select);
+            menuPool.ResetKey(NativeUI.UIMenu.MenuControls.Select);
+            menuPool.ResetKey(NativeUI.UIMenu.MenuControls.Back);
+            menuPool.ResetKey(NativeUI.UIMenu.MenuControls.Back);
 
-        public void hide()
-        {
-            mainMenu.Visible = false;
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Up, Keys.NumPad8);
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Down, Keys.NumPad2);
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Left, Keys.NumPad4);
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Right, Keys.NumPad6);
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Select, Keys.NumPad5);
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Select, Keys.Enter);
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Back, Keys.Escape);
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Back, Keys.Return);
+
+            if (e.KeyCode == Keys.F5)
+            {
+                toggleDisplay();
+            }
+
+            menuPool.ProcessKey(e.KeyCode);
         }
 
         public void toggleDisplay()
         {
-            mainMenu.Visible = !mainMenu.Visible;
+            if (menuPool.isVisible())
+            {
+                menuPool.hideAll();
+            }
+            else
+            {
+                mainMenu.Visible = true;
+            }
         }
 
     }

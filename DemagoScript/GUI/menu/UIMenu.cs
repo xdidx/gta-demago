@@ -201,28 +201,6 @@ namespace NativeUI
             _descriptionText = new UIResText("Description", new Point(_offset.X + 5, 125), 0.35f, Color.FromArgb(255, 255, 255, 255), Font.ChaletLondon, UIResText.Alignment.Left);
 
             _background = new Sprite("commonmenu", "gradient_bgd", new Point(_offset.X, 144 + _offset.Y - 37 + _extraYOffset), new Size(290, 25));
-
-            SetKey(MenuControls.Up, Control.PhoneUp);
-            SetKey(MenuControls.Down, Control.PhoneDown);
-            SetKey(MenuControls.Left, Control.PhoneLeft);
-            SetKey(MenuControls.Right, Control.PhoneRight);
-            SetKey(MenuControls.Select, Control.FrontendAccept);
-            SetKey(MenuControls.Back, Control.PhoneCancel);
-            SetKey(MenuControls.Back, Control.FrontendPause);
-
-            SetKey(MenuControls.Up, Keys.Up);
-            SetKey(MenuControls.Down, Keys.Down);
-            SetKey(MenuControls.Left, Keys.Left);
-            SetKey(MenuControls.Right, Keys.Right);
-
-            SetKey(MenuControls.Up, Keys.NumPad8);
-            SetKey(MenuControls.Down, Keys.NumPad2);
-            SetKey(MenuControls.Left, Keys.NumPad4);
-            SetKey(MenuControls.Right, Keys.NumPad6);
-            SetKey(MenuControls.Select, Keys.NumPad5);
-
-            SetKey(MenuControls.Back, Keys.Escape);
-            SetKey(MenuControls.Back, Keys.Back);
         }
 
         private void RecaulculateDescriptionPosition()
@@ -988,7 +966,9 @@ namespace NativeUI
         public void SetKey(MenuControls control, Keys keyToSet)
         {
             if (_keyDictionary.ContainsKey(control))
+            {
                 _keyDictionary[control].Item1.Add(keyToSet);
+            }
             else
             {
                 _keyDictionary.Add(control,
@@ -1037,6 +1017,9 @@ namespace NativeUI
         /// <param name="control"></param>
         public void ResetKey(MenuControls control)
         {
+            if (!_keyDictionary.ContainsKey(control))
+                return;
+
             _keyDictionary[control].Item1.Clear();
             _keyDictionary[control].Item2.Clear();
         }
@@ -1050,6 +1033,9 @@ namespace NativeUI
         /// <returns></returns>
         public bool HasControlJustBeenPressed(MenuControls control, Keys key = Keys.None)
         {
+            if (!_keyDictionary.ContainsKey(control))
+                return false;
+
             List<Keys> tmpKeys = new List<Keys>(_keyDictionary[control].Item1);
             List<Tuple<Control, int>> tmpControls = new List<Tuple<Control, int>>(_keyDictionary[control].Item2);
 
@@ -1072,6 +1058,10 @@ namespace NativeUI
         /// <returns></returns>
         public bool HasControlJustBeenReleaseed(MenuControls control, Keys key = Keys.None)
         {
+            if (!_keyDictionary.ContainsKey(control))
+            {
+                return false;
+            }
             List<Keys> tmpKeys = new List<Keys>(_keyDictionary[control].Item1);
             List<Tuple<Control, int>> tmpControls = new List<Tuple<Control, int>>(_keyDictionary[control].Item2);
 
@@ -1094,6 +1084,10 @@ namespace NativeUI
         /// <returns></returns>
         public bool IsControlBeingPressed(MenuControls control, Keys key = Keys.None)
         {
+            if (!_keyDictionary.ContainsKey(control))
+            {
+                return false;
+            }
             List<Keys> tmpKeys = new List<Keys>(_keyDictionary[control].Item1);
             List<Tuple<Control, int>> tmpControls = new List<Tuple<Control, int>>(_keyDictionary[control].Item2);
             if (HasControlJustBeenReleaseed(control, key)) _controlCounter = 0;

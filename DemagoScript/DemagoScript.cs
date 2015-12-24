@@ -14,6 +14,7 @@ namespace DemagoScript
 
         private static float scriptTime = 0;
         private bool initialized = false;
+        private bool isPaused = false;
         private bool isSitting = false;
 
         public DemagoScript()
@@ -31,7 +32,8 @@ namespace DemagoScript
             if ( initialized ) {
                 return;
             }
-            
+
+            createMissions();
             GUIManager.Instance.initialize( missions );
 
             initialized = true;
@@ -44,12 +46,17 @@ namespace DemagoScript
 
         void OnTick(object sender, EventArgs e)
         {
+            if (isPaused)
+            {
+                togglePause();
+            }
+
             if ( !initialized ) {
                 initialize();
             }
 
             scriptTime += (Game.LastFrameTime * 1000);
-            
+
             Tools.update();
             Timer.updateAllTimers();
 
@@ -62,9 +69,11 @@ namespace DemagoScript
                     mission.update();
                 }
             }
+
+            menu.process();
         }
 
-        void OnKeyDown(object sender, KeyEventArgs e)
+        private void OnKeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.F5)
             {
@@ -73,6 +82,22 @@ namespace DemagoScript
             if (e.KeyCode == Keys.Decimal)
             {
                 playerSitting();
+            }
+
+            if (e.KeyCode == Keys.Escape)
+            {
+                togglePause();
+            }
+            menu.OnKeyDown(sender, e);
+        }
+
+        private void togglePause()
+        {
+            isPaused = !isPaused;
+
+            foreach (Mission mission in missions)
+            {
+                mission.setPause(isPaused);
             }
         }
 
@@ -127,6 +152,6 @@ namespace DemagoScript
                 missions.Add( newMission );
             }
         }
-        
+
     }
 }

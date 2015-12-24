@@ -21,8 +21,9 @@ namespace DemagoScript
         private DateTime startTime;
         private Prop instrumentProp;
         private InstrumentHash instrumentHash;
-        private String musicToPlay;
+        private string musicToPlay = "";
         private Music musiques;
+        private bool wasPaused = false;
 
         public float SecondsToPlay { get; set; }
 
@@ -30,7 +31,7 @@ namespace DemagoScript
         {
             this.instrumentHash = instrumentHash;
             this.musicToPlay = musicToPlay;
-            SecondsToPlay = secondsToPlay;
+            SecondsToPlay = secondsToPlay / 1000;
             musiques = musics;
         }
 
@@ -92,6 +93,19 @@ namespace DemagoScript
             if ( instrumentProp != null && instrumentProp.Exists() ) {
                 instrumentProp.Delete();
                 instrumentProp = null;
+            }
+        }
+
+        public override void setPause(bool isPaused)
+        {
+            if (isPaused && musiques.isPlaying(musicToPlay))
+            {
+                musiques.pauseMusic(musicToPlay);
+                this.wasPaused = true;
+            }
+            else if (!isPaused && this.wasPaused)
+            {
+                musiques.playMusic(musicToPlay);
             }
         }
     }

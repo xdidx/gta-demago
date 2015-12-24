@@ -96,8 +96,9 @@ namespace DemagoScript
 
         public void createdDestinationCheckpoint()
         {
-            destinationCheckpoint = Function.Call<int>( Hash.CREATE_CHECKPOINT, 24, destination.X, destination.Y, Tools.GetGroundedPosition( destination ).Z, destination.X, destination.Y, Tools.GetGroundedPosition( destination ).Z, 10f, 254, 207, 12, 100, 40 );
-            Function.Call( Hash._SET_CHECKPOINT_ICON_RGBA, destinationCheckpoint, 0, 0, 256, 60 );
+            destinationCheckpoint = Function.Call<int>(Hash.CREATE_CHECKPOINT, 24, destination.X, destination.Y, 0.0f, destination.X, destination.Y, 0.0f, 10f, 254, 207, 12, 100, 40);
+            Function.Call(Hash._SET_CHECKPOINT_ICON_RGBA, destinationCheckpoint, 0, 0, 256, 60);
+            Function.Call(Hash.SET_CHECKPOINT_CYLINDER_HEIGHT, destinationCheckpoint, destination.Z + 56.0f, destination.Z + 196.0f, 1000.0f);
         }
 
         public override bool update()

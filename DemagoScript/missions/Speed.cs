@@ -34,7 +34,7 @@ namespace DemagoScript
 
         public static Vector3 startPosition { get; } = new Vector3(50f, -1200f, 40f);
         public static Vector3 aeroportPosition { get; } = new Vector3(-1685, -2930, 13f);
-        public static List<Vector3> checkPoints { get; } = new List<Vector3> { new Vector3(-452f, -1403f, 33f), aeroportPosition };
+        public static List<Vector3> checkPoints { get; } = new List<Vector3> { new Vector3(-452f, -1403f, 33f), new Vector3(-946f, -2755, 13f), aeroportPosition };
 
         public override string getName()
         {
@@ -335,37 +335,53 @@ namespace DemagoScript
         public override void clear(bool removePhysicalElements = false)
         {
             base.clear(removePhysicalElements);
-            if (removePhysicalElements)
+
+            if (bus != null && bus.Exists())
             {
-                if (bus != null && bus.Exists())
-                {
+                bus.MarkAsNoLongerNeeded();
+                if (removePhysicalElements)
                     bus.Delete();
-                }
-                foreach (Ped passenger in passengers)
+            }
+
+            foreach (Ped passenger in passengers)
+            {
+                if (passenger != null && passenger.Exists())
                 {
-                    if (passenger != null && passenger.Exists() && passenger.IsAlive)
-                    {
+                    passenger.MarkAsNoLongerNeeded();
+                    if (removePhysicalElements)
                         passenger.Delete();
-                    }
                 }
+            }
+            if (removePhysicalElements)
                 passengers.Clear();
 
-                if (policeMan1 != null && policeMan1.Exists())
+            if (policeMan1 != null && policeMan1.Exists())
+            {
+                if (policeMan1.CurrentVehicle != null && policeMan1.CurrentVehicle.Exists())
                 {
-                    if (policeMan1.CurrentVehicle != null && policeMan1.CurrentVehicle.Exists())
-                    {
+                    policeMan1.CurrentVehicle.MarkAsNoLongerNeeded();
+                    if (removePhysicalElements)
                         policeMan1.CurrentVehicle.Delete();
-                    }
+                }
+                policeMan1.MarkAsNoLongerNeeded();
+                if (removePhysicalElements)
+                { 
                     policeMan1.Delete();
                     policeMan1 = null;
                 }
+            }
 
-                if (policeMan2 != null && policeMan2.Exists())
+            if (policeMan2 != null && policeMan2.Exists())
+            {
+                if (policeMan2.CurrentVehicle != null && policeMan2.CurrentVehicle.Exists())
                 {
-                    if (policeMan2.CurrentVehicle != null && policeMan2.CurrentVehicle.Exists())
-                    {
+                    policeMan2.CurrentVehicle.MarkAsNoLongerNeeded();
+                    if (removePhysicalElements)
                         policeMan2.CurrentVehicle.Delete();
-                    }
+                }
+                policeMan2.MarkAsNoLongerNeeded();
+                if (removePhysicalElements)
+                {
                     policeMan2.Delete();
                     policeMan2 = null;
                 }
@@ -414,6 +430,5 @@ namespace DemagoScript
                 
             };
         }
-
     }
 }

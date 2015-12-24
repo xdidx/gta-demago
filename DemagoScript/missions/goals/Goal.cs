@@ -152,5 +152,7 @@ namespace DemagoScript
             OnGoalFail?.Invoke( this, reason );
         }
 
+        public virtual void setPause(bool isPaused) { }
+
     }
 }

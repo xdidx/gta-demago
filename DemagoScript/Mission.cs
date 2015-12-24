@@ -152,9 +152,15 @@ namespace DemagoScript
             this.isPlayerDeadOrArrested();
 
             bool waitingGoals = false;
-
-            foreach ( Goal goal in goals ) {
-                if ( !goal.isOver() && goal.update() || goal.isFailed() ) {
+            foreach (Goal goal in goals)
+            {
+                if (goal.update())
+                {
+                    waitingGoals = true;
+                    break;
+                }
+                if (goal.isFailed())
+                {
                     waitingGoals = true;
                     break;
                 }
@@ -204,6 +210,13 @@ namespace DemagoScript
             return startItem;
         }
 
-        public virtual void fillMenu( ref UIMenu menu ) { }
+        public virtual void fillMenu(ref UIMenu menu) { }
+        public virtual void setPause(bool isPaused)
+        {
+            foreach (Goal goal in goals)
+            {
+                goal.setPause(isPaused);
+            }
+        }
     }
 }
