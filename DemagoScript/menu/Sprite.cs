@@ -26,7 +26,7 @@ namespace NativeUI
             }
         }
 
-        public string TextureName;
+        public string TextureName = "";
         private string _textureDict;
 
 

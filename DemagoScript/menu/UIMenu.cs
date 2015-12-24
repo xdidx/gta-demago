@@ -1018,10 +1018,10 @@ namespace NativeUI
         public void ResetKey(MenuControls control)
         {
             if (!_keyDictionary.ContainsKey(control))
-            {
-                _keyDictionary[control].Item1.Clear();
-                _keyDictionary[control].Item2.Clear();
-            }
+                return;
+
+            _keyDictionary[control].Item1.Clear();
+            _keyDictionary[control].Item2.Clear();
         }
 
 

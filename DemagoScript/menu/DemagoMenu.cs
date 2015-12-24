@@ -400,15 +400,6 @@ namespace DemagoScript
                     }
                 }
             };
-
-            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Up, Keys.NumPad8);
-            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Down, Keys.NumPad2);
-            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Left, Keys.NumPad4);
-            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Right, Keys.NumPad6);
-            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Select, Keys.NumPad5);
-            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Select, Keys.Enter);
-            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Back, Keys.Escape);
-            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Back, Keys.Return);
         }
         
         public void process()
@@ -416,35 +407,28 @@ namespace DemagoScript
             menuPool.ProcessMenus();
 
             Ped player = Game.Player.Character;
-
-            bool playerIsDead = player.IsDead;
-            bool playerIsArrested = Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true);
-
-            if ((playerIsDead || playerIsArrested) && player.Model != oldModel && oldModel != null)
+            
+            if ((player.IsDead || Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true)) && player.Model != oldModel && oldModel != null)
             {
-                if (playerIsArrested)
-                    Script.Wait(1000);
-
-                Ped replacementPed = Function.Call<Ped>(Hash.CLONE_PED, Game.Player.Character, Function.Call<int>(Hash.GET_ENTITY_HEADING, Function.Call<int>(Hash.PLAYER_PED_ID)), false, true);
                 if (player.IsDead)
                 {
+                    Ped replacementPed = Function.Call<Ped>(Hash.CLONE_PED, Game.Player.Character, Function.Call<int>(Hash.GET_ENTITY_HEADING, Function.Call<int>(Hash.PLAYER_PED_ID)), false, true);
                     replacementPed.Kill();
+
+                    player.IsVisible = false;
+
+                    Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
+
+                    while (Game.Player.IsDead)
+                        Script.Wait(100);
+
+                    player.IsVisible = true;
                 }
                 else
                 {
-                    replacementPed.Task.HandsUp(-1);
+                    Script.Wait(4000);
+                    Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
                 }
-
-                player.IsVisible = false;
-                Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
-
-                if (playerIsDead)
-                {
-                    while (Game.Player.IsDead)
-                        Script.Wait(100);
-                }
-
-                player.IsVisible = true;
             }
             else
             {
@@ -483,6 +467,24 @@ namespace DemagoScript
 
         public void OnKeyDown(object sender, KeyEventArgs e)
         {
+            menuPool.ResetKey(NativeUI.UIMenu.MenuControls.Up);
+            menuPool.ResetKey(NativeUI.UIMenu.MenuControls.Down);
+            menuPool.ResetKey(NativeUI.UIMenu.MenuControls.Left);
+            menuPool.ResetKey(NativeUI.UIMenu.MenuControls.Right);
+            menuPool.ResetKey(NativeUI.UIMenu.MenuControls.Select);
+            menuPool.ResetKey(NativeUI.UIMenu.MenuControls.Select);
+            menuPool.ResetKey(NativeUI.UIMenu.MenuControls.Back);
+            menuPool.ResetKey(NativeUI.UIMenu.MenuControls.Back);
+
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Up, Keys.NumPad8);
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Down, Keys.NumPad2);
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Left, Keys.NumPad4);
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Right, Keys.NumPad6);
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Select, Keys.NumPad5);
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Select, Keys.Enter);
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Back, Keys.Escape);
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Back, Keys.Return);
+
             if (e.KeyCode == Keys.F5)
             {
                 toggleDisplay();
@@ -490,20 +492,17 @@ namespace DemagoScript
 
             menuPool.ProcessKey(e.KeyCode);
         }
-
-        public void show()
-        {
-            mainMenu.Visible = true;
-        }
-
-        public void hide()
-        {
-            mainMenu.Visible = false;
-        }
-
+        
         public void toggleDisplay()
         {
-            mainMenu.Visible = !mainMenu.Visible;
+            if (menuPool.isVisible())
+            {
+                menuPool.hideAll();
+            }
+            else
+            {
+                mainMenu.Visible = true;
+            }
         }
 
     }

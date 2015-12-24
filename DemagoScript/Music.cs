@@ -31,18 +31,28 @@ namespace DemagoScript
 
         public bool isPlaying(string key)
         {
-            if (key == null)
-                return false;
-
-            if (musicTable.ContainsKey(key))
-                return !musicTable[key].Finished;
+            if (key != null && musicTable.ContainsKey(key))
+                return !musicTable[key].Finished && musicTable[key].PlayPosition != 0;
 
             return false;
         }
 
+        public bool isFinished(string key)
+        {
+            if (key != null && musicTable.ContainsKey(key))
+                return musicTable[key].Finished;
+
+            return true;
+        }       
+
+        public uint getPlayingPosition(string key)
+        {
+            return musicTable[key].PlayPosition;
+        }
+        
         public void playMusic(string key)
         {
-            if (musicTable.ContainsKey(key))
+            if (key != null && musicTable.ContainsKey(key))
             {
                 musicTable[key].Paused = false;
             }
@@ -50,7 +60,7 @@ namespace DemagoScript
 
         public void pauseMusic(string key)
         {
-            if (musicTable.ContainsKey(key))
+            if (key != null && musicTable.ContainsKey(key))
             {
                 musicTable[key].Paused = true;
             }
@@ -58,7 +68,7 @@ namespace DemagoScript
 
         public void restart(string key)
         {
-            if (musicTable.ContainsKey(key))
+            if (key != null && musicTable.ContainsKey(key))
             {
                 musicTable[key].PlayPosition = 0;
             }
@@ -66,7 +76,7 @@ namespace DemagoScript
 
         public int length(string key)
         {
-            if (musicTable.ContainsKey(key))
+            if (key != null && musicTable.ContainsKey(key))
             {
                 return (int) musicTable[key].PlayLength;
             }

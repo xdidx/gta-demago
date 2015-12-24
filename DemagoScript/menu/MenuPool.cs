@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using DemagoScript;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using Control = GTA.Control;
@@ -198,6 +199,26 @@ namespace NativeUI
             _menuList.ForEach(m => m.ResetKey(menuControl));
         }
 
-        
+        public void hideAll()
+        {
+            _menuList.ForEach(m => m.Visible = false);
+        }
+
+        public bool isVisible(List<UIMenu> menuList = null)
+        {
+            if (menuList == null)
+            {
+                return isVisible(_menuList);
+            }
+
+            foreach (UIMenu menu in _menuList)
+            {
+                if (menu.Visible)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }

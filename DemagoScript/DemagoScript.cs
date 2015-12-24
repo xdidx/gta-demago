@@ -14,10 +14,10 @@ namespace DemagoScript
     public class DemagoScript : Script
     {
         private List<Mission> missions = null;
-        private DemagoMenu menu;
+        private DemagoMenu menu = null;
         private static float scriptTime = 0;
         private bool initialized = false;
-        private bool paused = false; 
+        private bool isPaused = false; 
         private bool isSitting = false; 
 
         public DemagoScript()
@@ -34,8 +34,9 @@ namespace DemagoScript
             {
                 return;
             }
-            
-            menu = new DemagoMenu(getMissions());
+
+            createMissions();
+            menu = new DemagoMenu(missions);
             initialized = true;
         }
 
@@ -46,6 +47,10 @@ namespace DemagoScript
 
         void OnTick(object sender, EventArgs e)
         {
+            if (isPaused)
+            {
+                togglePause();
+            }
             initialize();
 
             scriptTime += (Game.LastFrameTime * 1000);
@@ -53,9 +58,6 @@ namespace DemagoScript
             Tools.update();
             Timer.updateAllTimers();
 
-            menu.process();
-
-            var missions = getMissions();
             foreach (Mission mission in missions)
             {
                 if (mission.isInProgress())
@@ -63,6 +65,8 @@ namespace DemagoScript
                     mission.update();
                 }
             }
+
+            menu.process();
         }
 
         private void OnKeyDown(object sender, KeyEventArgs e)
@@ -81,18 +85,18 @@ namespace DemagoScript
 
         private void togglePause()
         {
-            if (paused == false)
+            if (isPaused == false)
             {
-                paused = true;
+                isPaused = true;
             }
             else
             {
-                paused = false;
+                isPaused = false;
             }
-            
+
             foreach (Mission mission in missions)
             {
-                mission.setPause(paused);
+                mission.setPause(isPaused);
             }
         }
 
@@ -114,46 +118,41 @@ namespace DemagoScript
             }
         }
 
-        private List<Mission> getMissions()
+        private void createMissions()
         {
-            if (missions == null)
+            missions = new List<Mission>();
+
+            Type[] missionsClassesList = Assembly.GetExecutingAssembly().GetTypes().Where(type => type.IsSubclassOf(typeof(Mission))).ToArray();
+            foreach (Type missionClass in missionsClassesList)
             {
-                missions = new List<Mission>();
+                Mission newMission = (Mission)Activator.CreateInstance(missionClass);
 
-                Type[] missionsClassesList = Assembly.GetExecutingAssembly().GetTypes().Where(type => type.IsSubclassOf(typeof(Mission))).ToArray();
-                foreach (Type missionClass in missionsClassesList)
+                newMission.OnMissionStart += (sender) =>
                 {
-                    Mission newMission = (Mission)Activator.CreateInstance(missionClass);
-
-                    newMission.OnMissionStart += (sender) =>
+                    foreach (Mission mission in missions)
                     {
-                        foreach (Mission mission in missions)
-                        {
-                            mission.stop("Une autre mission a été démarrée");
-                        }
-                        GTA.UI.Notify(sender.getName());
-                    };
+                        mission.stop("Une autre mission a été démarrée");
+                    }
+                    GTA.UI.Notify(sender.getName());
+                };
 
-                    newMission.OnMissionAccomplished += (sender, time) =>
+                newMission.OnMissionAccomplished += (sender, time) =>
+                {
+                    var successMessage = sender.getName() + " : Mission accomplie";
+                    if (Tools.getTextFromTimespan(time) != "")
                     {
-                        var successMessage = sender.getName() + " : Mission accomplie";
-                        if (Tools.getTextFromTimespan(time) != "")
-                        {
-                            successMessage += " en " + Tools.getTextFromTimespan(time);
-                        }
-                        GTA.UI.Notify(successMessage);
-                    };
+                        successMessage += " en " + Tools.getTextFromTimespan(time);
+                    }
+                    GTA.UI.Notify(successMessage);
+                };
 
-                    newMission.OnMissionFail += (sender, reason) =>
-                    {
-                        GTA.UI.Notify("La mission a échouée : " + reason);
-                    };
+                newMission.OnMissionFail += (sender, reason) =>
+                {
+                    GTA.UI.Notify("La mission a échouée : " + reason);
+                };
 
-                    missions.Add(newMission);
-                }
+                missions.Add(newMission);
             }
-
-            return missions;
         }
         
     }

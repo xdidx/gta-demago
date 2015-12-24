@@ -43,13 +43,13 @@ namespace DemagoScript
         private int cameraChangeTimer, etapeMission;
         private Ped introPed;
         private float startTime = 0;
-        private Random r = new Random();
+        private Random random = new Random();
 
         private List<string[]> musiques = new List<string[]>();
         private Music musicPlaylist = null;
-        private string currentPlay = null;
-        private string interruptPlay = null;
-        private string currentInterruptPlay = null;
+        private string currentPlay = "";
+        private string interruptPlay = "";
+        private string currentInterruptPlay = "";
 
         public override string getName()
         {
@@ -185,9 +185,7 @@ namespace DemagoScript
             }
 
             Function.Call(Hash.SET_PED_COMPONENT_VARIATION, nadineMorano.Handle, 2, 1, 2, 2);
-
-            Random random = new Random();
-
+            
             for(int num = 0; num < 120; num++)
             {
                 Ped ped = World.CreatePed(spectatorsHashesThirdSong.ElementAt<PedHash>(random.Next(spectatorsHashesThirdSong.Count)), thirdSongPublicPosition1 + (float) random.NextDouble() * thirdSongPublicPosition2 + (float)random.NextDouble() * thirdSongPublicPosition3);
@@ -261,7 +259,6 @@ namespace DemagoScript
                     {
                         spectator.MarkAsNoLongerNeeded();
                         spectator.Task.ClearAllImmediately();
-                        Random random = new Random();
                         if (random.Next(0, 1) == 0)
                         {
                             spectator.Task.FightAgainst(Game.Player.Character);
@@ -345,10 +342,10 @@ namespace DemagoScript
                     }
                 }
 
-                if (currentPlay != null)
+                if (currentPlay != "")
                 {
                     musicPlaylist.pauseMusic(currentPlay);
-                    currentPlay = null;
+                    currentPlay = "";
                 }
 
                 Tools.setClockTime(16, musicPlaylist.length("musique2"));
@@ -423,7 +420,6 @@ namespace DemagoScript
                     {
                         spectator.MarkAsNoLongerNeeded();
                         spectator.Task.ClearAllImmediately();
-                        Random random = new Random();
                         if (random.Next(0, 1) == 0)
                         {
                             spectator.Task.FightAgainst(Game.Player.Character);
@@ -490,10 +486,10 @@ namespace DemagoScript
                     }
                 }
 
-                if (currentPlay != null)
+                if (currentPlay != "")
                 {
                     musicPlaylist.pauseMusic(currentPlay);
-                    currentPlay = null;
+                    currentPlay = "";
                 }
 
                 player.Heading = 180;
@@ -594,13 +590,17 @@ namespace DemagoScript
         public override void setPause(bool isPaused)
         {
             base.setPause(isPaused);
-            if (isPaused)
+            if (musicPlaylist != null)
             {
-                musicPlaylist.pauseMusic(currentPlay);
-            }
-            else
-            {
-                musicPlaylist.playMusic(currentPlay);
+                if (isPaused)
+                {
+                    musicPlaylist.pauseMusic(currentPlay);
+                    Script.Wait(1000);
+                }
+                else
+                {
+                    musicPlaylist.playMusic(currentPlay);
+                }
             }
         }
 
@@ -658,7 +658,7 @@ namespace DemagoScript
 
         public void playAmbiance()
         {
-            if (!musicPlaylist.isPlaying(currentPlay))
+            if (currentPlay == "" || musicPlaylist.isFinished(currentPlay))
             {
                 switch (etapeMission)
                 {
@@ -701,25 +701,26 @@ namespace DemagoScript
                         break;
                 }
             }
-            if (interruptPlay == null)
+
+            if (interruptPlay == "")
             {
                 if (Function.Call<Boolean>(Hash.HAS_PED_BEEN_DAMAGED_BY_WEAPON, Game.Player.Character, 0, 2))
                 {
-                    int next = r.Next(10) + 1;
+                    int next = random.Next(10) + 1;
                     interruptPlay = "balle" + next;
                 }
                 else
                 {
                     if (Function.Call<Boolean>(Hash.HAS_ENTITY_BEEN_DAMAGED_BY_ANY_VEHICLE, Game.Player.Character))
                     {
-                        int next = r.Next(8) + 1;
+                        int next = random.Next(8) + 1;
                         interruptPlay = "voiture" + next;
                     }
                     else
                     {
                         if (Function.Call<Boolean>(Hash.HAS_ENTITY_BEEN_DAMAGED_BY_ANY_OBJECT, Game.Player.Character))
                         {
-                            int next = r.Next(7) + 1;
+                            int next = random.Next(7) + 1;
                             interruptPlay = "insulte" + next;
                         }
                     }
@@ -729,12 +730,12 @@ namespace DemagoScript
 
         public override bool update()
         {
-            if (currentPlay != null)
+            if (currentPlay != "")
             {                
-                if (interruptPlay != null && currentInterruptPlay == null)
+                if (interruptPlay != "" && currentInterruptPlay == "")
                 {
                     currentInterruptPlay = interruptPlay;
-                    interruptPlay = null;
+                    interruptPlay = "";
 
                     if (!currentPlay.StartsWith("flic"))
                         musicPlaylist.pauseMusic(currentPlay);
@@ -742,35 +743,35 @@ namespace DemagoScript
                     musicPlaylist.playMusic(currentInterruptPlay);
                 }
 
-                if (!musicPlaylist.isPlaying(currentInterruptPlay) && currentInterruptPlay != null)
+                if (currentInterruptPlay != "" && musicPlaylist.isFinished(currentInterruptPlay))
                 {
                     musicPlaylist.playMusic(currentPlay);
                     musicPlaylist.restart(currentInterruptPlay);
                     musicPlaylist.pauseMusic(currentInterruptPlay);
                     Function.Call(Hash.CLEAR_ENTITY_LAST_DAMAGE_ENTITY, Game.Player.Character);
                     Function.Call(Hash.CLEAR_ENTITY_LAST_WEAPON_DAMAGE, Game.Player.Character);
-                    currentInterruptPlay = null;
+                    currentInterruptPlay = "";
                 }
 
-                if (!musicPlaylist.isPlaying(currentPlay))
-                    currentPlay = null;
+                if (musicPlaylist.isFinished(currentPlay))
+                    currentPlay = "";
             }
             else
             {
-                if (interruptPlay != null && currentInterruptPlay == null)
+                if (interruptPlay != "" && currentInterruptPlay == "")
                 {
                     currentInterruptPlay = interruptPlay;
-                    interruptPlay = null;
+                    interruptPlay = "";
                     musicPlaylist.playMusic(currentInterruptPlay);
                 }
 
-                if (!musicPlaylist.isPlaying(currentInterruptPlay) && currentInterruptPlay != null)
+                if (currentInterruptPlay != "" && musicPlaylist.isFinished(currentInterruptPlay))
                 {
                     musicPlaylist.restart(currentInterruptPlay);
                     musicPlaylist.pauseMusic(currentInterruptPlay);
                     Function.Call(Hash.CLEAR_ENTITY_LAST_DAMAGE_ENTITY, Game.Player.Character);
                     Function.Call(Hash.CLEAR_ENTITY_LAST_WEAPON_DAMAGE, Game.Player.Character);
-                    currentInterruptPlay = null;
+                    currentInterruptPlay = "";
                 }
             }
 

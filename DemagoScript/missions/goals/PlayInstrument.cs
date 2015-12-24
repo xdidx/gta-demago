@@ -103,18 +103,10 @@ namespace DemagoScript
 
         public override void setPause(bool isPaused)
         {
-            if (isPaused)
+            if (isPaused && musiques.isPlaying(musicToPlay))
             {
-                if (musiques.isPlaying(musicToPlay))
-                {
-                    Tools.log(musicToPlay + " isplaying");
-                    musiques.pauseMusic(musicToPlay);
-                    this.wasPaused = true;
-                }
-                else
-                {
-                    Tools.log(musicToPlay + " ISNT playing");
-                }
+                musiques.pauseMusic(musicToPlay);
+                this.wasPaused = true;                
             }
             else if (!isPaused && this.wasPaused)
             {
