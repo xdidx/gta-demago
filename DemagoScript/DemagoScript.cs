@@ -73,8 +73,6 @@ namespace DemagoScript
 
         private void OnKeyDown(object sender, KeyEventArgs e)
         {
-            GUIManager.Instance.OnKeyDown(sender, e);
-
             if (e.KeyCode == Keys.Decimal)
             {
                 playerSitting();
@@ -84,6 +82,8 @@ namespace DemagoScript
             {
                 togglePause();
             }
+
+            GUIManager.Instance.OnKeyDown( sender, e );
         }
 
         private void togglePause()

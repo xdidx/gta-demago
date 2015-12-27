@@ -37,18 +37,9 @@ namespace DemagoScript.GUI
             this.popupManager.update();
         }
 
-        private void toggleMenuDisplay()
-        {
-            this.menu.toggleDisplay();
-        }
-
         public void OnKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.F5)
-            {
-                toggleMenuDisplay();
-            }
-            menu.OnKeyDown(sender, e);
+            this.menu.OnKeyDown(sender, e);
         }
     }
 }
