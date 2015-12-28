@@ -1,5 +1,6 @@
 ﻿using GTA.Native;
 using GTA.Math;
+using GTA;
 
 namespace DemagoScript.GUI.elements
 {
@@ -16,14 +17,14 @@ namespace DemagoScript.GUI.elements
         // Exemple:
         // DemagoMenu.drawText( "Hello world", 0.14, 0.49, 2.9, true, 1, 255, 0, 0 );
 
-        public UITextElement( string text, double x, double y, double scale, bool center, int font, Vector3 color )
+        public UITextElement( string text, double x, double y, double scale, bool center, Font font, Vector3 color )
         {
             this.text = text;
             this.x = x;
             this.y = y;
             this.scale = scale;
             this.center = center;
-            this.font = font;
+            this.font = (int)font;
             this.color = color;
         }
         
@@ -41,9 +42,9 @@ namespace DemagoScript.GUI.elements
             Function.Call( Hash._DRAW_TEXT, (double)this.y, (double)this.x );
         }
         
-        public static void drawText( string text, double x, double y, double scale, bool center, int font, int r, int g, int b )
+        public static void drawText( string text, double x, double y, double scale, bool center, Font font, int r, int g, int b )
         {
-            Function.Call( Hash.SET_TEXT_FONT, font );
+            Function.Call( Hash.SET_TEXT_FONT, (int)font );
             Function.Call( Hash.SET_TEXT_SCALE, scale, scale );
             Function.Call( Hash.SET_TEXT_COLOUR, r, g, b, 255 );
             Function.Call( Hash.SET_TEXT_WRAP, 0.0, 1.0 );

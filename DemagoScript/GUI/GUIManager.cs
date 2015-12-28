@@ -40,6 +40,7 @@ namespace DemagoScript.GUI
         public void OnKeyDown(object sender, KeyEventArgs e)
         {
             this.menu.OnKeyDown(sender, e);
+            this.popupManager.OnKeyDown(sender, e);
         }
     }
 }
