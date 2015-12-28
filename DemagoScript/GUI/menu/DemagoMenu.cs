@@ -337,16 +337,10 @@ namespace DemagoScript
                 if (item == showMessageItem) {
                     if (this.testPopup == null)
                     {
-                        UIRectElement background = new UIRectElement(0, 0, 2, 2, new Vector3(0, 0, 0), 220);
-                        UITextElement title = new UITextElement("Bienvenue !", 0.15, 0.5, 2.9, true, Font.HouseScript, new Vector3(255, 0, 0));
-                        UITextElement content = new UITextElement("Ca te dit de fermer la popup de test ?", 0.30, 0.5, 1.3, true, Font.ChaletComprimeCologne, new Vector3(255, 255, 255));
-                        UITextElement footer = new UITextElement("(T'as pas vraiment le choix enfait)", 0.45, 0.5, 1, true, Font.ChaletComprimeCologne, new Vector3(255, 255, 255));
-
-                        this.testPopup = new NotificationPopup();
-                        this.testPopup.add(background);
-                        this.testPopup.add(title);
-                        this.testPopup.add(content);
-                        this.testPopup.add(footer);
+                        this.testPopup = new ConfirmationPopup(
+                            "Bienvenue !",
+                            "Ca te dit de fermer la popup de test ?"
+                        );
 
                         this.testPopup.OnPopupAccept += () =>
                         {
@@ -556,6 +550,16 @@ namespace DemagoScript
                 mainMenu.Visible = true;
             }
         }
+        
+        public void hide()
+        {
+            menuPool.hideAll();
+            mainMenu.Visible = false;
+        }
 
+        public void show()
+        {
+            mainMenu.Visible = true;
+        }
     }
 }

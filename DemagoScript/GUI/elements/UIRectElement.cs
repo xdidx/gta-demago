@@ -1,10 +1,5 @@
 ﻿using GTA.Math;
 using GTA.Native;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DemagoScript.GUI.elements
 {
@@ -14,7 +9,7 @@ namespace DemagoScript.GUI.elements
         private double y = 0;
         private double width = 1;
         private double height = 1;
-        private Vector3 color = new Vector3( 255, 255, 255 );
+        private Vector3 color = UIColor.WHITE;
         private int alpha = 255;
 
         public UIRectElement( double x, double y, double width, double height, Vector3 color, int alpha )

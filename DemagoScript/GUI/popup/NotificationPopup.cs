@@ -14,8 +14,11 @@ namespace DemagoScript.GUI.popup
 
         private void hideUselessElements()
         {
-            // Hide HUD and RADAR
             if ( this.isVisible() ) {
+                // Hide DemagoMenu
+                GUIManager.Instance.menu.hide();
+
+                // Hide HUD and RADAR
                 Function.Call( Hash.HIDE_HUD_AND_RADAR_THIS_FRAME );
             }
 

@@ -12,7 +12,7 @@ namespace DemagoScript.GUI.elements
         private double scale = 1;
         private bool center = true;
         private int font = 1;
-        private Vector3 color = new Vector3( 255, 255, 255 );
+        private Vector3 color = UIColor.WHITE;
 
         // Exemple:
         // DemagoMenu.drawText( "Hello world", 0.14, 0.49, 2.9, true, 1, 255, 0, 0 );
@@ -39,7 +39,7 @@ namespace DemagoScript.GUI.elements
             Function.Call( Hash._SET_TEXT_ENTRY, "STRING" );
             Function.Call( Hash.SET_TEXT_DROPSHADOW, 2, 0, 0, 0, 205 );
             Function.Call( Hash._ADD_TEXT_COMPONENT_STRING, this.text );
-            Function.Call( Hash._DRAW_TEXT, (double)this.y, (double)this.x );
+            Function.Call( Hash._DRAW_TEXT, (double)this.x, (double)this.y );
         }
         
         public static void drawText( string text, double x, double y, double scale, bool center, Font font, int r, int g, int b )
@@ -53,7 +53,7 @@ namespace DemagoScript.GUI.elements
             Function.Call( Hash._SET_TEXT_ENTRY, "STRING" );
             Function.Call( Hash.SET_TEXT_DROPSHADOW, 2, 0, 0, 0, 205 );
             Function.Call( Hash._ADD_TEXT_COMPONENT_STRING, text );
-            Function.Call( Hash._DRAW_TEXT, y, x );
+            Function.Call( Hash._DRAW_TEXT, x, y );
         }
     }
 }
