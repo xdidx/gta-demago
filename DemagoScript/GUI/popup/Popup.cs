@@ -54,16 +54,19 @@ namespace DemagoScript
 
         public void OnKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter)
+            if (this.visible)
             {
-                this.hide();
-                OnPopupAccept?.Invoke();
-            }
+                if (e.KeyCode == Keys.Enter)
+                {
+                    this.hide();
+                    OnPopupAccept?.Invoke();
+                }
 
-            if (e.KeyCode == Keys.Escape)
-            {
-                this.hide();
-                OnPopupRefuse?.Invoke();
+                if (e.KeyCode == Keys.Escape)
+                {
+                    this.hide();
+                    OnPopupRefuse?.Invoke();
+                }
             }
         }
     }
