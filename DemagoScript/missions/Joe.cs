@@ -41,7 +41,7 @@ namespace DemagoScript
         private bool introEnded;
         private int  nbMusiqueEtape;
         private int cameraChangeTimer, etapeMission;
-        private Ped introPed;
+        private Ped introPed, nadineMorano;
         private float startTime = 0;
         private Random random = new Random();
 
@@ -147,7 +147,8 @@ namespace DemagoScript
             List<Vector3> positions = new List<Vector3>();
             positions.Add(new Vector3(2361.558f, 2527.512f, 46.66772f));
             positions.Add(new Vector3(2351.906f, 2530.494f, 48f));
-            Tools.traveling(positions, 37000, introPed, true);
+            positions.Add(bikePositionAtHome);
+            Tools.traveling(positions, 37000, introPed);
             
             bike = World.CreateVehicle(VehicleHash.TriBike, bikePositionAtHome);
             bike.EnginePowerMultiplier = 100;
@@ -176,15 +177,6 @@ namespace DemagoScript
             spectatorsHashesThirdSong.Add(PedHash.MovAlien01);
             spectatorsHashesThirdSong.Add(PedHash.Jesus01);
             spectatorsHashesThirdSong.Add(PedHash.Zombie01);
-
-            Ped nadineMorano = World.CreatePed(PedHash.Business02AFM, thirdSongPosition);
-
-            while (nadineMorano == null || !nadineMorano.Exists())
-            {
-                nadineMorano = World.CreatePed(PedHash.Business02AFM, thirdSongPosition);
-            }
-
-            Function.Call(Hash.SET_PED_COMPONENT_VARIATION, nadineMorano.Handle, 2, 1, 2, 2);
             
             for(int num = 0; num < 120; num++)
             {
@@ -202,6 +194,14 @@ namespace DemagoScript
                     spectatorsPeds3.Add(ped);
                 }
             }
+
+            while (nadineMorano == null || !nadineMorano.Exists())
+            {
+                nadineMorano = World.CreatePed(PedHash.Business02AFM, thirdSongPosition);
+                nadineMorano.Task.TurnTo(spectatorsPeds3[0]);
+            }
+
+            Function.Call(Hash.SET_PED_COMPONENT_VARIATION, nadineMorano.Handle, 2, 1, 2, 2);
 
             foreach (PedHash hash in spectatorsHashesFirstSong)
             {
@@ -244,8 +244,11 @@ namespace DemagoScript
                 {
                     TaskSequence angrySpectator = new TaskSequence();
                     angrySpectator.AddTask.ClearAllImmediately();
-                    angrySpectator.AddTask.Wait(musicPlaylist.length("musique1") / 1000 - 15);
-                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_displeased", 8f, -1, true, -1f);
+                    angrySpectator.AddTask.TurnTo(player, 1000);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_what_hard", 8f, -1, false, -1f);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_yes_soft", 2f, musicPlaylist.length("musique1") - 6000, true, -1f);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_you_soft", 8f, -1, false, -1f);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_no_hard", 8f, -1, true, -1f);
 
                     spectator.Task.PerformSequence(angrySpectator);
                 }
@@ -257,7 +260,6 @@ namespace DemagoScript
                 {
                     if (spectator != null && spectator.Exists())
                     {
-                        spectator.MarkAsNoLongerNeeded();
                         spectator.Task.ClearAllImmediately();
                         if (random.Next(0, 1) == 0)
                         {
@@ -381,8 +383,11 @@ namespace DemagoScript
                 {
                     TaskSequence angrySpectator = new TaskSequence();
                     angrySpectator.AddTask.ClearAllImmediately();
-                    angrySpectator.AddTask.Wait(musicPlaylist.length("musique2") / 1000 - 15);
-                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_displeased", 8f, -1, true, -1f);
+                    angrySpectator.AddTask.TurnTo(player, 1000);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_what_hard", 8f, -1, false, -1f);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_yes_soft", 2f, musicPlaylist.length("musique2") - 6000, true, -1f);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_you_soft", 8f, -1, false, -1f);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_no_hard", 8f, -1, true, -1f);
 
                     spectator.Task.PerformSequence(angrySpectator);
                 }
@@ -407,7 +412,6 @@ namespace DemagoScript
                 {
                     if (ped != null && ped.Exists())
                     {
-                        ped.MarkAsNoLongerNeeded();
                         ped.Weapons.Give(WeaponHash.Pistol, 1, true, true);
                         Function.Call(Hash.SET_PED_AS_COP, ped, true);
                         ped.MarkAsNoLongerNeeded();
@@ -418,7 +422,6 @@ namespace DemagoScript
                 {
                     if (spectator != null && spectator.Exists())
                     {
-                        spectator.MarkAsNoLongerNeeded();
                         spectator.Task.ClearAllImmediately();
                         if (random.Next(0, 1) == 0)
                         {
@@ -434,11 +437,13 @@ namespace DemagoScript
                 player.Health = 300;
                 player.Armor = 100;
 
-                Game.Player.WantedLevel = 1;
                 GTA.UI.ShowSubtitle("Policier : Si tu ne sors pas, c'est nous qui allons te faire sortir !", 4000);
                 World.Weather = Weather.Raining;
                 Tools.setClockTime(17, 10000);
                 etapeMission = 2;
+
+                Script.Wait(2000);
+                Game.Player.WantedLevel = 1;
             };
 
             GoToPositionInVehicle goToTheaterWithBikeGoal = new GoToPositionInVehicle(thirdSongBikePosition, bike);
@@ -501,8 +506,11 @@ namespace DemagoScript
                 {
                     TaskSequence angrySpectator = new TaskSequence();
                     angrySpectator.AddTask.ClearAllImmediately();
-                    angrySpectator.AddTask.Wait(musicPlaylist.length("musique3") / 1000 - 15);
-                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_displeased", 8f, -1, true, -1f);
+                    angrySpectator.AddTask.TurnTo(player, 1000);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_what_hard", 8f, -1, false, -1f);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_yes_soft", 2f, musicPlaylist.length("musique3") - 6000, true, -1f);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_you_soft", 8f, -1, false, -1f);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_no_hard", 8f, -1, true, -1f);
 
                     spectator.Task.PerformSequence(angrySpectator);
                 }
@@ -607,6 +615,13 @@ namespace DemagoScript
         public override void clear(bool removePhysicalElements = false)
         {
             base.clear(removePhysicalElements);
+
+            if (introPed != null && introPed.Exists())
+                introPed.Delete();
+
+            if (nadineMorano != null && nadineMorano.Exists())
+                nadineMorano.Delete();
+
             if (musicPlaylist != null)
             {
                 musicPlaylist.pauseMusic(currentPlay);
@@ -629,9 +644,8 @@ namespace DemagoScript
                     if (removePhysicalElements)
                         spectator.Delete();
                 }
-
-            if (removePhysicalElements)
-                spectatorsPeds.Clear();
+            
+            spectatorsPeds.Clear();
 
             foreach (Ped spectator in copsPeds)
                 if (spectator != null && spectator.Exists())
@@ -640,9 +654,8 @@ namespace DemagoScript
                     if (removePhysicalElements)
                         spectator.Delete();
                 }
-
-            if (removePhysicalElements)
-                copsPeds.Clear();
+            
+            copsPeds.Clear();
 
             foreach (Ped spectator in spectatorsPeds2)
                 if (spectator != null && spectator.Exists())
@@ -651,9 +664,18 @@ namespace DemagoScript
                     if (removePhysicalElements)
                         spectator.Delete();
                 }
+            
+            spectatorsPeds2.Clear();
 
-            if (removePhysicalElements)
-                spectatorsPeds2.Clear();
+            foreach (Ped spectator in spectatorsPeds3)
+                if (spectator != null && spectator.Exists())
+                {
+                    spectator.MarkAsNoLongerNeeded();
+                    if (removePhysicalElements)
+                        spectator.Delete();
+                }
+            
+            spectatorsPeds2.Clear();
         }
 
         public void playAmbiance()

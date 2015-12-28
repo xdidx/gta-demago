@@ -65,7 +65,7 @@ namespace DemagoScript
                 return false;
             }
             else if (SecondsToPlay >= 0)
-                    setGoalText("Attend que les spéctateurs aient assez apprécié la musique de Joe (Encore " + Tools.getTextFromSeconds(SecondsToPlay) + ")");
+                    setGoalText("Attend que les spéctateurs aient assez apprécié la musique de Joe.");
 
             return true;
         }

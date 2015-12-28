@@ -33,9 +33,9 @@ namespace DemagoScript
             }
             createDestinationBlip();
 
-            finishCheckpoint = Function.Call<int>(Hash.CREATE_CHECKPOINT, 24, destination.X, destination.Y, 0.0f, destination.X, destination.Y, 0.0f, 2f, 254, 207, 12, 100, 40);
+            finishCheckpoint = Function.Call<int>(Hash.CREATE_CHECKPOINT, 24, destination.X, destination.Y, 0.0f, destination.X, destination.Y, 0.0f, 2f, 254, 207, 12, 200, 40);
             Function.Call(Hash._SET_CHECKPOINT_ICON_RGBA, finishCheckpoint, 0, 0, 256, 60);
-            Function.Call(Hash.SET_CHECKPOINT_CYLINDER_HEIGHT, finishCheckpoint, Tools.GetGroundedPosition(destination).Z + 6.0f, Tools.GetGroundedPosition(destination).Z + 46.0f, 30.0f);
+            Function.Call(Hash.SET_CHECKPOINT_CYLINDER_HEIGHT, finishCheckpoint, Tools.GetGroundedPosition(destination).Z + 30.0f, Tools.GetGroundedPosition(destination).Z + 30.0f, 30.0f);
 
             return true;
         }

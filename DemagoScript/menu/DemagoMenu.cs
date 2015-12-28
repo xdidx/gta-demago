@@ -472,8 +472,6 @@ namespace DemagoScript
             menuPool.ResetKey(NativeUI.UIMenu.MenuControls.Left);
             menuPool.ResetKey(NativeUI.UIMenu.MenuControls.Right);
             menuPool.ResetKey(NativeUI.UIMenu.MenuControls.Select);
-            menuPool.ResetKey(NativeUI.UIMenu.MenuControls.Select);
-            menuPool.ResetKey(NativeUI.UIMenu.MenuControls.Back);
             menuPool.ResetKey(NativeUI.UIMenu.MenuControls.Back);
 
             menuPool.SetKey(NativeUI.UIMenu.MenuControls.Up, Keys.NumPad8);
@@ -483,7 +481,8 @@ namespace DemagoScript
             menuPool.SetKey(NativeUI.UIMenu.MenuControls.Select, Keys.NumPad5);
             menuPool.SetKey(NativeUI.UIMenu.MenuControls.Select, Keys.Enter);
             menuPool.SetKey(NativeUI.UIMenu.MenuControls.Back, Keys.Escape);
-            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Back, Keys.Return);
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Back, Keys.Back);
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Back, Keys.NumPad0);
 
             if (e.KeyCode == Keys.F5)
             {
