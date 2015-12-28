@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace DemagoScript.GUI.popup
 {
@@ -20,7 +21,15 @@ namespace DemagoScript.GUI.popup
         {
             foreach ( Popup popup in this.popups ) {
                 popup.draw();
-            }   
+            }
+        }
+
+        public void OnKeyDown(object sender, KeyEventArgs e)
+        {
+            foreach (Popup popup in this.popups)
+            {
+                popup.OnKeyDown(sender, e);
+            }
         }
     }
 }

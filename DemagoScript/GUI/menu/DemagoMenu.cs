@@ -16,7 +16,7 @@ namespace DemagoScript
 {
     class DemagoMenu
     {
-        //private Popup testPopup = null;
+        private Popup testPopup = null;
 
         private MenuPool menuPool;
         private UIMenu mainMenu;
@@ -305,9 +305,7 @@ namespace DemagoScript
             var showPositionItem = new UIMenuItem("Afficher la position");
             var showRotationItem = new UIMenuItem("Afficher la rotation");
 
-            /*var addMessageItem = new UIMenuItem( "addPopup" );
-            var showMessageItem = new UIMenuItem( "showPopup" );
-            var hideMessageItem = new UIMenuItem( "hidePopup" );*/
+            var showMessageItem = new UIMenuItem( "Afficher la popup de test" );
 
 
             var toolsMenu = menuPool.AddSubMenu(mainMenu, "Outils");
@@ -324,32 +322,39 @@ namespace DemagoScript
             toolsMenu.AddItem(seeVehicleActiveItem);
             toolsMenu.AddItem(godVehicleActiveItem);
 
-            /*toolsMenu.AddItem( addMessageItem );
             toolsMenu.AddItem( showMessageItem );
-            toolsMenu.AddItem( hideMessageItem );*/
 
             toolsMenu.OnItemSelect += (sender, item, checked_) =>
             {
-                /*if (item == addMessageItem ) {
-                    UIRectElement background = new UIRectElement( 0, 0, 2, 2, new Vector3( 0, 0, 0 ), 220 );
-                    UITextElement title = new UITextElement( "Hello world", 0.15, 0.5, 2.9, true, 1, new Vector3( 255, 0, 0 ) );
-                    UITextElement content = new UITextElement( "How are you today", 0.30, 0.5, 1.3, true, 2, new Vector3( 255, 255, 255 ) );
-                    UITextElement footer = new UITextElement( "Im fine thank you", 0.45, 0.5, 1, true, 3, new Vector3( 255, 255, 255 ) );
-
-                    this.testPopup = new NotificationPopup();
-                    this.testPopup.add( background );
-                    this.testPopup.add( title );
-                    this.testPopup.add( content );
-                    this.testPopup.add( footer );
-
-                    GUIManager.Instance.popupManager.add( this.testPopup );
-                }
                 if (item == showMessageItem) {
+                    if (this.testPopup == null)
+                    {
+                        UIRectElement background = new UIRectElement(0, 0, 2, 2, new Vector3(0, 0, 0), 220);
+                        UITextElement title = new UITextElement("Bienvenue !", 0.15, 0.5, 2.9, true, Font.HouseScript, new Vector3(255, 0, 0));
+                        UITextElement content = new UITextElement("Ca te dit de fermer la popup de test ?", 0.30, 0.5, 1.3, true, Font.ChaletComprimeCologne, new Vector3(255, 255, 255));
+                        UITextElement footer = new UITextElement("(T'as pas vraiment le choix enfait)", 0.45, 0.5, 1, true, Font.ChaletComprimeCologne, new Vector3(255, 255, 255));
+
+                        this.testPopup = new NotificationPopup();
+                        this.testPopup.add(background);
+                        this.testPopup.add(title);
+                        this.testPopup.add(content);
+                        this.testPopup.add(footer);
+
+                        this.testPopup.OnPopupAccept += () =>
+                        {
+                            UI.Notify("Requête acceptée");
+                        };
+
+                        this.testPopup.OnPopupRefuse += () =>
+                        {
+                            UI.Notify("Requête refusée");                            
+                        };
+
+                        GUIManager.Instance.popupManager.add(this.testPopup);
+                    }
+                    
                     this.testPopup.show();
                 }
-                if ( item == hideMessageItem ) {
-                    this.testPopup.hide();
-                }*/
 
                 if (item == showPositionItem)
                 {
