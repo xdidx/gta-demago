@@ -64,11 +64,19 @@ namespace DemagoScript
                     }
                 };
             }
-
+            
+            var stopCurrentMissionItem = new UIMenuItem("Stopper la mission");
+            missionsMenu.AddItem(stopCurrentMissionItem);
+           
             var teleportToTaxiItem = new UIMenuItem("Se téléporter à la mission taxi");
             missionsMenu.AddItem(teleportToTaxiItem);
             missionsMenu.OnItemSelect += (sender, item, index) =>
             {
+                if (item == stopCurrentMissionItem)
+                {
+                    DemagoScript.stopCurrentMission();
+                }
+
                 if (item == teleportToTaxiItem)
                 {
                     Function.Call(Hash.SET_NEW_WAYPOINT, -197f, 4213f);

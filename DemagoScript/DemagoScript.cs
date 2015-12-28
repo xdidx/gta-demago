@@ -10,7 +10,7 @@ namespace DemagoScript
 {
     public class DemagoScript : Script
     {
-        private List<Mission> missions = null;
+        private static List<Mission> missions = null;
 
         private static float scriptTime = 0;
         private bool initialized = false;
@@ -27,13 +27,28 @@ namespace DemagoScript
             KeyDown += OnKeyDown;
         }
 
+        public static void stopCurrentMission()
+        {
+            if (missions != null)
+            {
+                foreach (Mission mission in missions)
+                {
+                    if (mission.isInProgress())
+                    {
+                        mission.stop();
+                    }
+                }
+            }
+        }
+
         private void initialize()
         {
             if ( initialized ) {
                 return;
             }
-            
+
             createMissions();
+
             GUIManager.Instance.initialize( missions );
 
             initialized = true;
