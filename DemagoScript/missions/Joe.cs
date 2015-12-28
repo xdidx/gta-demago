@@ -713,6 +713,8 @@ namespace DemagoScript
 
         public override void update()
         {
+            base.update();
+
             if (currentPlay != "")
             {
                 if (interruptPlay != "" && currentInterruptPlay == "")
