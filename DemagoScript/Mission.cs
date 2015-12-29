@@ -18,6 +18,7 @@ namespace DemagoScript
         private bool over = false;
         private bool initialized = false;
         private bool failed = false;
+        protected int checkpointCourant;
         private DateTime startMissionTime;
 
         /// <summary>
@@ -44,6 +45,7 @@ namespace DemagoScript
 
             this.reset();
             this.initialized = false; // TODO: inclure dans le reset ?
+            checkpointCourant = 0;
 
             this.initialize();
 
@@ -136,6 +138,8 @@ namespace DemagoScript
             };
             goals.Add( goal );
         }
+
+        public virtual void loadCheckpoint() { }
 
         public virtual void update()
         {

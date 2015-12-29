@@ -104,6 +104,7 @@ namespace DemagoScript
             musiques.Add( new string[] { "flics2", "joeFlics2.wav" } );
             musiques.Add( new string[] { "flics3", "joeFlics3.wav" } );
             musiques.Add( new string[] { "flics4", "joeFlics4.wav" } );
+            musiques.Add( new string[] { "nadine", "joeNadine.wav" });
         }
 
         protected override void doInitialization()
@@ -266,6 +267,8 @@ namespace DemagoScript
             
             firstSongGoals.OnGoalAccomplished += (sender, elaspedTime) =>
             {
+                Function.Call(Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1);
+
                 foreach (Ped spectator in spectatorsPeds)
                 {
                     if (spectator != null && spectator.Exists())
@@ -410,6 +413,9 @@ namespace DemagoScript
             
             secondSongGoals.OnGoalAccomplished += (sender, elaspedTime) =>
             {
+
+                Function.Call(Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1);
+
                 foreach (Ped ped in copsPeds)
                 {
                     if (ped != null && ped.Exists())
@@ -427,7 +433,7 @@ namespace DemagoScript
                         spectator.Task.ClearAllImmediately();
                         if (random.Next(0, 1) == 0)
                         {
-                            spectator.Task.FightAgainst(Game.Player.Character);
+                            spectator.Task.FleeFrom(Game.Player.Character);
                         }
                         else
                         {
@@ -468,6 +474,7 @@ namespace DemagoScript
             goToThirdSongPosition.OnGoalAccomplished += (sender, elapsedTime) =>
             {
                 nadineMorano.Task.FleeFrom(player);
+                musicPlaylist.playMusic("nadine");
             };
 
             
@@ -534,6 +541,9 @@ namespace DemagoScript
 
             
             thirdSongGoals.OnGoalAccomplished += ( sender, elaspedTime ) => {
+
+                Function.Call(Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1);
+
                 player.Health = 300;
                 player.Armor = 100;
                 bikeRegen = true;
@@ -748,6 +758,22 @@ namespace DemagoScript
             }
         }
 
+        public override void loadCheckpoint()
+        {
+            if(checkpointCourant == 1)
+            {
+                // charger commissariat
+            }
+            if (checkpointCourant == 2)
+            {
+                // charger amphithéatre
+            }
+            else
+            {
+                start();
+            }
+        }
+
         public override void update()
         {
             base.update();
@@ -805,6 +831,15 @@ namespace DemagoScript
             {
                 float elapsedTime = DemagoScript.getScriptTime() - startTime;
 
+                if(Game.IsKeyPressed(System.Windows.Forms.Keys.Back))
+                {
+                    elapsedTime = 37001;
+                    introCamera = true;
+                    playerDown = false;
+                    playerMoved = true;
+                    playerWalked = true;
+                }
+
                 if (elapsedTime > 12000 && !introCamera)
                 {
                     List<Vector3> positions = new List<Vector3>();
@@ -827,10 +862,12 @@ namespace DemagoScript
                 if (elapsedTime > 33500 && !playerMoved)
                 {
                     introPed.Task.ClearAllImmediately();
-                    introPed.Task.PlayAnimation("gestures@m@standing@casual", "gesture_point", 8f, -1, false, -1f);
+                    introPed.Task.PlayAnimation("gestures@m@standing@casual", "gesture_why", 8f, -1, false, -1f);
                     playerMoved = true;
                 }
                 if ( elapsedTime > 37000 && !introEnded ) {
+                    musicPlaylist.pauseMusic("dialogue0");
+                    currentPlay = "";
                     player.Task.ClearAllImmediately();
                     introPed.IsVisible = false;
                     introPed.Delete();
