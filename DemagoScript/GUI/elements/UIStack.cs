@@ -25,12 +25,12 @@ namespace DemagoScript.GUI.elements
             }
         }
 
-        public virtual void show()
+        public void show()
         {
             this.visible = true;
         }
 
-        public virtual void hide()
+        public void hide()
         {
             this.visible = false;
         }

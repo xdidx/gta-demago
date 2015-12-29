@@ -22,7 +22,7 @@ namespace DemagoScript.GUI.popup
         private UITextElement content = null;
 
         private UITextElement infos = null;
-        private const string INFOS = "entrer pour valider, echap pour annuler";
+        private const string INFOS = "\"Entrer\" pour valider, \"Echap\" pour annuler";
         
         public ConfirmationPopup( string text_title, string text_content )
         {            

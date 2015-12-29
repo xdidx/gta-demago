@@ -6,6 +6,11 @@ namespace DemagoScript.GUI.popup
 {
     class NotificationPopup : Popup
     {
+        /// <summary>
+        /// Called when user close popup.
+        /// </summary>
+        public event PopupCloseEvent OnPopupClose;
+
         public override void draw()
         {
             base.draw();
@@ -24,6 +29,18 @@ namespace DemagoScript.GUI.popup
 
             if (!Game.IsPaused)
                 Function.Call(Hash.SET_GAME_PAUSED, this.isVisible());
+        }
+
+        public override void OnKeyDown(object sender, KeyEventArgs e)
+        {
+            if (this.isVisible())
+            {
+                if (e.KeyCode == Keys.Enter || e.KeyCode == Keys.Escape)
+                {
+                    this.hide();
+                    OnPopupClose?.Invoke();
+                }
+            }
         }
     }
 }
