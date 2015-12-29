@@ -341,6 +341,7 @@ namespace DemagoScript
             addGoal(secondSongGoals);
             secondSongGoals.OnGoalStart += (sender) =>
             {
+                World.Weather = Weather.Clouds;
                 foreach (Ped spectator in spectatorsPeds)
                 {
                     if (spectator != null && spectator.Exists())
@@ -440,7 +441,7 @@ namespace DemagoScript
                 player.Armor = 100;
 
                 GTA.UI.ShowSubtitle("Policier : Si tu ne sors pas, c'est nous qui allons te faire sortir !", 4000);
-                World.Weather = Weather.Raining;
+                World.Weather = Weather.Clouds;
                 Tools.setClockTime(17, 10000);
                 etapeMission = 2;
 
@@ -530,6 +531,8 @@ namespace DemagoScript
                 cameraPosition.Y -= 8;
                 travelingPositions.Add(cameraPosition);
                 Tools.traveling(travelingPositions, musicPlaylist.length("musique3"), Game.Player.Character, true);
+
+                World.Weather = Weather.Clouds;
             };
 
             
