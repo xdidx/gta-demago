@@ -38,7 +38,9 @@ namespace DemagoScript
         private bool bikeRegen;
         private bool playerDown;
         private bool playerWalked;
+        private bool playerMoved;
         private bool introEnded;
+        private bool introCamera;
         private int nbMusiqueEtape;
         private int cameraChangeTimer, etapeMission;
         private Ped introPed, nadineMorano;
@@ -118,7 +120,9 @@ namespace DemagoScript
             bikeRegen = false;
             playerDown = true;
             playerWalked = false;
+            playerMoved = false;
             introEnded = false;
+            introCamera = false;
             cameraChangeTimer = 0;
             etapeMission = 0;
             nbMusiqueEtape = -1;
@@ -148,11 +152,10 @@ namespace DemagoScript
 
             introPed.Task.PlayAnimation( "amb@world_human_picnic@male@base", "base", 8f, -1, true, -1f );
 
-            List<Vector3> positions = new List<Vector3>();
-            positions.Add(new Vector3(2361.558f, 2527.512f, 46.66772f));
-            positions.Add(new Vector3(2351.906f, 2530.494f, 48f));
-            positions.Add(bikePositionAtHome);
-            Tools.traveling(positions, 37000, introPed);
+            Camera planLargeCamera = World.CreateCamera(new Vector3(2213.186f, 2510.148f, 82.73711f), Vector3.Zero, 20);
+            planLargeCamera.PointAt(player);
+            Function.Call(Hash.RENDER_SCRIPT_CAMS, 1, 0, planLargeCamera.Handle, 0, 0);
+            World.RenderingCamera = planLargeCamera;
             
             bike = World.CreateVehicle(VehicleHash.TriBike, bikePositionAtHome);
             bike.EnginePowerMultiplier = 100;
@@ -252,7 +255,7 @@ namespace DemagoScript
                     angrySpectator.AddTask.ClearAllImmediately();
                     angrySpectator.AddTask.TurnTo(player, 1000);
                     angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_what_hard", 8f, -1, false, -1f);
-                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_yes_soft", 2f, musicPlaylist.length("musique1") - 6000, true, -1f);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_yes_soft", 0.01f, musicPlaylist.length("musique1") - 6000, true, -1f);
                     angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_you_soft", 8f, -1, false, -1f);
                     angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_no_hard", 8f, -1, true, -1f);
 
@@ -383,7 +386,7 @@ namespace DemagoScript
                     angrySpectator.AddTask.ClearAllImmediately();
                     angrySpectator.AddTask.TurnTo(player, 1000);
                     angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_what_hard", 8f, -1, false, -1f);
-                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_yes_soft", 2f, musicPlaylist.length("musique2") - 6000, true, -1f);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_yes_soft", 0.01f, musicPlaylist.length("musique2") - 6000, true, -1f);
                     angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_you_soft", 8f, -1, false, -1f);
                     angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_no_hard", 8f, -1, true, -1f);
 
@@ -508,7 +511,7 @@ namespace DemagoScript
                     angrySpectator.AddTask.ClearAllImmediately();
                     angrySpectator.AddTask.TurnTo(player, 1000);
                     angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_what_hard", 8f, -1, false, -1f);
-                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_yes_soft", 2f, musicPlaylist.length("musique3") - 6000, true, -1f);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_yes_soft", 0.01f, musicPlaylist.length("musique3") - 6000, true, -1f);
                     angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_you_soft", 8f, -1, false, -1f);
                     angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_no_hard", 8f, -1, true, -1f);
 
@@ -798,19 +801,36 @@ namespace DemagoScript
 
             Ped player = Game.Player.Character;
 
-            if ( playerDown || !playerWalked || !introEnded ) {
+            if (!introEnded)
+            {
                 float elapsedTime = DemagoScript.getScriptTime() - startTime;
 
-                if ( elapsedTime > 12000 && playerDown ) {
+                if (elapsedTime > 12000 && !introCamera)
+                {
+                    List<Vector3> positions = new List<Vector3>();
+                    positions.Add(new Vector3(2361.558f, 2527.512f, 46.66772f));
+                    positions.Add(new Vector3(2351.906f, 2530.494f, 48f));
+                    positions.Add(bikePositionAtHome);
+                    Tools.traveling(positions, 26000, introPed);
+                    introCamera = true;
+                }
+                if (elapsedTime > 15000 && playerDown)
+                {
                     introPed.Task.PlayAnimation( "amb@world_human_picnic@male@exit", "exit", 8f, 3000, false, -1f );
                     playerDown = false;
                 }
-                if ( elapsedTime > 15000 && !playerWalked ) {
+                if ( elapsedTime > 20000 && !playerWalked ) {
                     introPed.Task.ClearAllImmediately();
                     introPed.Task.GoTo( joeHomePosition, true );
                     playerWalked = true;
                 }
-                if ( elapsedTime > 40000 && !introEnded ) {
+                if (elapsedTime > 33500 && !playerMoved)
+                {
+                    introPed.Task.ClearAllImmediately();
+                    introPed.Task.PlayAnimation("gestures@m@standing@casual", "gesture_point", 8f, -1, false, -1f);
+                    playerMoved = true;
+                }
+                if ( elapsedTime > 37000 && !introEnded ) {
                     player.Task.ClearAllImmediately();
                     introPed.IsVisible = false;
                     introPed.Delete();
