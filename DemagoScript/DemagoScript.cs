@@ -1,42 +1,56 @@
 ﻿using System;
-using System.Drawing;
 using System.Windows.Forms;
 using GTA;
-using GTA.Native;
-using GTA.Math;
-using NativeUI;
 using System.Reflection;
 using System.Linq;
 using System.Collections.Generic;
+using DemagoScript.GUI;
 
 namespace DemagoScript
 {
     public class DemagoScript : Script
     {
-        private List<Mission> missions = null;
-        private DemagoMenu menu = null;
+        private static List<Mission> missions = null;
+
         private static float scriptTime = 0;
         private bool initialized = false;
-        private bool isPaused = false; 
-        private bool isSitting = false; 
+        private bool isPaused = false;
+        private bool isSitting = false;
 
         public DemagoScript()
         {
             Tools.log("-------------Initialisation du mod GTA Démago------------");
 
+            createMissions();
+
             Tick += OnTick;
             KeyDown += OnKeyDown;
         }
 
+        public static void stopCurrentMission()
+        {
+            if (missions != null)
+            {
+                foreach (Mission mission in missions)
+                {
+                    if (mission.isInProgress())
+                    {
+                        mission.stop();
+                    }
+                }
+            }
+        }
+
         private void initialize()
         {
-            if (initialized)
-            {
+            if ( initialized ) {
                 return;
             }
 
             createMissions();
-            menu = new DemagoMenu(missions);
+
+            GUIManager.Instance.initialize( missions );
+
             initialized = true;
         }
 
@@ -51,10 +65,13 @@ namespace DemagoScript
             {
                 togglePause();
             }
-            initialize();
+
+            if ( !initialized ) {
+                initialize();
+            }
 
             scriptTime += (Game.LastFrameTime * 1000);
-            
+
             Tools.update();
             Timer.updateAllTimers();
 
@@ -66,7 +83,7 @@ namespace DemagoScript
                 }
             }
 
-            menu.process();
+            GUIManager.Instance.update();
         }
 
         private void OnKeyDown(object sender, KeyEventArgs e)
@@ -80,19 +97,13 @@ namespace DemagoScript
             {
                 togglePause();
             }
-            menu.OnKeyDown(sender, e);
+
+            GUIManager.Instance.OnKeyDown( sender, e );
         }
 
         private void togglePause()
         {
-            if (isPaused == false)
-            {
-                isPaused = true;
-            }
-            else
-            {
-                isPaused = false;
-            }
+            isPaused = !isPaused;
 
             foreach (Mission mission in missions)
             {
@@ -122,38 +133,35 @@ namespace DemagoScript
         {
             missions = new List<Mission>();
 
-            Type[] missionsClassesList = Assembly.GetExecutingAssembly().GetTypes().Where(type => type.IsSubclassOf(typeof(Mission))).ToArray();
-            foreach (Type missionClass in missionsClassesList)
-            {
-                Mission newMission = (Mission)Activator.CreateInstance(missionClass);
+            Type[] missionsClassesList = Assembly.GetExecutingAssembly().GetTypes().Where( type => type.IsSubclassOf( typeof( Mission ) ) ).ToArray();
+            foreach ( Type missionClass in missionsClassesList ) {
+                Mission newMission = (Mission)Activator.CreateInstance( missionClass );
 
-                newMission.OnMissionStart += (sender) =>
+                newMission.OnMissionStart += ( sender ) =>
                 {
-                    foreach (Mission mission in missions)
-                    {
-                        mission.stop("Une autre mission a été démarrée");
+                    foreach ( Mission mission in missions ) {
+                        mission.stop( "Une autre mission a été démarrée" );
                     }
-                    GTA.UI.Notify(sender.getName());
+                    GTA.UI.Notify( sender.getName() );
                 };
 
-                newMission.OnMissionAccomplished += (sender, time) =>
+                newMission.OnMissionAccomplished += ( sender, time ) =>
                 {
                     var successMessage = sender.getName() + " : Mission accomplie";
-                    if (Tools.getTextFromTimespan(time) != "")
-                    {
-                        successMessage += " en " + Tools.getTextFromTimespan(time);
+                    if ( Tools.getTextFromTimespan( time ) != "" ) {
+                        successMessage += " en " + Tools.getTextFromTimespan( time );
                     }
-                    GTA.UI.Notify(successMessage);
+                    GTA.UI.Notify( successMessage );
                 };
 
-                newMission.OnMissionFail += (sender, reason) =>
+                newMission.OnMissionFail += ( sender, reason ) =>
                 {
-                    GTA.UI.Notify("La mission a échouée : " + reason);
+                    GTA.UI.Notify( "La mission a échouée : " + reason );
                 };
 
-                missions.Add(newMission);
+                missions.Add( newMission );
             }
         }
-        
+
     }
 }

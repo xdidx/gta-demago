@@ -3,17 +3,14 @@ using GTA.Native;
 using NativeUI;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DemagoScript
 {
     abstract class Mission
     {
-        public delegate void MissionStartEvent(Mission sender);
-        public delegate void MissionFailEvent(Mission sender, string reason);
-        public delegate void MissionAccomplishedEvent(Mission sender, TimeSpan elaspedTime);
+        public delegate void MissionStartEvent( Mission sender );
+        public delegate void MissionFailEvent( Mission sender, string reason );
+        public delegate void MissionAccomplishedEvent( Mission sender, TimeSpan elaspedTime );
 
         private List<Goal> goals = new List<Goal>();
 
@@ -38,61 +35,76 @@ namespace DemagoScript
         /// </summary>
         public event MissionFailEvent OnMissionFail;
 
-        public virtual bool initialize()
-        {
-            if (initialized)
-                return false;
-
-            clear(true);
-
-            initialized = true;
-            over = false;
-            failed = false;
-
-            return true;
-        }
-
+        /**
+         * Commence la mission
+         */
         public void start()
         {
-            OnMissionStart?.Invoke(this);
+            OnMissionStart?.Invoke( this );
 
-            reset();
+            this.reset();
+            this.initialized = false; // TODO: inclure dans le reset ?
 
-            initialized = false;
-            initialize();
+            this.initialize();
 
-            active = true;
-            startMissionTime = DateTime.Now;
+            this.active = true;
+            this.startMissionTime = DateTime.Now;
             Game.Player.WantedLevel = 0;
         }
 
+        /**
+         * Reset les etapes à réaliser dans la mission
+         */
         public void reset()
         {
-            foreach (Goal goal in goals)
-                goal.clear(false);
+            foreach ( Goal goal in this.goals ) {
+                goal.clear( false );
+            }
         }
 
-        public void stop(string reason = "")
+        // DO NOT TOUCH
+        private void initialize()
         {
-            if (active)
-            {
-                if (reason != "")
-                    GTA.UI.Notify("Mission arrêtée : " + reason);
+            if ( this.initialized ) {
+                return;
+            }
 
-                active = false;
-                reset();
+            this.doInitialization();
+
+            initialized = true;
+        }
+
+        // TOUCH HERE INSTEAD
+        protected virtual void doInitialization()
+        {
+            this.clear( true );
+            this.over = false;
+            this.failed = false;
+        }
+
+        /**
+         * Stop la mission en cours
+         */
+        public void stop( string reason = "" )
+        {
+            if ( this.active ) {
+                if ( reason != "" ) {
+                    GTA.UI.Notify( "Mission arrêtée : " + reason );
+                }
+
+                this.active = false;
+                this.reset();
             }
         }
 
         public virtual void accomplish()
         {
             TimeSpan elapsedTime = DateTime.Now - startMissionTime;
-            OnMissionAccomplished?.Invoke(this, elapsedTime);
+            OnMissionAccomplished?.Invoke( this, elapsedTime );
 
-            active = false;
-            over = true;
-
-            clear(false);
+            this.active = false;
+            this.over = true;
+            this.clear( false );
 
             Game.Player.WantedLevel = 0;
             Game.Player.Character.Armor = 100;
@@ -101,49 +113,43 @@ namespace DemagoScript
 
         public bool isInProgress()
         {
-            return active && !over && !failed;
+            return ( this.active && !this.over && !this.failed );
         }
 
-        public void fail(string reason = "")
+        public void fail( string reason = "" )
         {
-            if (active)
-                OnMissionFail?.Invoke(this, reason);
+            if ( this.active ) {
+                OnMissionFail?.Invoke( this, reason );
+            }
 
-            clear(false);
-            reset();
-            initialized = false;
-            failed = true;
-            active = false;
+            this.clear( false );
+            this.reset();
+            this.initialized = false;
+            this.failed = true;
+            this.active = false;
         }
 
-        public void addGoal(Goal goal)
+        public void addGoal( Goal goal )
         {
-            goal.OnGoalFail += (sender, reason) =>
-            {
-                fail(reason);
+            goal.OnGoalFail += ( sender, reason ) => {
+                fail( reason );
             };
-            goals.Add(goal);
+            goals.Add( goal );
         }
 
-        public virtual bool update()
+        public virtual void update()
         {
-            if (!isInProgress())
-            {
-                active = false;
-                return false;
+            if ( !isInProgress() ) {
+                //this.active = false;
+                // this.clear( true ); ?
+                // this.initialized = false; ?
+                this.stop();
+                return;
             }
 
-            initialize();
-            
-            if (Game.Player.IsDead)
-            {
-                fail("Vous êtes mort");
-            }
+            // initialize(); Déjà initialized lors du start();
 
-            if (Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true))
-            {
-                fail("Vous vous êtes fait arrêté");
-            }
+            this.isPlayerDeadOrArrested();
 
             bool waitingGoals = false;
             foreach (Goal goal in goals)
@@ -159,33 +165,44 @@ namespace DemagoScript
                     break;
                 }
             }
-            
-            if (!waitingGoals)
-                accomplish();
 
-            return true;
+            if ( !waitingGoals ) {
+                this.accomplish();
+            }
+        }
+
+        /**
+         * Indique si le joueur est mort ou s'il a été arrêté
+         */
+        private void isPlayerDeadOrArrested()
+        {
+            if ( Game.Player.IsDead ) {
+                this.fail( "Vous êtes mort" );
+            }
+
+            if ( Function.Call<bool>( Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true ) ) {
+                this.fail( "Vous vous êtes fait arrêté" );
+            }
         }
 
         abstract public string getName();
 
-        public virtual void clear(bool removePhysicalElements = false)
+        public virtual void clear( bool removePhysicalElements = false )
         {
-            foreach (Goal goal in goals)
-                goal.clear(removePhysicalElements);
+            foreach ( Goal goal in goals )
+                goal.clear( removePhysicalElements );
 
-            if (removePhysicalElements)
+            if ( removePhysicalElements )
                 goals.Clear();
         }
 
-        public virtual UIMenuItem addStartItem(ref UIMenu menu)
+        public virtual UIMenuItem addStartItem( ref UIMenu menu )
         {
-            var startItem = new UIMenuItem("Démarrer la mission");
-            menu.AddItem(startItem);
+            var startItem = new UIMenuItem( "Démarrer la mission" );
+            menu.AddItem( startItem );
 
-            menu.OnItemSelect += (sender, item, index) =>
-            {
-                if (item == startItem)
-                {
+            menu.OnItemSelect += ( sender, item, index ) => {
+                if ( item == startItem ) {
                     sender.Visible = false;
                 }
             };

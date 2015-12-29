@@ -1,15 +1,10 @@
 ﻿using GTA;
 using GTA.Math;
 using GTA.Native;
-using NativeUI;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace DemagoScript
 {
@@ -27,6 +22,8 @@ namespace DemagoScript
 
     static class Tools
     {
+        private static string pathToLogFile = Environment.CurrentDirectory + "/scripts/test.log";
+
         private static Vector3 lastPlayerPosition = Vector3.Zero;
         private static Timer clockTransitionTimer;
 
@@ -39,7 +36,7 @@ namespace DemagoScript
         private static float remainingTimeForTraveling = 0;
         private static bool travelingHasTarget = false;
         private static Entity travelingTarget;
-        
+
         public static void update()
         {
             lastPlayerPosition = Game.Player.Character.Position;
@@ -51,7 +48,7 @@ namespace DemagoScript
 
                 Vector3 distanceToNextPosition = travelingPositions[travelingIndex] - travelingCamera.Position;
                 float durationPerPosition = travelingDuration / (travelingPositions.Count - 1);
-                float remainingTimeForCurrentTransition = remainingTimeForTraveling - (durationPerPosition * (travelingPositions.Count - travelingIndex - 1));                
+                float remainingTimeForCurrentTransition = remainingTimeForTraveling - (durationPerPosition * (travelingPositions.Count - travelingIndex - 1));
                 float remainingFrames = remainingTimeForCurrentTransition / (Game.LastFrameTime * 1000);
 
                 if (remainingFrames <= 0)
@@ -282,7 +279,7 @@ namespace DemagoScript
             {
                 clockTransitionTimer.stop();
             }
-            
+
             if (transitionDuration <= 0)
             {
                 Function.Call(Hash.SET_CLOCK_TIME, newHour, 0, 0);
@@ -295,7 +292,7 @@ namespace DemagoScript
                     float floatingHour = (currentHour + (hoursToAdd * elapsedPourcent)) % 24;
                     int hour = (int)Math.Floor(floatingHour),
                         minute = (int)Math.Floor(((floatingHour - hour) * 60) % 60);
-                    
+
                     Function.Call(Hash.SET_CLOCK_TIME, hour, minute, 0);
                 };
                 clockTransitionTimer.OnTimerStop += (sender) =>
@@ -350,7 +347,7 @@ namespace DemagoScript
             entityToTeleport.Velocity = Vector3.Zero;
             entityToTeleport.Rotation = Vector3.Zero;
         }
-        
+
         public static void TeleportPlayerToWaypoint()
         {
             if (Function.Call<bool>(Hash.IS_WAYPOINT_ACTIVE))
@@ -423,7 +420,7 @@ namespace DemagoScript
 
         public static void log(string message)
         {
-            using (StreamWriter logStreamWriter = new StreamWriter(@"scripts/gta-demago.log", true))
+            using (StreamWriter logStreamWriter = new StreamWriter( Tools.pathToLogFile, true))
             {
                 try
                 {

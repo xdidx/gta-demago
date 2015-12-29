@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using IrrKlang;
-using System.Threading;
+using System.IO;
 
 namespace DemagoScript
 {
@@ -9,10 +9,10 @@ namespace DemagoScript
     {
         private ISoundEngine engine = new ISoundEngine();
         private Dictionary<string, ISound> musicTable = new Dictionary<string, ISound>();
-        private static string musicLocation = @"C:\Program Files\Rockstar Games\Grand Theft Auto V\Music\";
+        private static string musicLocation = Environment.CurrentDirectory + @"\Music\";
         private List<string> listePaused = new List<string>();
 
-        public Music(List<string[]> liste)
+        public Music( List<string[]> liste )
         {
             foreach (string[] keyValue in liste)
             {
@@ -31,7 +31,7 @@ namespace DemagoScript
 
         public bool isPlaying(string key)
         {
-            if (key != null && musicTable.ContainsKey(key))
+            if ( keyExistInMusicTable( key ) )
                 return !musicTable[key].Finished && musicTable[key].PlayPosition != 0;
 
             return false;
@@ -39,39 +39,42 @@ namespace DemagoScript
 
         public bool isFinished(string key)
         {
-            if (key != null && musicTable.ContainsKey(key))
+            if ( keyExistInMusicTable( key ) )
                 return musicTable[key].Finished;
 
             return true;
-        }       
+        }
 
         public uint getPlayingPosition(string key)
         {
             return musicTable[key].PlayPosition;
         }
-        
+
         public void playMusic(string key)
         {
-            if (key != null && musicTable.ContainsKey(key))
+            if ( keyExistInMusicTable( key ) )
             {
                 musicTable[key].Paused = false;
             }
         }
 
-        public void pauseMusic(string key)
+        public void pauseMusic( string key )
         {
-            if (key != null && musicTable.ContainsKey(key))
-            {
+            if ( keyExistInMusicTable( key ) ) {
                 musicTable[key].Paused = true;
             }
         }
 
-        public void restart(string key)
+        public void restart( string key )
         {
-            if (key != null && musicTable.ContainsKey(key))
-            {
+            if ( keyExistInMusicTable( key ) ) {
                 musicTable[key].PlayPosition = 0;
             }
+        }
+
+        private bool keyExistInMusicTable( string key )
+        {
+            return ( key != null && musicTable != null && musicTable.ContainsKey( key ) );
         }
 
         public int length(string key)
@@ -89,7 +92,7 @@ namespace DemagoScript
             musicTable.Clear();
         }
 
-        public void setVolume(float volume)
+        public void setVolume( float volume )
         {
             engine.SoundVolume = volume;
         }

@@ -1,4 +1,7 @@
-﻿using GTA;
+﻿using DemagoScript.GUI;
+using DemagoScript.GUI.elements;
+using DemagoScript.GUI.popup;
+using GTA;
 using GTA.Math;
 using GTA.Native;
 using NativeUI;
@@ -13,6 +16,8 @@ namespace DemagoScript
 {
     class DemagoMenu
     {
+        private Popup testPopup = null;
+
         private MenuPool menuPool;
         private UIMenu mainMenu;
         private Vector3 teleportationPosition = Joe.joeHomePosition;
@@ -29,14 +34,18 @@ namespace DemagoScript
         private UIMenuCheckboxItem godVehicleActiveItem, seeVehicleActiveItem, godPlayerActiveItem, seePlayerActiveItem;
 
         public delegate void MenuAction();
-        
-        public DemagoMenu(List<Mission> missions)
+
+        public DemagoMenu(List<Mission> missions = null)
         {
+            if ( missions == null ) {
+                missions = new List<Mission>();
+            }
+
             menuPool = new MenuPool();
             mainMenu = new UIMenu("GTA Demago", "~b~Configuration du mod");
             menuPool.Add(mainMenu);
 
-            //Missions            
+            //Missions
             var missionsMenu = menuPool.AddSubMenu(mainMenu, "Missions");
             foreach (Mission mission in missions)
             {
@@ -55,18 +64,25 @@ namespace DemagoScript
                     }
                 };
             }
-
+            
+           
             var teleportToTaxiItem = new UIMenuItem("Se téléporter à la mission taxi");
+            var stopCurrentMissionItem = new UIMenuItem("Stopper la mission");
+
             missionsMenu.AddItem(teleportToTaxiItem);
+            missionsMenu.AddItem(stopCurrentMissionItem);
+
             missionsMenu.OnItemSelect += (sender, item, index) =>
             {
+                if (item == stopCurrentMissionItem)
+                {
+                    DemagoScript.stopCurrentMission();
+                }
+
                 if (item == teleportToTaxiItem)
                 {
                     Function.Call(Hash.SET_NEW_WAYPOINT, -197f, 4213f);
                     Game.Player.Character.Position = PlacesPositions.TaxiMission;
-                   /* Vehicle taxi = World.CreateVehicle(VehicleHash.Taxi, Tools.GetSafeRoadPos(PlacesPositions.TaxiMission));
-                    Ped taxiDriver = World.CreatePed(PedHash.FreemodeFemale01, PlacesPositions.TaxiMission);
-                    taxiDriver.SetIntoVehicle(taxi, VehicleSeat.Driver);*/
                 }
             };
 
@@ -90,9 +106,9 @@ namespace DemagoScript
             {
                 if (oldModel == null)
                 {
-                    oldModel = Game.Player.Character.Model;                    
+                    oldModel = Game.Player.Character.Model;
                 }
-                
+
                 if (oldModel != Game.Player.Character.Model)
                 {
                     //Reset to old model
@@ -101,9 +117,9 @@ namespace DemagoScript
 
                 if (item == resetModelItem && oldModel == null)
                 {
-                    UI.Notify("Vous possédez déjà le modèle de base !");    
+                    UI.Notify("Vous possédez déjà le modèle de base !");
                 }
-                
+
 
                 if (item == dissociateModelItem)
                 {
@@ -150,7 +166,7 @@ namespace DemagoScript
             var spawnCarItem = new UIMenuItem("Faire apparaitre un véhicule aléatoire");
             var spawnNiceCarItem = new UIMenuItem("Faire apparaitre un véhicule rapide");
             var healPlayerItem = new UIMenuItem("Se soigner et réparer le véhicule");
-            var bikeJoe = new UIMenuItem("Le vélo de Joe", "La fonctionnalité est en cours de développement");
+            var bikeJoe = new UIMenuItem("Le vélo de Joe");
             var carFouras = new UIMenuItem("La voiture du père Fouras", "La fonctionnalité est en cours de développement");
 
             var vehiclesMenu = menuPool.AddSubMenu(mainMenu, "Véhicules");
@@ -228,65 +244,13 @@ namespace DemagoScript
                     //TODO : Spawn de la voiture de Fouras
                 }
             };
-
-            //Teleportation
-            var teleportItem = new UIMenuItem("Se téléporter");
-            var teleportMarkerItem = new UIMenuItem("Se téléporter au marqueur");
-            var roadTeleportItem = new UIMenuItem("Se téléporter sur la route");
-            var safeTeleportItem = new UIMenuItem("Se téléporter sur le sol");
-            var xItem = new UIMenuEditableNumericItem("X", teleportationPosition.X, -8000, 8000, 1);
-            var yItem = new UIMenuEditableNumericItem("Y", teleportationPosition.Y, -8000, 8000, 1);
-            var zItem = new UIMenuEditableNumericItem("Z", teleportationPosition.Z, -8000, 8000, 1);
-
-            var teleportMenu = menuPool.AddSubMenu(mainMenu, "Teleportation");
-            teleportMenu.AddItem(teleportItem);
-            teleportMenu.AddItem(teleportMarkerItem);
-            teleportMenu.AddItem(roadTeleportItem);
-            teleportMenu.AddItem(safeTeleportItem);
-            teleportMenu.AddItem(xItem);
-            teleportMenu.AddItem(yItem);
-            teleportMenu.AddItem(zItem);
-
-            teleportMenu.OnItemSelect += (sender, item, index) =>
-            {
-                if (item == roadTeleportItem)
-                {
-                    Tools.TeleportPlayer(Tools.GetSafeRoadPos(teleportationPosition));
-                }
-                if (item == safeTeleportItem)
-                {
-                    Tools.TeleportPlayer(Tools.GetGroundedPosition(teleportationPosition));
-                }
-                if (item == teleportItem)
-                {
-                    Tools.TeleportPlayer(teleportationPosition);
-                }
-                if (item == teleportMarkerItem)
-                {
-                    Tools.TeleportPlayerToWaypoint();
-                }
-            };
-            teleportMenu.OnValueChange += (sender, item, value) =>
-            {
-                if (item == xItem)
-                {
-                    teleportationPosition.X = value;
-                }
-                if (item == yItem)
-                {
-                    teleportationPosition.Y = value;
-                }
-                if (item == zItem)
-                {
-                    teleportationPosition.Z = value;
-                }
-            };
-        
+            
             //Outils
             seePlayerActiveItem = new UIMenuCheckboxItem("Personnage invisible", seePlayer, "Si la case est cochée, votre personnage est invisible");
             godPlayerActiveItem = new UIMenuCheckboxItem("Personnage invincible", godPlayer, "Si la case est cochée, votre personnage est invincible");
             seeVehicleActiveItem = new UIMenuCheckboxItem("Vehicle invisible", seeVehicle, "Si la case est cochée, votre véhicule est invisible");
             godVehicleActiveItem = new UIMenuCheckboxItem("Vehicle invincible", godVehicle, "Si la case est cochée, votre véhicule est invincible");
+            var teleportMarkerItem = new UIMenuItem("Se téléporter au marqueur");
             var wantedUpItem = new UIMenuItem("Ajouter une étoile");
             var wantedDownItem = new UIMenuItem("Supprimer une étoile");
             var wantedLevelItem = new UIMenuItem("Supprimer toute les étoiles");
@@ -296,12 +260,14 @@ namespace DemagoScript
             var showPositionItem = new UIMenuItem("Afficher la position");
             var showRotationItem = new UIMenuItem("Afficher la rotation");
 
+            var showMessageItem = new UIMenuItem( "Afficher la popup de test" );
+
+
             var toolsMenu = menuPool.AddSubMenu(mainMenu, "Outils");
             toolsMenu.AddItem(wantedLevelItem);
             toolsMenu.AddItem(wantedDownItem);
             toolsMenu.AddItem(wantedUpItem);
-            toolsMenu.AddItem(showPositionItem);
-            toolsMenu.AddItem(showRotationItem);
+            toolsMenu.AddItem(teleportMarkerItem);
             toolsMenu.AddItem(addMoney);
             toolsMenu.AddItem(removeMoney);
             toolsMenu.AddItem(gravityActiveItem);
@@ -309,9 +275,42 @@ namespace DemagoScript
             toolsMenu.AddItem(godPlayerActiveItem);
             toolsMenu.AddItem(seeVehicleActiveItem);
             toolsMenu.AddItem(godVehicleActiveItem);
+            toolsMenu.AddItem(showPositionItem);
+            toolsMenu.AddItem(showRotationItem);
+
+            toolsMenu.AddItem( showMessageItem );
 
             toolsMenu.OnItemSelect += (sender, item, checked_) =>
             {
+                if (item == teleportMarkerItem)
+                {
+                    Tools.TeleportPlayerToWaypoint();
+                }
+
+                if (item == showMessageItem) {
+                    if (this.testPopup == null)
+                    {
+                        this.testPopup = new ConfirmationPopup(
+                            "Bienvenue !",
+                            "Ca te dit de fermer la popup de test ?"
+                        );
+
+                        this.testPopup.OnPopupAccept += () =>
+                        {
+                            UI.Notify("Requête acceptée");
+                        };
+
+                        this.testPopup.OnPopupRefuse += () =>
+                        {
+                            UI.Notify("Requête refusée");                            
+                        };
+
+                        GUIManager.Instance.popupManager.add(this.testPopup);
+                    }
+                    
+                    this.testPopup.show();
+                }
+
                 if (item == showPositionItem)
                 {
                     GTA.UI.Notify("player X : " + Game.Player.Character.Position.X + " / Y : " + Game.Player.Character.Position.Y + " / Z : " + Game.Player.Character.Position.Z);
@@ -401,13 +400,13 @@ namespace DemagoScript
                 }
             };
         }
-        
+
         public void process()
         {
             menuPool.ProcessMenus();
 
             Ped player = Game.Player.Character;
-            
+
             if ((player.IsDead || Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true)) && player.Model != oldModel && oldModel != null)
             {
                 if (player.IsDead)
@@ -441,7 +440,7 @@ namespace DemagoScript
                     seeVehicle = toChangeVehicle.IsVisible;
                     seeVehicleActiveItem.Checked = !toChangeVehicle.IsVisible;
                 }
-                
+
                 if (!player.IsInVehicle() && toChangeVehicle != null)
                 {
                     if (godVehicle)
@@ -462,7 +461,7 @@ namespace DemagoScript
 
                     toChangeVehicle = null;
                 }
-            }          
+            }
         }
 
         public void OnKeyDown(object sender, KeyEventArgs e)
@@ -474,14 +473,18 @@ namespace DemagoScript
             menuPool.ResetKey(NativeUI.UIMenu.MenuControls.Select);
             menuPool.ResetKey(NativeUI.UIMenu.MenuControls.Back);
 
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Up, GTA.Control.PhoneUp);
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Down, GTA.Control.PhoneDown);
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Left, GTA.Control.PhoneLeft);
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Right, GTA.Control.PhoneRight);
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Select, GTA.Control.PhoneSelect);
+            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Back, GTA.Control.PhoneCancel);
+
             menuPool.SetKey(NativeUI.UIMenu.MenuControls.Up, Keys.NumPad8);
             menuPool.SetKey(NativeUI.UIMenu.MenuControls.Down, Keys.NumPad2);
             menuPool.SetKey(NativeUI.UIMenu.MenuControls.Left, Keys.NumPad4);
             menuPool.SetKey(NativeUI.UIMenu.MenuControls.Right, Keys.NumPad6);
             menuPool.SetKey(NativeUI.UIMenu.MenuControls.Select, Keys.NumPad5);
-            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Select, Keys.Enter);
-            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Back, Keys.Escape);
-            menuPool.SetKey(NativeUI.UIMenu.MenuControls.Back, Keys.Back);
             menuPool.SetKey(NativeUI.UIMenu.MenuControls.Back, Keys.NumPad0);
 
             if (e.KeyCode == Keys.F5)
@@ -491,7 +494,7 @@ namespace DemagoScript
 
             menuPool.ProcessKey(e.KeyCode);
         }
-        
+
         public void toggleDisplay()
         {
             if (menuPool.isVisible())
@@ -503,6 +506,16 @@ namespace DemagoScript
                 mainMenu.Visible = true;
             }
         }
+        
+        public void hide()
+        {
+            menuPool.hideAll();
+            mainMenu.Visible = false;
+        }
 
+        public void show()
+        {
+            mainMenu.Visible = true;
+        }
     }
 }

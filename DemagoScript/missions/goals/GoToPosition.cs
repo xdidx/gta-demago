@@ -15,20 +15,18 @@ namespace DemagoScript
         private Blip destinationBlip = null;
         private int finishCheckpoint = -1;
 
-        public GoToPosition(Vector3 position)
+        public GoToPosition( Vector3 position )
         {
             destination = position;
         }
 
         public override bool initialize()
         {
-            if (!base.initialize())
-            {
+            if ( !base.initialize() ) {
                 return false;
             }
-           
-            if (destinationBlip != null)
-            {
+
+            if ( destinationBlip != null ) {
                 destinationBlip.Remove();
             }
             createDestinationBlip();
@@ -42,7 +40,7 @@ namespace DemagoScript
 
         public void createDestinationBlip()
         {
-            destinationBlip = World.CreateBlip(destination);
+            destinationBlip = World.CreateBlip( destination );
             destinationBlip.Sprite = BlipSprite.Crosshair;
             destinationBlip.Color = BlipColor.Green;
             destinationBlip.IsFlashing = true;
@@ -52,38 +50,33 @@ namespace DemagoScript
 
         public override bool update()
         {
-            if (!base.update())
-            {
+            if ( !base.update() ) {
                 return false;
             }
 
             Ped player = Game.Player.Character;
 
-            if (destination.DistanceTo(Game.Player.Character.Position) < 1.4)
-            {
+            if ( destination.DistanceTo( Game.Player.Character.Position ) < 1.4 ) {
                 destinationBlip.Remove();
                 accomplish();
                 return false;
-            }
-            else
-            {
-                if (destinationBlip == null)
-                {
+            } else {
+                if ( destinationBlip == null ) {
                     createDestinationBlip();
                 }
-                setGoalText("Rejoins l'endroit indiqué par le GPS");
+                setGoalText( "Rejoins l'endroit indiqué par le GPS" );
             }
 
             return true;
         }
 
-        public override void clear(bool removePhysicalElements = false)
+        public override void clear( bool removePhysicalElements = false )
         {
-            if (destinationBlip != null && destinationBlip.Exists())
+            if ( destinationBlip != null && destinationBlip.Exists() )
                 destinationBlip.Remove();
 
-            if (finishCheckpoint >= 0)
-                Function.Call(Hash.DELETE_CHECKPOINT, finishCheckpoint);
+            if ( finishCheckpoint >= 0 )
+                Function.Call( Hash.DELETE_CHECKPOINT, finishCheckpoint );
         }
     }
 }
