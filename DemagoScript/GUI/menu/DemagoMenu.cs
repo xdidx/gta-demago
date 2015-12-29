@@ -16,7 +16,7 @@ namespace DemagoScript
 {
     class DemagoMenu
     {
-        private Popup testPopup = null;
+        private ConfirmationPopup testPopup = null;
 
         private MenuPool menuPool;
         private UIMenu mainMenu;

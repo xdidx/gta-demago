@@ -86,7 +86,7 @@ namespace DemagoScript
 
                 if (mergeWithPlayerCameraOnTravelingEnd)
                 {
-                    positions.Add(GameplayCamera.Position);
+                    travelingPositions.Add(GameplayCamera.Position);
                 }
 
                 travelingHasTarget = false;

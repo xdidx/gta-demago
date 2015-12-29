@@ -12,9 +12,17 @@ namespace DemagoScript.GUI.popup
             this.popups = new List<Popup>();
         }
 
-        public void add( Popup popup )
+        public void add(Popup popup)
         {
-            this.popups.Add( popup );
+            this.popups.Add(popup);
+        }
+
+        public void remove(Popup popup)
+        {
+            if (this.popups.Contains(popup))
+            {
+                this.popups.Remove(popup);
+            }
         }
 
         public void update()
