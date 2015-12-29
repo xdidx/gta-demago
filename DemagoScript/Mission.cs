@@ -1,4 +1,6 @@
-﻿using GTA;
+﻿using DemagoScript.GUI;
+using DemagoScript.GUI.popup;
+using GTA;
 using GTA.Native;
 using NativeUI;
 using System;

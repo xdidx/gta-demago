@@ -5,6 +5,8 @@ using System.Reflection;
 using System.Linq;
 using System.Collections.Generic;
 using DemagoScript.GUI;
+using DemagoScript.GUI.popup;
+using DemagoScript.GUI.elements;
 
 namespace DemagoScript
 {
@@ -147,11 +149,33 @@ namespace DemagoScript
 
                 newMission.OnMissionAccomplished += ( sender, time ) =>
                 {
-                    var successMessage = sender.getName() + " : Mission accomplie";
-                    if ( Tools.getTextFromTimespan( time ) != "" ) {
-                        successMessage += " en " + Tools.getTextFromTimespan( time );
-                    }
-                    GTA.UI.Notify( successMessage );
+                    string missionTime = "En " + Tools.getTextFromTimespan(time);
+
+                    SuccessMissionPopup successPopup = new SuccessMissionPopup(sender.getName(), missionTime);
+                    GUIManager.Instance.popupManager.add(successPopup);
+                    successPopup.show();
+                    successPopup.OnPopupClose += () => 
+                    {
+                        GUIManager.Instance.popupManager.remove(successPopup);
+
+                        NotificationPopup creditsPopup = new NotificationPopup();
+                        creditsPopup.add(new UIRectElement(0.5, 0.5, 1, 1, UIColor.BLACK, 200));
+                        creditsPopup.add(new UITextElement("GTA Démago", 0.5, 0.2, 1.5, true, Font.Pricedown, UIColor.GTA_YELLOW));
+                        creditsPopup.add(new UITextElement("Merci d’avoir jouer à GTA Démago !", 0.5, 0.29, 0.7, true, Font.ChaletLondon, UIColor.WHITE));
+                        creditsPopup.add(new UITextElement("De nouvelles missions seront bientôt disponibles alors rejoignez nous sur ", 0.5, 0.33, 0.7, true, Font.ChaletLondon, UIColor.WHITE));
+                        creditsPopup.add(new UITextElement("Twitch : http://twitch.tv/realmyop2", 0.5, 0.39, 0.5, true, Font.ChaletLondon, UIColor.WHITE));
+                        creditsPopup.add(new UITextElement("Facebook : http://facebook.com/realmyop", 0.5, 0.42, 0.5, true, Font.ChaletLondon, UIColor.WHITE));
+                        creditsPopup.add(new UITextElement("Twitter : http://twitter.com/RealMyop", 0.5, 0.45, 0.5, true, Font.ChaletLondon, UIColor.WHITE));
+                        creditsPopup.add(new UITextElement("Venez nombreux !", 0.5, 0.525, 1, true, Font.HouseScript, UIColor.WHITE));
+                        creditsPopup.add(new UITextElement("Entrer pour fermer", 0.5, 0.9, 0.6, true, Font.HouseScript, UIColor.WHITE));
+                        creditsPopup.OnPopupClose += () =>
+                        {
+                            GUIManager.Instance.popupManager.remove(creditsPopup);
+                        };
+
+                        GUIManager.Instance.popupManager.add(creditsPopup);
+                        creditsPopup.show();
+                    };
                 };
 
                 newMission.OnMissionFail += ( sender, reason ) =>
