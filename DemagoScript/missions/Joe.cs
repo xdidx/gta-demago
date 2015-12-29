@@ -183,17 +183,7 @@ namespace DemagoScript
             spectatorsHashesThirdSong.Add(PedHash.MovAlien01);
             spectatorsHashesThirdSong.Add(PedHash.Jesus01);
             spectatorsHashesThirdSong.Add(PedHash.Zombie01);
-
-            Ped nadineMorano = World.CreatePed(PedHash.Business02AFM, thirdSongPosition);
-
-            while (nadineMorano == null || !nadineMorano.Exists())
-            {
-                nadineMorano = World.CreatePed(PedHash.Business02AFM, thirdSongPosition);
-            }
-
             
-            Function.Call(Hash.SET_PED_COMPONENT_VARIATION, nadineMorano.Handle, 2, 1, 2, 2);
-
             for(int num = 0; num < 120; num++)
             {
                 Ped ped = World.CreatePed(spectatorsHashesThirdSong.ElementAt<PedHash>(random.Next(spectatorsHashesThirdSong.Count)), thirdSongPublicPosition1 + (float) random.NextDouble() * thirdSongPublicPosition2 + (float)random.NextDouble() * thirdSongPublicPosition3);
@@ -627,7 +617,12 @@ namespace DemagoScript
                 introPed.Delete();
 
             if (nadineMorano != null && nadineMorano.Exists())
-                nadineMorano.Delete();
+            {
+                if (removePhysicalElements)
+                    nadineMorano.Delete();
+
+                nadineMorano.MarkAsNoLongerNeeded();
+            }
 
             if (musicPlaylist != null)
             {
