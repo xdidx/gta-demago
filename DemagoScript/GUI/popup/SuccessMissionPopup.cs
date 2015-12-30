@@ -65,6 +65,7 @@ namespace DemagoScript.GUI.popup
                 if (e.KeyCode == Keys.Enter || e.KeyCode == Keys.Escape)
                 {
                     this.hide();
+                    Function.Call(Hash.SET_GAME_PAUSED, false);
                     OnPopupClose?.Invoke();
                 }
             }

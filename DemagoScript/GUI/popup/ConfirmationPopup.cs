@@ -2,6 +2,7 @@
 using GTA.Math;
 using GTA;
 using System.Windows.Forms;
+using GTA.Native;
 
 namespace DemagoScript.GUI.popup
 {
@@ -56,12 +57,14 @@ namespace DemagoScript.GUI.popup
                 if (e.KeyCode == Keys.Enter)
                 {
                     this.hide();
+                    Function.Call(Hash.SET_GAME_PAUSED, false);
                     OnPopupAccept?.Invoke();
                 }
 
                 if (e.KeyCode == Keys.Escape)
                 {
                     this.hide();
+                    Function.Call(Hash.SET_GAME_PAUSED, false);
                     OnPopupRefuse?.Invoke();
                 }
             }
