@@ -104,7 +104,9 @@ namespace DemagoScript
             musiques.Add( new string[] { "flics2", "joeFlics2.wav" } );
             musiques.Add( new string[] { "flics3", "joeFlics3.wav" } );
             musiques.Add( new string[] { "flics4", "joeFlics4.wav" } );
-            musiques.Add( new string[] { "nadine", "joeNadine.wav" });
+            musiques.Add( new string[] { "nadine", "joeNadine.wav" } );
+            musiques.Add( new string[] { "amphiHoo1", "joeDegueulasseHoo.wav" } );
+            musiques.Add( new string[] { "amphiHoo2", "joeDegueulasseHoo2.wav" } );
         }
 
         protected override void doInitialization()
@@ -476,6 +478,7 @@ namespace DemagoScript
             {
                 nadineMorano.Task.FleeFrom(player);
                 musicPlaylist.playMusic("nadine");
+                musicPlaylist.playMusic("amphiHoo1");
             };
 
             
@@ -485,6 +488,13 @@ namespace DemagoScript
 
             thirdSongGoals.OnGoalStart += (sender) =>
             {
+                Timer chansonHoo2 = new Timer(musicPlaylist.length("musique3") - 19000);
+                chansonHoo2.OnTimerStop += (timerSender) =>
+                {
+                    musicPlaylist.playMusic("amphiHoo2");
+                    chansonHoo2 = null;
+                };
+
                 foreach (Ped spectator in spectatorsPeds2)
                 {
                     if (spectator != null && spectator.Exists())
