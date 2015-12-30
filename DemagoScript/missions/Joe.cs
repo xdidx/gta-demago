@@ -877,6 +877,7 @@ namespace DemagoScript
                     player.IsVisible = true;
                     Function.Call( Hash.DISPLAY_HUD, true );
                     Function.Call( Hash.DISPLAY_RADAR, true );
+                    Function.Call( Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1 );
                     introEnded = true;
                 } else
                     cameraChangeTimer++;
