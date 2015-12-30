@@ -16,48 +16,60 @@ namespace DemagoScript
 
             string currentSongName = "";
             Dictionary<int, string> currentSongSubtitles = null;
+            string[] lines = null;
 
-            string[] lines = File.ReadAllLines("joe-subtitles.txt");
-            for (int lineIndex = 0; lineIndex < lines.Length; lineIndex++)
+            try
             {
-                string currentLine = lines[lineIndex];
-                if (currentLine == "")
+                 lines = File.ReadAllLines(@"Music\joe-subtitles.txt");
+            }
+            catch (Exception e)
+            {
+                Tools.log(e.Message);
+            }
+
+            if (lines != null)
+            {
+                for (int lineIndex = 0; lineIndex < lines.Length; lineIndex++)
                 {
-                    if (currentSongName != "" && currentSongSubtitles != null)
+                    string currentLine = lines[lineIndex];
+                    if (currentLine == "")
                     {
-                        subtitles.Add(currentSongName, currentSongSubtitles);
+                        if (currentSongName != "" && currentSongSubtitles != null)
+                        {
+                            subtitles.Add(currentSongName, currentSongSubtitles);
+                            lineIndex++;
+                            currentLine = lines[lineIndex];
+                        }
+                        currentSongName = "";
+                        currentSongSubtitles = null;
+                    }
+
+                    if (currentSongName == "" && currentLine.Length >= 4 && currentLine.Substring(currentLine.Length - 4) == ".wav")
+                    {
+                        currentSongName = currentLine;
+                        currentSongSubtitles = new Dictionary<int, string>();
                         lineIndex++;
                         currentLine = lines[lineIndex];
                     }
-                    currentSongName = "";
-                    currentSongSubtitles = null;
-                }
 
-                if (currentSongName == "" && currentLine.Length >= 4 && currentLine.Substring(currentLine.Length - 4) == ".wav")
-                {
-                    currentSongName = currentLine;
-                    currentSongSubtitles = new Dictionary<int, string>();
-                    lineIndex++;
-                    currentLine = lines[lineIndex];
-                }
-
-                if (currentSongName != "" && currentSongSubtitles != null)
-                {
-                    Regex regex = new Regex("^([0-9]{2}):([0-9]{2})$");
-                    Match matches = regex.Match(currentLine);
-                    if (matches != null && matches.Success && matches.Groups.Count == 3)
+                    if (currentSongName != "" && currentSongSubtitles != null)
                     {
-                        int minutes = Convert.ToInt32(matches.Groups[1].ToString()),
-                            seconds = Convert.ToInt32(matches.Groups[2].ToString());
+                        Regex regex = new Regex("^([0-9]{2}):([0-9]{2})$");
+                        Match matches = regex.Match(currentLine);
+                        if (matches != null && matches.Success && matches.Groups.Count == 3)
+                        {
+                            int minutes = Convert.ToInt32(matches.Groups[1].ToString()),
+                                seconds = Convert.ToInt32(matches.Groups[2].ToString());
 
-                        int totalSeconds = (minutes * 60) + seconds;
+                            int totalSeconds = (minutes * 60) + seconds;
 
-                        lineIndex++;
-                        currentSongSubtitles.Add(totalSeconds, lines[lineIndex]);
-                    }
-                    else if (currentLine != "")
-                    {
-                        currentSongSubtitles.Add(0, currentLine);
+                            lineIndex++;
+                            currentSongSubtitles.Add(totalSeconds, lines[lineIndex]);
+                        }
+                        else if (currentLine != "")
+                        {
+                            currentSongSubtitles.Add(0, currentLine);
+                        }
                     }
                 }
             }
@@ -75,10 +87,10 @@ namespace DemagoScript
             if (subtitles != null && subtitles.ContainsKey(songName))
             {
                 Dictionary<int, string> songSubtitles = subtitles[songName];
-                int maximumSeconds = 0;
+                int maximumSeconds = -1;
                 foreach (KeyValuePair<int, string> subtitleAssociation in songSubtitles)
                 {
-                    if (subtitleAssociation.Key > maximumSeconds && subtitleAssociation.Key <= songTime)
+                    if (subtitleAssociation.Key > maximumSeconds && subtitleAssociation.Key <= songTime/1000)
                     {
                         subtitleToShow = subtitleAssociation.Value;
                         maximumSeconds = subtitleAssociation.Key;

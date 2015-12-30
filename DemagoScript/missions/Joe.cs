@@ -26,8 +26,8 @@ namespace DemagoScript
         public static Vector3 thirdSongPublicPosition3 { get; } = new Vector3(-16.09f, -20.29f, 1.0f);
 
         private static string[] sonsEtape1 = new string[] { "flics1", "dialogue1", "dialogue2", "dialogue3" };
-        private static string[] sonsEtape2 = new string[] { "flics2", "flics3", "dialogue4", "dialogue5", "dialogue6" };
-        private static string[] sonsEtape3 = new string[] { "flics4", "dialogue7", "dialogue8", "dialogue9" };
+        private static string[] sonsEtape2 = new string[] { "flics2", "flics3", "flics4", "dialogue4", "dialogue5", "dialogue6" };
+        private static string[] sonsEtape3 = new string[] { "flics5", "dialogue7", "dialogue8", "dialogue9" };
 
         private Vehicle bike = null;
         private List<Ped> spectatorsPeds = new List<Ped>();
@@ -99,12 +99,13 @@ namespace DemagoScript
             musiques.Add( new string[] { "dialogue9", "joeDialogue9.wav" } );
             musiques.Add( new string[] { "dialogue10", "joeDialogue10.wav" } );
             musiques.Add( new string[] { "musique1", "joeAnticonformiste.wav" } );
-            musiques.Add( new string[] { "musique2", "joeHippie.wav" } );
+            musiques.Add( new string[] { "musique2", "joeLesFlics.wav" } );
             musiques.Add( new string[] { "musique3", "joeDegueulasse.wav" } );
             musiques.Add( new string[] { "flics1", "joeFlics1.wav" } );
             musiques.Add( new string[] { "flics2", "joeFlics2.wav" } );
             musiques.Add( new string[] { "flics3", "joeFlics3.wav" } );
             musiques.Add( new string[] { "flics4", "joeFlics4.wav" } );
+            musiques.Add( new string[] { "flics5", "joeFlics5.wav" } );
             musiques.Add( new string[] { "nadine", "joeNadine.wav" } );
             musiques.Add( new string[] { "amphiHoo1", "joeDegueulasseHoo.wav" } );
             musiques.Add( new string[] { "amphiHoo2", "joeDegueulasseHoo2.wav" } );
@@ -239,6 +240,7 @@ namespace DemagoScript
             firstSongGoals.OnGoalStart += (sender) =>
             {
                 Tools.setClockTime(11, musicPlaylist.length("musique1"));
+                currentPlay = "musique1";
 
                 List<Vector3> travelingPositions = new List<Vector3>();
                 Vector3 cameraPosition = firstSongPosition;
@@ -270,6 +272,7 @@ namespace DemagoScript
             
             firstSongGoals.OnGoalAccomplished += (sender, elaspedTime) =>
             {
+                currentPlay = "";
                 Function.Call(Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1);
 
                 foreach (Ped spectator in spectatorsPeds)
@@ -347,6 +350,10 @@ namespace DemagoScript
             addGoal(secondSongGoals);
             secondSongGoals.OnGoalStart += (sender) =>
             {
+                if (currentPlay != "")
+                    musicPlaylist.pauseMusic(currentPlay);
+
+                currentPlay = "musique2";
                 World.Weather = Weather.Clouds;
                 foreach (Ped spectator in spectatorsPeds)
                 {
@@ -417,6 +424,7 @@ namespace DemagoScript
             
             secondSongGoals.OnGoalAccomplished += (sender, elaspedTime) =>
             {
+                currentPlay = "";
 
                 Function.Call(Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1);
 
@@ -486,14 +494,18 @@ namespace DemagoScript
 
             Goal thirdSongGoals = new PlayInstrument(InstrumentHash.Guitar, musicPlaylist.length("musique3"), "musique3", musicPlaylist);
             addGoal(thirdSongGoals);
+            Timer chansonHoo2;
 
             thirdSongGoals.OnGoalStart += (sender) =>
             {
-                Timer chansonHoo2 = new Timer(musicPlaylist.length("musique3") - 19000);
+                if (currentPlay != "")
+                    musicPlaylist.pauseMusic(currentPlay);
+
+                currentPlay = "musique3";
+                chansonHoo2 = new Timer(musicPlaylist.length("musique3") - 19000);
                 chansonHoo2.OnTimerStop += (timerSender) =>
                 {
                     musicPlaylist.playMusic("amphiHoo2");
-                    chansonHoo2 = null;
                 };
 
                 foreach (Ped spectator in spectatorsPeds2)
@@ -554,8 +566,11 @@ namespace DemagoScript
             };
 
             
-            thirdSongGoals.OnGoalAccomplished += ( sender, elaspedTime ) => {
+            thirdSongGoals.OnGoalAccomplished += ( sender, elaspedTime ) =>
+            {
+                currentPlay = "";
 
+                chansonHoo2 = null;
                 Function.Call(Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1);
 
                 player.Health = 300;
@@ -840,10 +855,10 @@ namespace DemagoScript
             string subtitle = "";
             foreach (string[] musiqueNames in musiques)
             {
-                if (musiqueNames.Length == 2 && musicPlaylist.isPlaying(musiqueNames[0]))
+                if (musiqueNames[0] == currentPlay && musicPlaylist.isPlaying(currentPlay))
                 {
                     string songFile = musiqueNames[1];
-                    subtitle = Subtitles.getSubtitle(songFile, (int)musicPlaylist.getPlayingPosition(songFile));
+                    subtitle = Subtitles.getSubtitle(songFile, (int)musicPlaylist.getPlayingPosition(currentPlay));
                 }
             }
 

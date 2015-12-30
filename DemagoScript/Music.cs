@@ -48,7 +48,10 @@ namespace DemagoScript
 
         public uint getPlayingPosition(string key)
         {
-            return musicTable[key].PlayPosition;
+            if (keyExistInMusicTable(key))
+                return musicTable[key].PlayPosition;
+
+            return 0;
         }
 
         public void playMusic(string key)
