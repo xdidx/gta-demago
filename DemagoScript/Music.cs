@@ -12,7 +12,7 @@ namespace DemagoScript
         private static string musicLocation = Environment.CurrentDirectory + @"\Music\";
         private List<string> listePaused = new List<string>();
 
-        public Music( List<string[]> liste )
+        public Music(List<string[]> liste)
         {
             foreach (string[] keyValue in liste)
             {
@@ -44,6 +44,7 @@ namespace DemagoScript
 
             return true;
         }
+
 
         public uint getPlayingPosition(string key)
         {

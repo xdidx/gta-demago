@@ -27,7 +27,7 @@ namespace DemagoScript
 
         private static string[] sonsEtape1 = new string[] { "flics1", "dialogue1", "dialogue2", "dialogue3" };
         private static string[] sonsEtape2 = new string[] { "flics2", "flics3", "dialogue4", "dialogue5", "dialogue6" };
-        private static string[] sonsEtape3 = new string[] { "flics4", "dialogue8", "dialogue9" };
+        private static string[] sonsEtape3 = new string[] { "flics4", "dialogue7", "dialogue8", "dialogue9" };
 
         private Vehicle bike = null;
         private List<Ped> spectatorsPeds = new List<Ped>();
@@ -60,6 +60,7 @@ namespace DemagoScript
 
         private void loadMusic()
         {
+            //TODO : Optimiser tout ca, mettre des dictionnary voire faire un truc automatique
             musiques.Clear();
             musiques.Add( new string[] { "balle1", "joeBalle1.wav" } );
             musiques.Add( new string[] { "balle2", "joeBalle2.wav" } );
@@ -98,7 +99,7 @@ namespace DemagoScript
             musiques.Add( new string[] { "dialogue9", "joeDialogue9.wav" } );
             musiques.Add( new string[] { "dialogue10", "joeDialogue10.wav" } );
             musiques.Add( new string[] { "musique1", "joeAnticonformiste.wav" } );
-            musiques.Add( new string[] { "musique2", "joeLesFlics.wav" } );
+            musiques.Add( new string[] { "musique2", "joeHippie.wav" } );
             musiques.Add( new string[] { "musique3", "joeDegueulasse.wav" } );
             musiques.Add( new string[] { "flics1", "joeFlics1.wav" } );
             musiques.Add( new string[] { "flics2", "joeFlics2.wav" } );
@@ -834,6 +835,21 @@ namespace DemagoScript
                     Function.Call(Hash.CLEAR_ENTITY_LAST_WEAPON_DAMAGE, Game.Player.Character);
                     currentInterruptPlay = "";
                 }
+            }
+
+            string subtitle = "";
+            foreach (string[] musiqueNames in musiques)
+            {
+                if (musiqueNames.Length == 2 && musicPlaylist.isPlaying(musiqueNames[0]))
+                {
+                    string songFile = musiqueNames[1];
+                    subtitle = Subtitles.getSubtitle(songFile, (int)musicPlaylist.getPlayingPosition(songFile));
+                }
+            }
+
+            if (subtitle != "")
+            {
+                GTA.UI.ShowSubtitle(subtitle);
             }
 
             playAmbiance();
