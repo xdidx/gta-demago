@@ -35,6 +35,28 @@ namespace DemagoScript
 
         public delegate void MenuAction();
 
+        public static Ped GetClosestPedAroundPed(Ped ped)
+        {
+            float minDistance = 16000f;//mapLength
+            Ped closestPed = null;
+
+            Ped[] peds = World.GetAllPeds();
+            for (int i = 0; i < peds.Length; i++)
+            {
+                if (peds[i] != Game.Player.Character && peds[i] != ped)
+                {
+                    float pedDistanceToPed = peds[i].Position.DistanceTo(ped.Position);
+                    if (pedDistanceToPed < minDistance)
+                    {
+                        closestPed = peds[i];
+                        minDistance = pedDistanceToPed;
+                    }
+                }
+            }
+
+            return closestPed;
+        }
+
         public DemagoMenu(List<Mission> missions = null)
         {
             if ( missions == null ) {
@@ -246,6 +268,8 @@ namespace DemagoScript
             };
             
             //Outils
+
+
             seePlayerActiveItem = new UIMenuCheckboxItem("Personnage invisible", seePlayer, "Si la case est cochée, votre personnage est invisible");
             godPlayerActiveItem = new UIMenuCheckboxItem("Personnage invincible", godPlayer, "Si la case est cochée, votre personnage est invincible");
             seeVehicleActiveItem = new UIMenuCheckboxItem("Vehicle invisible", seeVehicle, "Si la case est cochée, votre véhicule est invisible");
@@ -260,7 +284,9 @@ namespace DemagoScript
             var showPositionItem = new UIMenuItem("Afficher la position");
             var showRotationItem = new UIMenuItem("Afficher la rotation");
 
-            var showMessageItem = new UIMenuItem( "Afficher la popup de test" );
+            var showMessageItem = new UIMenuItem("Afficher la popup de test");
+
+            var kingsmanModItem = new UIMenuItem("Kingsman Mod");
 
 
             var toolsMenu = menuPool.AddSubMenu(mainMenu, "Outils");
@@ -278,7 +304,9 @@ namespace DemagoScript
             toolsMenu.AddItem(showPositionItem);
             toolsMenu.AddItem(showRotationItem);
 
-            toolsMenu.AddItem( showMessageItem );
+            toolsMenu.AddItem(showMessageItem);
+
+            toolsMenu.AddItem(kingsmanModItem);
 
             toolsMenu.OnItemSelect += (sender, item, checked_) =>
             {
@@ -341,6 +369,22 @@ namespace DemagoScript
                 {
                     if (Game.Player.Money > 50000)
                         Game.Player.Money -= 50000;
+                    else
+                        Game.Player.Money = 0;
+                }
+
+                if (item == kingsmanModItem)
+                {
+                    Ped[] peds = World.GetAllPeds();
+                    for (int i = 0; i < peds.Length; i++)
+                    {
+                        if (peds[i] != Game.Player.Character)
+                        {
+                            peds[i].Task.FightAgainst(GetClosestPedAroundPed(peds[i]));
+                            Function.Call(Hash.SET_PED_COMBAT_MOVEMENT, peds[i], 3);
+                            Function.Call(Hash.SET_PED_COMBAT_RANGE, peds[i], 2);
+                        }
+                    }
                 }
             };
 
