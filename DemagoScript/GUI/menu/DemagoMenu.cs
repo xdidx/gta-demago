@@ -35,12 +35,15 @@ namespace DemagoScript
 
         public delegate void MenuAction();
 
+        private List<string[]> musiques = new List<string[]>();
+        private Music musicPlaylist = null;
+
         public static Ped GetClosestPedAroundPed(Ped ped)
         {
             float minDistance = 16000f;//mapLength
             Ped closestPed = null;
 
-            Ped[] peds = World.GetAllPeds();
+            Ped[] peds = World.GetNearbyPeds(ped, 10000);
             for (int i = 0; i < peds.Length; i++)
             {
                 if (peds[i] != Game.Player.Character && peds[i] != ped)
@@ -55,7 +58,7 @@ namespace DemagoScript
             }
 
             return closestPed;
-        }
+        }            
 
         public DemagoMenu(List<Mission> missions = null)
         {
@@ -373,16 +376,27 @@ namespace DemagoScript
                         Game.Player.Money = 0;
                 }
 
+                // Ne fonctionne que partiellement. Les gens ne se battent pas correctement.
                 if (item == kingsmanModItem)
                 {
-                    Ped[] peds = World.GetAllPeds();
+                    musiques.Clear();
+                    musiques.Add(new string[] { "kingsman", "Kingsman.wav" });
+
+                    musicPlaylist = new Music(musiques);
+                    musicPlaylist.setVolume(0.9f);
+
+                    musicPlaylist.playMusic("kingsman");
+
+                    Ped[] peds = World.GetNearbyPeds(Game.Player.Character, 10000);
                     for (int i = 0; i < peds.Length; i++)
                     {
                         if (peds[i] != Game.Player.Character)
                         {
-                            peds[i].Task.FightAgainst(GetClosestPedAroundPed(peds[i]));
+                            Function.Call(Hash.SET_PED_COMBAT_ATTRIBUTES, peds[i], 3);
                             Function.Call(Hash.SET_PED_COMBAT_MOVEMENT, peds[i], 3);
-                            Function.Call(Hash.SET_PED_COMBAT_RANGE, peds[i], 2);
+                            Function.Call(Hash.SET_PED_COMBAT_RANGE, peds[i], 0);
+                            Function.Call(Hash.SET_PED_COMBAT_ABILITY, peds[i], 2);
+                            peds[i].Task.FightAgainst(GetClosestPedAroundPed(peds[i]));
                         }
                     }
                 }
