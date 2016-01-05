@@ -1,13 +1,9 @@
 ﻿using GTA;
 using GTA.Math;
 using GTA.Native;
-using IrrKlang;
-using NativeUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DemagoScript
 {
@@ -27,7 +23,7 @@ namespace DemagoScript
 
         private static string[] sonsEtape1 = new string[] { "flics1", "dialogue1", "dialogue2", "dialogue3" };
         private static string[] sonsEtape2 = new string[] { "flics2", "flics3", "flics4", "dialogue4", "dialogue5", "dialogue6" };
-        private static string[] sonsEtape3 = new string[] { "flics5", "dialogue7", "dialogue8", "dialogue9" };
+        private static string[] sonsEtape3 = new string[] { "flics5", "dialogue8", "dialogue9" };
 
         private Vehicle bike = null;
         private List<Ped> spectatorsPeds = new List<Ped>();
