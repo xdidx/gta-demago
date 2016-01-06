@@ -33,32 +33,7 @@ namespace DemagoScript
 
         private UIMenuCheckboxItem godVehicleActiveItem, seeVehicleActiveItem, godPlayerActiveItem, seePlayerActiveItem;
 
-        public delegate void MenuAction();
-
-        private List<string[]> musiques = new List<string[]>();
-        private Music musicPlaylist = null;
-
-        public static Ped GetClosestPedAroundPed(Ped ped)
-        {
-            float minDistance = 16000f;//mapLength
-            Ped closestPed = null;
-
-            Ped[] peds = World.GetNearbyPeds(ped, 10000);
-            for (int i = 0; i < peds.Length; i++)
-            {
-                if (peds[i] != Game.Player.Character && peds[i] != ped)
-                {
-                    float pedDistanceToPed = peds[i].Position.DistanceTo(ped.Position);
-                    if (pedDistanceToPed < minDistance)
-                    {
-                        closestPed = peds[i];
-                        minDistance = pedDistanceToPed;
-                    }
-                }
-            }
-
-            return closestPed;
-        }            
+        public delegate void MenuAction();      
 
         public DemagoMenu(List<Mission> missions = null)
         {
@@ -289,8 +264,6 @@ namespace DemagoScript
 
             var showMessageItem = new UIMenuItem("Afficher la popup de test");
 
-            var kingsmanModItem = new UIMenuItem("Kingsman Mod");
-
 
             var toolsMenu = menuPool.AddSubMenu(mainMenu, "Outils");
             toolsMenu.AddItem(wantedLevelItem);
@@ -308,8 +281,6 @@ namespace DemagoScript
             toolsMenu.AddItem(showRotationItem);
 
             toolsMenu.AddItem(showMessageItem);
-
-            toolsMenu.AddItem(kingsmanModItem);
 
             toolsMenu.OnItemSelect += (sender, item, checked_) =>
             {
@@ -374,31 +345,6 @@ namespace DemagoScript
                         Game.Player.Money -= 50000;
                     else
                         Game.Player.Money = 0;
-                }
-
-                // Ne fonctionne que partiellement. Les gens ne se battent pas correctement.
-                if (item == kingsmanModItem)
-                {
-                    musiques.Clear();
-                    musiques.Add(new string[] { "kingsman", "Kingsman.wav" });
-
-                    musicPlaylist = new Music(musiques);
-                    musicPlaylist.setVolume(0.9f);
-
-                    musicPlaylist.playMusic("kingsman");
-
-                    Ped[] peds = World.GetNearbyPeds(Game.Player.Character, 10000);
-                    for (int i = 0; i < peds.Length; i++)
-                    {
-                        if (peds[i] != Game.Player.Character)
-                        {
-                            Function.Call(Hash.SET_PED_COMBAT_ATTRIBUTES, peds[i], 3);
-                            Function.Call(Hash.SET_PED_COMBAT_MOVEMENT, peds[i], 3);
-                            Function.Call(Hash.SET_PED_COMBAT_RANGE, peds[i], 0);
-                            Function.Call(Hash.SET_PED_COMBAT_ABILITY, peds[i], 2);
-                            peds[i].Task.FightAgainst(GetClosestPedAroundPed(peds[i]));
-                        }
-                    }
                 }
             };
 
