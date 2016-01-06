@@ -73,8 +73,10 @@
     <Compile Include="missions\goals\EnterInVehicle.cs" />
     <Compile Include="missions\goals\SurviveInZone.cs" />
     <Compile Include="missions\goals\Goal.cs" />
+    <Compile Include="missions\goals\Wait.cs" />
     <Compile Include="missions\Justice.cs" />
     <Compile Include="missions\Joe.cs" />
+    <Compile Include="missions\Kingsman.cs" />
     <Compile Include="Subtitles.cs" />
     <Compile Include="Music.cs" />
     <Compile Include="Timer.cs" />

@@ -111,15 +111,20 @@ namespace DemagoScript
 
         public static Ped GetClosestPedAroundPlayer()
         {
+            return GetClosestPedAroundPed(Game.Player.Character);
+        }
+
+        public static Ped GetClosestPedAroundPed(Ped ped)
+        {
             float minDistance = 16000f;//mapLength
             Ped closestPed = null;
 
             Ped[] peds = World.GetAllPeds();
             for (int i = 0; i < peds.Length; i++)
             {
-                if (peds[i] != Game.Player.Character)
+                if (peds[i] != ped && ped.IsAlive && !ped.IsDead && ped.IsHuman)
                 {
-                    float pedDistanceToPlayer = peds[i].Position.DistanceTo(Game.Player.Character.Position);
+                    float pedDistanceToPlayer = peds[i].Position.DistanceTo(ped.Position);
                     if (pedDistanceToPlayer < minDistance)
                     {
                         closestPed = peds[i];
