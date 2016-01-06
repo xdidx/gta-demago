@@ -16,16 +16,26 @@ namespace DemagoScript
         {
             foreach (string[] keyValue in liste)
             {
-                try
-                {
-                    musicTable.Add(keyValue[0], engine.Play2D(musicLocation + keyValue[1]));
-                    musicTable[keyValue[0]].Paused = true;
-                }
-                catch (Exception ex)
-                {
-                    Tools.log("Error loading " + musicLocation + keyValue[1] + " : " + ex.Message);
-                    musicTable.Remove(keyValue[0]);
-                }
+                musicInitialisation(keyValue);
+            }
+        }
+
+        public Music(string[] associationBetweenMusicFileAndName)
+        {
+            musicInitialisation(associationBetweenMusicFileAndName);
+        }
+
+        public void musicInitialisation(string[] associationBetweenMusicFileAndName)
+        {
+            try
+            {
+                musicTable.Add(associationBetweenMusicFileAndName[0], engine.Play2D(musicLocation + associationBetweenMusicFileAndName[1]));
+                musicTable[associationBetweenMusicFileAndName[0]].Paused = true;
+            }
+            catch (Exception ex)
+            {
+                Tools.log("Error loading " + musicLocation + associationBetweenMusicFileAndName[1] + " : " + ex.Message);
+                musicTable.Remove(associationBetweenMusicFileAndName[0]);
             }
         }
 
