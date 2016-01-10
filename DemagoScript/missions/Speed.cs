@@ -332,7 +332,7 @@ namespace DemagoScript
             trapStarted = false;
         }
 
-        public override void clear(bool removePhysicalElements = false)
+        public override void clear(bool removePhysicalElements = false, bool keepGoalsList = false)
         {
             base.clear(removePhysicalElements);
 

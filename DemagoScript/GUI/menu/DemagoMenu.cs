@@ -480,6 +480,7 @@ namespace DemagoScript
                     ConfirmationPopup checkpointPopup = new ConfirmationPopup("Vous vous êtes fait tué", "Voulez vous revenir au dernier checkpoint ?");
                     checkpointPopup.OnPopupAccept += () => 
                     {
+                        DemagoScript.loadLastCheckpoint();
                     };
                 }
                 else if(Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true))
@@ -489,6 +490,7 @@ namespace DemagoScript
                     ConfirmationPopup checkpointPopup = new ConfirmationPopup("Vous vous êtes fait arrêté", "Voulez vous revenir au dernier checkpoint ?");
                     checkpointPopup.OnPopupAccept += () =>
                     {
+                        DemagoScript.loadLastCheckpoint();
                     };
                 }
                 else

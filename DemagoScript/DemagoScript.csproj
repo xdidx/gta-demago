@@ -67,6 +67,7 @@
     <Compile Include="GUI\elements\UITextElement.cs" />
     <Compile Include="GUI\popup\Popup.cs" />
     <Compile Include="GUI\menu\UIMenuEditableNumericItem.cs" />
+    <Compile Include="missions\Checkpoint.cs" />
     <Compile Include="missions\goals\PlayInstrument.cs" />
     <Compile Include="missions\goals\GoToPosition.cs" />
     <Compile Include="missions\goals\GoToPositionInVehicle.cs" />

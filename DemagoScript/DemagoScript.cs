@@ -43,6 +43,20 @@ namespace DemagoScript
             }
         }
 
+        public static void loadLastCheckpoint()
+        {
+            if (missions != null)
+            {
+                foreach (Mission mission in missions)
+                {
+                    if (mission.isInProgress())
+                    {
+                        mission.loadLastCheckpoint();
+                    }
+                }
+            }
+        }
+
         private void initialize()
         {
             if ( initialized ) {

@@ -16,13 +16,14 @@ namespace DemagoScript
         public delegate void MissionOverEvent(Mission sender, string reason);
         public delegate void MissionAccomplishedEvent( Mission sender, TimeSpan elaspedTime );
 
-        private List<Goal> goals = new List<Goal>();
+        protected List<Goal> goals = new List<Goal>();
+        private List<Checkpoint> checkpoints = new List<Checkpoint>();
 
+        private int lastCheckpointIndex = 0;
         private bool active = false;
         private bool over = false;
         private bool initialized = false;
         private bool failed = false;
-        protected int checkpointCourant;
         private DateTime startMissionTime;
 
         /// <summary>
@@ -58,13 +59,13 @@ namespace DemagoScript
             OnMissionStart?.Invoke( this );
 
             this.reset();
-            checkpointCourant = 0;
-
             this.initialize();
-
+            
             this.active = true;
             this.startMissionTime = DateTime.Now;
             Game.Player.WantedLevel = 0;
+
+            loadLastCheckpoint();
         }
 
         /**
@@ -161,7 +162,10 @@ namespace DemagoScript
             goals.Add(goal);
         }
 
-        public virtual void loadCheckpoint() { }
+        public void addCheckpoint(Checkpoint checkpoint)
+        {
+            checkpoints.Add(checkpoint);
+        }
 
         public virtual void update()
         {
@@ -198,24 +202,45 @@ namespace DemagoScript
          */
         private void isPlayerDeadOrArrested()
         {
-            if ( Game.Player.IsDead ) {
-                this.fail( "Vous êtes mort" );
+            if (Game.Player.IsDead)
+            {
+                this.fail("Vous êtes mort");
             }
 
-            if ( Function.Call<bool>( Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true ) ) {
-                this.fail( "Vous vous êtes fait arrêté" );
+            if (Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true))
+            {
+                this.fail("Vous vous êtes fait arrêté");
             }
+        }
+
+        public void loadLastCheckpoint()
+        {
+            if (lastCheckpointIndex < 0)
+            {
+                lastCheckpointIndex = 0;
+            }
+
+            if (lastCheckpointIndex >= checkpoints.Count)
+            {
+                lastCheckpointIndex = checkpoints.Count;
+            }
+
+            clear(true, true);
+            checkpoints[lastCheckpointIndex].start();
         }
 
         abstract public string getName();
 
-        public virtual void clear( bool removePhysicalElements = false )
+        public virtual void clear( bool removePhysicalElements = false, bool keepGoalsList = false)
         {
             foreach ( Goal goal in goals )
                 goal.clear( removePhysicalElements );
 
-            if ( removePhysicalElements )
-                goals.Clear();
+            if (keepGoalsList)
+            {
+                if (removePhysicalElements)
+                    goals.Clear();
+            }
         }
 
         public virtual UIMenuItem addStartItem( ref UIMenu menu )
