@@ -73,6 +73,12 @@ namespace DemagoScript
             }
         }
 
+        public static void stopTraveling()
+        {
+            travelingIndex = 0;
+            travelingPositions.Clear();
+        }
+
         public static void traveling(List<Vector3> positions, float duration, Entity target = null, bool mergeWithPlayerCameraOnEnd = false)
         {
             if (positions.Count > 1)

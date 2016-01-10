@@ -141,15 +141,23 @@ namespace DemagoScript
 
                 newMission.OnMissionStart += ( sender ) =>
                 {
-                    foreach ( Mission mission in missions ) {
-                        mission.stop( "Une autre mission a été démarrée" );
+                    foreach ( Mission mission in missions )
+                    {
+                        if (mission.isInProgress())
+                        {
+                            mission.stop("Une autre mission a été démarrée");
+                        }
                     }
                     GTA.UI.Notify( sender.getName() );
                 };
 
                 newMission.OnMissionAccomplished += ( sender, time ) =>
                 {
-                    string missionTime = "En " + Tools.getTextFromTimespan(time);
+                    string missionTime = "Une erreur est survenue, merci de nous dire comment :)";
+                    if (Tools.getTextFromTimespan(time) != "")
+                    {
+                        missionTime = "En " + Tools.getTextFromTimespan(time);
+                    }
 
                     SuccessMissionPopup successPopup = new SuccessMissionPopup(sender.getName(), missionTime);
                     GUIManager.Instance.popupManager.add(successPopup);
@@ -178,9 +186,9 @@ namespace DemagoScript
                     };
                 };
 
-                newMission.OnMissionFail += ( sender, reason ) =>
+                newMission.OnMissionOver += (sender, reason) =>
                 {
-                    GTA.UI.Notify( "La mission a échouée : " + reason );
+                    Tools.stopTraveling();
                 };
 
                 missions.Add( newMission );
