@@ -11,7 +11,9 @@ namespace DemagoScript
     abstract class Mission
     {
         public delegate void MissionStartEvent( Mission sender );
-        public delegate void MissionFailEvent( Mission sender, string reason );
+        public delegate void MissionFailEvent(Mission sender, string reason);
+        public delegate void MissionStopEvent(Mission sender, string reason);
+        public delegate void MissionOverEvent(Mission sender, string reason);
         public delegate void MissionAccomplishedEvent( Mission sender, TimeSpan elaspedTime );
 
         private List<Goal> goals = new List<Goal>();
@@ -38,6 +40,16 @@ namespace DemagoScript
         /// </summary>
         public event MissionFailEvent OnMissionFail;
 
+        /// <summary>
+        /// Called when mission is voluntarily stopped 
+        /// </summary>
+        public event MissionStopEvent OnMissionStop;
+
+        /// <summary>
+        /// Called when mission is over, by fail, stop or whatever
+        /// </summary>
+        public event MissionOverEvent OnMissionOver;
+
         /**
          * Commence la mission
          */
@@ -46,7 +58,6 @@ namespace DemagoScript
             OnMissionStart?.Invoke( this );
 
             this.reset();
-            this.initialized = false; // TODO: inclure dans le reset ?
             checkpointCourant = 0;
 
             this.initialize();
@@ -61,6 +72,8 @@ namespace DemagoScript
          */
         public void reset()
         {
+            this.initialized = false;
+
             foreach ( Goal goal in this.goals ) {
                 goal.clear( false );
             }
@@ -91,13 +104,19 @@ namespace DemagoScript
          */
         public void stop( string reason = "" )
         {
-            if ( this.active ) {
+            if ( this.active )
+            {
+                OnMissionStop?.Invoke(this, reason);
+                OnMissionOver?.Invoke(this, reason);
+
                 if ( reason != "" ) {
                     GTA.UI.Notify( "Mission arrêtée : " + reason );
                 }
 
-                this.active = false;
+                this.clear(false);
                 this.reset();
+                this.failed = false;
+                this.active = false;
             }
         }
 
@@ -122,23 +141,24 @@ namespace DemagoScript
 
         public void fail( string reason = "" )
         {
-            if ( this.active ) {
-                OnMissionFail?.Invoke( this, reason );
+            if ( this.active )
+            {
+                OnMissionFail?.Invoke(this, reason);
+                OnMissionOver?.Invoke(this, reason);
             }
 
             this.clear( false );
             this.reset();
-            this.initialized = false;
             this.failed = true;
             this.active = false;
         }
 
-        public void addGoal( Goal goal )
+        public void addGoal(Goal goal)
         {
-            goal.OnGoalFail += ( sender, reason ) => {
-                fail( reason );
+            goal.OnGoalFail += (sender, reason) => {
+                fail(reason);
             };
-            goals.Add( goal );
+            goals.Add(goal);
         }
 
         public virtual void loadCheckpoint() { }
@@ -146,14 +166,9 @@ namespace DemagoScript
         public virtual void update()
         {
             if ( !isInProgress() ) {
-                //this.active = false;
-                // this.clear( true ); ?
-                // this.initialized = false; ?
                 this.stop();
                 return;
             }
-
-            // initialize(); Déjà initialized lors du start();
 
             this.isPlayerDeadOrArrested();
 
@@ -172,7 +187,8 @@ namespace DemagoScript
                 }
             }
 
-            if ( !waitingGoals ) {
+            if ( !waitingGoals )
+            {
                 this.accomplish();
             }
         }

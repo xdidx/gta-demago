@@ -107,7 +107,7 @@ namespace DemagoScript
                 return false;
 
             Ped player = Game.Player.Character;
-            if ( !vehicle.IsDriveable || vehicle.IsOnFire ) {
+            if (!vehicle.Exists() || !vehicle.IsDriveable || vehicle.IsDead || vehicle.IsOnFire ) {
                 fail( "Le véhicule a été détruit" );
                 return false;
             }

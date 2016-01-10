@@ -49,6 +49,11 @@ namespace DemagoScript
             var missionsMenu = menuPool.AddSubMenu(mainMenu, "Missions");
             foreach (Mission mission in missions)
             {
+                mission.OnMissionOver += (sender, reason) =>
+                {
+                    resetPlayerModel();
+                };
+
                 var missionMenu = menuPool.AddSubMenu(missionsMenu, mission.getName());
                 var startItem = mission.addStartItem(ref missionMenu);
 
@@ -56,7 +61,7 @@ namespace DemagoScript
                 {
                     if (item == startItem)
                     {
-                        if (oldModel == null)
+                        if (oldModel == null && (Game.Player.Character.Model == PedHash.Michael || Game.Player.Character.Model == PedHash.Franklin || Game.Player.Character.Model == PedHash.Trevor))
                         {
                             oldModel = Game.Player.Character.Model;
                         }
@@ -104,12 +109,12 @@ namespace DemagoScript
 
             modelMenu.OnItemSelect += (sender, item, index) =>
             {
-                if (oldModel == null)
+                if (oldModel == null && (Game.Player.Character.Model == PedHash.Michael || Game.Player.Character.Model == PedHash.Franklin || Game.Player.Character.Model == PedHash.Trevor))
                 {
                     oldModel = Game.Player.Character.Model;
                 }
 
-                if (oldModel != Game.Player.Character.Model)
+                if (oldModel != null && oldModel != Game.Player.Character.Model)
                 {
                     //Reset to old model
                     Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
@@ -246,8 +251,6 @@ namespace DemagoScript
             };
             
             //Outils
-
-
             seePlayerActiveItem = new UIMenuCheckboxItem("Personnage invisible", seePlayer, "Si la case est cochée, votre personnage est invisible");
             godPlayerActiveItem = new UIMenuCheckboxItem("Personnage invincible", godPlayer, "Si la case est cochée, votre personnage est invincible");
             seeVehicleActiveItem = new UIMenuCheckboxItem("Vehicle invisible", seeVehicle, "Si la case est cochée, votre véhicule est invisible");
@@ -411,27 +414,8 @@ namespace DemagoScript
 
             Ped player = Game.Player.Character;
 
-            if ((player.IsDead || Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true)) && player.Model != oldModel && oldModel != null)
+            if (playerModelIsInvalid())
             {
-                if (player.IsDead)
-                {
-                    Ped replacementPed = Function.Call<Ped>(Hash.CLONE_PED, Game.Player.Character, Function.Call<int>(Hash.GET_ENTITY_HEADING, Function.Call<int>(Hash.PLAYER_PED_ID)), false, true);
-                    replacementPed.Kill();
-
-                    player.IsVisible = false;
-
-                    Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
-
-                    while (Game.Player.IsDead)
-                        Script.Wait(100);
-
-                    player.IsVisible = true;
-                }
-                else
-                {
-                    Script.Wait(4000);
-                    Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
-                }
             }
             else
             {
@@ -466,6 +450,52 @@ namespace DemagoScript
                     toChangeVehicle = null;
                 }
             }
+        }
+
+        private bool playerModelIsInvalid()
+        {
+            Ped player = Game.Player.Character;
+            return ((player.IsDead || Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true)) && player.Model != oldModel && oldModel != null);
+        }
+
+        private void resetPlayerModel()
+        {
+            Ped player = Game.Player.Character;
+            if (oldModel != null && player.Model != oldModel)
+            {
+                if (player.IsDead)
+                {
+                    Ped replacementPed = Function.Call<Ped>(Hash.CLONE_PED, Game.Player.Character, Function.Call<int>(Hash.GET_ENTITY_HEADING, Function.Call<int>(Hash.PLAYER_PED_ID)), false, true);
+                    replacementPed.Kill();
+
+                    player.IsVisible = false;
+
+                    Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
+
+                    while (Game.Player.IsDead)
+                        Script.Wait(100);
+
+                    player.IsVisible = true;
+
+                    ConfirmationPopup checkpointPopup = new ConfirmationPopup("Vous vous êtes fait tué", "Voulez vous revenir au dernier checkpoint ?");
+                    checkpointPopup.OnPopupAccept += () => 
+                    {
+                    };
+                }
+                else if(Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true))
+                {
+                    Script.Wait(4000);
+                    Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
+                    ConfirmationPopup checkpointPopup = new ConfirmationPopup("Vous vous êtes fait arrêté", "Voulez vous revenir au dernier checkpoint ?");
+                    checkpointPopup.OnPopupAccept += () =>
+                    {
+                    };
+                }
+                else
+                {
+                    Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
+                }
+            }         
         }
 
         public void OnKeyDown(object sender, KeyEventArgs e)

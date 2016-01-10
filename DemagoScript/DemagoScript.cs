@@ -37,7 +37,7 @@ namespace DemagoScript
                 {
                     if (mission.isInProgress())
                     {
-                        mission.stop();
+                        mission.stop("Mission terminée à votre demande");
                     }
                 }
             }
