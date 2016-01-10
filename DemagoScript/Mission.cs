@@ -1,6 +1,7 @@
 ﻿using DemagoScript.GUI;
 using DemagoScript.GUI.popup;
 using GTA;
+using GTA.Math;
 using GTA.Native;
 using NativeUI;
 using System;
@@ -19,6 +20,7 @@ namespace DemagoScript
         protected List<Goal> goals = new List<Goal>();
         private List<Checkpoint> checkpoints = new List<Checkpoint>();
 
+        private Vector3 playerPositionBeforeMission = Vector3.Zero;
         private int lastCheckpointIndex = 0;
         private bool active = false;
         private bool over = false;
@@ -58,14 +60,18 @@ namespace DemagoScript
         {
             OnMissionStart?.Invoke( this );
 
+            if (playerPositionBeforeMission == Vector3.Zero)
+            {
+                playerPositionBeforeMission = Game.Player.Character.Position;
+            }
+
             this.reset();
+            clear(true);
             this.initialize();
-            
+
             this.active = true;
             this.startMissionTime = DateTime.Now;
             Game.Player.WantedLevel = 0;
-
-            loadLastCheckpoint();
         }
 
         /**
@@ -76,7 +82,7 @@ namespace DemagoScript
             this.initialized = false;
 
             foreach ( Goal goal in this.goals ) {
-                goal.clear( false );
+                goal.reset();
             }
         }
 
@@ -107,18 +113,39 @@ namespace DemagoScript
         {
             if ( this.active )
             {
-                OnMissionStop?.Invoke(this, reason);
-                OnMissionOver?.Invoke(this, reason);
-
                 if ( reason != "" ) {
                     GTA.UI.Notify( "Mission arrêtée : " + reason );
                 }
 
-                this.clear(false);
-                this.reset();
                 this.failed = false;
-                this.active = false;
+                OnMissionStop?.Invoke(this, reason);
+                ends(reason);
             }
+        }
+
+        public void fail(string reason = "")
+        {
+            if (this.active)
+            {
+                if (reason != "")
+                {
+                    GTA.UI.Notify("Mission échouée : " + reason);
+                }
+
+                this.failed = true;
+                OnMissionFail?.Invoke(this, reason);
+                ends(reason);
+            }
+        }
+
+        private void ends(string reason = "")
+        {
+            OnMissionOver?.Invoke(this, reason);
+
+            this.clear(false);
+            this.reset();
+
+            this.active = false;
         }
 
         public virtual void accomplish()
@@ -140,26 +167,22 @@ namespace DemagoScript
             return ( this.active && !this.over && !this.failed );
         }
 
-        public void fail( string reason = "" )
+        public void addGoal(Goal goalToAdd)
         {
-            if ( this.active )
-            {
-                OnMissionFail?.Invoke(this, reason);
-                OnMissionOver?.Invoke(this, reason);
-            }
-
-            this.clear( false );
-            this.reset();
-            this.failed = true;
-            this.active = false;
-        }
-
-        public void addGoal(Goal goal)
-        {
-            goal.OnGoalFail += (sender, reason) => {
+            goalToAdd.OnGoalFail += (sender, reason) => {
                 fail(reason);
             };
-            goals.Add(goal);
+            goalToAdd.OnGoalAccomplished += (sender, elaspedTime) => {
+                foreach (Checkpoint checkpoint in checkpoints)
+                {
+                    if (goalToAdd == checkpoint.getGoalToLaunch())
+                    {
+                        lastCheckpointIndex = checkpoints.IndexOf(checkpoint);
+                        break;
+                    }
+                }
+            }; 
+            goals.Add(goalToAdd);
         }
 
         public void addCheckpoint(Checkpoint checkpoint)
@@ -169,13 +192,13 @@ namespace DemagoScript
 
         public virtual void update()
         {
+            this.isPlayerDeadOrArrested();
+
             if ( !isInProgress() ) {
                 this.stop();
                 return;
             }
-
-            this.isPlayerDeadOrArrested();
-
+            
             bool waitingGoals = false;
             foreach (Goal goal in goals)
             {
@@ -215,18 +238,40 @@ namespace DemagoScript
 
         public void loadLastCheckpoint()
         {
-            if (lastCheckpointIndex < 0)
-            {
-                lastCheckpointIndex = 0;
-            }
+            Tools.log("load last checkpoint "+ lastCheckpointIndex);
 
-            if (lastCheckpointIndex >= checkpoints.Count)
+            if (lastCheckpointIndex > 0)
             {
-                lastCheckpointIndex = checkpoints.Count;
-            }
+                if (lastCheckpointIndex >= checkpoints.Count)
+                {
+                    lastCheckpointIndex = checkpoints.Count - 1;
+                }
 
-            clear(true, true);
-            checkpoints[lastCheckpointIndex].start();
+                Checkpoint checkpointToStart = checkpoints[lastCheckpointIndex];
+
+                clear(true, true);
+
+                foreach (Goal goal in goals)
+                {
+                    if (goal == checkpointToStart.getGoalToLaunch())
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        goal.accomplish();
+                    }
+                }
+
+                checkpointToStart.start();
+
+                this.active = true;
+                this.initialized = true;
+            }
+            else
+            {
+                start();
+            }
         }
 
         abstract public string getName();

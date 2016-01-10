@@ -8,7 +8,8 @@ using System.Linq;
 
 namespace DemagoScript
 {
-    enum DemagoModel {
+    enum DemagoModel
+    {
         Joe,
         Fourras,
         Gastrow
@@ -73,6 +74,13 @@ namespace DemagoScript
             }
         }
 
+        public static void stopTraveling()
+        {
+            travelingIndex = 0;
+            travelingPositions.Clear();
+            Function.Call(Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1);
+        }
+
         public static void traveling(List<Vector3> positions, float duration, Entity target = null, bool mergeWithPlayerCameraOnEnd = false)
         {
             if (positions.Count > 1)
@@ -91,7 +99,7 @@ namespace DemagoScript
 
                 travelingHasTarget = false;
                 travelingCamera = World.CreateCamera(positions.First<Vector3>(), Vector3.Zero, GameplayCamera.FieldOfView);
-                if(target != null)
+                if (target != null)
                 {
                     travelingCamera.PointAt(target);
                     travelingHasTarget = true;
@@ -330,7 +338,7 @@ namespace DemagoScript
                     {
                         if (height != 0)
                         {
-                            position.Z = height  + 4.0f;
+                            position.Z = height + 4.0f;
                             savedGroundedPositions.Add(new Vector2(position.X, position.Y), position);
                             break;
                         }
@@ -418,6 +426,38 @@ namespace DemagoScript
             return originalPos;
         }
 
+        public static void log(string message, Entity entity)
+        {
+            if (entity == null)
+            {
+                log(message + " entity is null");
+            }
+            else if (!entity.Exists())
+            {
+                log(message + " entity is not null but doesn't exist");
+            }
+            else
+            {
+                log(message + " entity exist : " + entity.GetType().Name);
+            }
+        }
+
+        public static void log(string message, Model model)
+        {
+            if (model == null)
+            {
+                log(message + " entity is null");
+            }
+            else if (!model.IsValid)
+            {
+                log(message + " entity is not null but isn't valid");
+            }
+            else
+            {
+                log(message + " entity exist : " + model.GetType().Name);
+            }
+        }
+
         public static void log(string message, Vector3 position)
         {
             log(message + " - X : " + position.X + " / Y : " + position.Y + " - Z : " + position.Z);
@@ -425,7 +465,7 @@ namespace DemagoScript
 
         public static void log(string message)
         {
-            using (StreamWriter logStreamWriter = new StreamWriter( Tools.pathToLogFile, true))
+            using (StreamWriter logStreamWriter = new StreamWriter(Tools.pathToLogFile, true))
             {
                 try
                 {

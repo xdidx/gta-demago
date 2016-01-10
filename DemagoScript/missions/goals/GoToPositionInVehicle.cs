@@ -34,10 +34,9 @@ namespace DemagoScript
             teleportPlayerInVehicle = newTeleportPlayerInVehicle;
         }
 
-        public GoToPositionInVehicle( Vector3 position, Vehicle mandatoryVehicule )
+        public GoToPositionInVehicle( Vector3 position )
         {
             destination = position;
-            vehicle = mandatoryVehicule;
             vehiclePosition = Vector3.Zero;
             vehicleRotation = Vector3.Zero;
             teleportPlayerInVehicle = false;
@@ -50,22 +49,30 @@ namespace DemagoScript
 
             alreadyMountedOnBike = false;
 
-            if ( !vehicleHasBeenGivenInConstruct() ) {
-                vehicle = World.CreateVehicle( vehicleHash, vehiclePosition );
-                if ( vehicle == null ) {
+            if (!vehicleHasBeenGivenInConstruct())
+            {
+                vehicle = World.CreateVehicle(vehicleHash, vehiclePosition);
+                if (vehicle == null)
+                {
                     errorsNumber++;
-                    if ( errorsNumber > 10 ) {
-                        fail( "Impossible d'initaliser la voiture" );
+                    if (errorsNumber > 10)
+                    {
+                        fail("Impossible d'initaliser la voiture");
                         reset();
                         return false;
                     }
                 }
 
                 vehicle.Rotation = vehicleRotation;
-                if ( teleportPlayerInVehicle )
-                    Game.Player.Character.SetIntoVehicle( vehicle, VehicleSeat.Driver );
-            } else if ( vehicle == null || !vehicle.Exists() )
-                fail( "Le véhicule obligatoire n'existe plus" );
+                if (teleportPlayerInVehicle)
+                    Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+            }
+            else if (vehicle == null || !vehicle.Exists())
+            {
+                Tools.log("Le véhicule obligatoire n'existe plus", vehicle);
+                Tools.log("Le véhicule static : ", Joe.bike);
+                fail("Le véhicule obligatoire n'existe plus");
+            }
 
             createDestinationBlip();
 
@@ -79,11 +86,16 @@ namespace DemagoScript
             /*
             If no position is set, the vehicle was given in constructor. If that's, we have to check if vehicle is available
             */
-            if ( vehiclePosition == Vector3.Zero )
+            if (vehiclePosition == Vector3.Zero)
                 return true;
             return false;
         }
 
+        public void setVehicle(Vehicle newVehicle)
+        {
+            this.vehicle = newVehicle;
+        }
+        
         public void createDestinationBlip()
         {
             destinationBlip = World.CreateBlip( destination );

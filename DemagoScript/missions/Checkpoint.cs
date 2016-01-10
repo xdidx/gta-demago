@@ -22,6 +22,11 @@ namespace DemagoScript
             goalToLaunch = goal;
         }
 
+        public Goal getGoalToLaunch()
+        {
+            return goalToLaunch;
+        }
+
         public void start()
         {
             OnCheckpointStart?.Invoke(this);

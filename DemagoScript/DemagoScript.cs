@@ -45,27 +45,33 @@ namespace DemagoScript
 
         public static void loadLastCheckpoint()
         {
+            if (lastMission != null)
+            {
+                lastMission.loadLastCheckpoint();
+            }
+        }
+
+        public static void clearMissions()
+        {
             if (missions != null)
             {
                 foreach (Mission mission in missions)
                 {
-                    if (mission.isInProgress())
-                    {
-                        mission.loadLastCheckpoint();
-                    }
+                    mission.clear(true);
                 }
             }
         }
-
+        
         private void initialize()
         {
-            if ( initialized ) {
+            if (initialized)
+            {
                 return;
             }
 
             createMissions();
 
-            GUIManager.Instance.initialize( missions );
+            GUIManager.Instance.initialize(missions);
 
             initialized = true;
         }
@@ -82,7 +88,8 @@ namespace DemagoScript
                 togglePause();
             }
 
-            if ( !initialized ) {
+            if (!initialized)
+            {
                 initialize();
             }
 
@@ -114,7 +121,7 @@ namespace DemagoScript
                 togglePause();
             }
 
-            GUIManager.Instance.OnKeyDown( sender, e );
+            GUIManager.Instance.OnKeyDown(sender, e);
         }
 
         private void togglePause()
@@ -145,30 +152,45 @@ namespace DemagoScript
             }
         }
 
+        private static Mission lastMission = null;
+
         private void createMissions()
         {
             missions = new List<Mission>();
 
-            Type[] missionsClassesList = Assembly.GetExecutingAssembly().GetTypes().Where( type => type.IsSubclassOf( typeof( Mission ) ) ).ToArray();
-            foreach ( Type missionClass in missionsClassesList ) {
-                Mission newMission = (Mission)Activator.CreateInstance( missionClass );
+            Type[] missionsClassesList = Assembly.GetExecutingAssembly().GetTypes().Where(type => type.IsSubclassOf(typeof(Mission))).ToArray();
+            foreach (Type missionClass in missionsClassesList)
+            {
+                Mission newMission = (Mission)Activator.CreateInstance(missionClass);
 
-                newMission.OnMissionStart += ( sender ) =>
+                newMission.OnMissionStart += (sender) =>
                 {
-                    foreach ( Mission mission in missions ) {
-                        mission.stop( "Une autre mission a été démarrée" );
+                    lastMission = newMission;
+                    foreach (Mission mission in missions)
+                    {
+                        if (mission.isInProgress())
+                        {
+                            mission.stop("Une autre mission a été démarrée");
+                        }
+                        else
+                        {
+                            mission.clear(true, false);
+                        }
                     }
-                    GTA.UI.Notify( sender.getName() );
+                    GTA.UI.Notify(sender.getName());
                 };
 
-                newMission.OnMissionAccomplished += ( sender, time ) =>
+                newMission.OnMissionAccomplished += (sender, time) =>
                 {
-                    string missionTime = "En " + Tools.getTextFromTimespan(time);
+                    string missionTime = "Une erreur est survenue, merci de nous dire comment :)";
+                    if (Tools.getTextFromTimespan(time) != "")
+                    {
+                        missionTime = "En " + Tools.getTextFromTimespan(time);
+                    }
 
                     SuccessMissionPopup successPopup = new SuccessMissionPopup(sender.getName(), missionTime);
-                    GUIManager.Instance.popupManager.add(successPopup);
                     successPopup.show();
-                    successPopup.OnPopupClose += () => 
+                    successPopup.OnPopupClose += () =>
                     {
                         GUIManager.Instance.popupManager.remove(successPopup);
 
@@ -186,18 +208,17 @@ namespace DemagoScript
                         {
                             GUIManager.Instance.popupManager.remove(creditsPopup);
                         };
-
-                        GUIManager.Instance.popupManager.add(creditsPopup);
+                        
                         creditsPopup.show();
                     };
                 };
 
-                newMission.OnMissionFail += ( sender, reason ) =>
+                newMission.OnMissionOver += (sender, reason) =>
                 {
-                    GTA.UI.Notify( "La mission a échouée : " + reason );
+                    Tools.stopTraveling();
                 };
 
-                missions.Add( newMission );
+                missions.Add(newMission);
             }
         }
 
