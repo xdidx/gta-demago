@@ -446,8 +446,7 @@ namespace DemagoScript
 
                 player.Health = 300;
                 player.Armor = 100;
-
-                GTA.UI.ShowSubtitle("Policier : Si tu ne sors pas, c'est nous qui allons te faire sortir !", 4000);
+                
                 World.Weather = Weather.Clouds;
                 Tools.setClockTime(17, 10000);
                 etapeMission = 2;
@@ -649,8 +648,8 @@ namespace DemagoScript
             #region Checkpoints
             
             Checkpoint firstCheckpoint = new Checkpoint(goToFirstSongGoal);
-            Checkpoint secondCheckpoint = new Checkpoint(goToTheaterWithBikeGoal);
-            Checkpoint thirdCheckpoint = new Checkpoint(goToPoliceWithBikeGoal);            
+            Checkpoint secondCheckpoint = new Checkpoint(goToPoliceWithBikeGoal);
+            Checkpoint thirdCheckpoint = new Checkpoint(goToTheaterWithBikeGoal);
 
             addCheckpoint(firstCheckpoint);
             addCheckpoint(secondCheckpoint);

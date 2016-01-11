@@ -75,7 +75,7 @@ namespace DemagoScript
                 return false;
             }
             else if (SecondsToPlay >= 0)
-                setGoalText("Attend que les spéctateurs aient assez apprécié la musique de Joe. (Back pour passer)");
+                setGoalText("Attend que les spectateurs aient assez apprécié la musique de Joe. (Back pour passer)");
             return true;
         }
 

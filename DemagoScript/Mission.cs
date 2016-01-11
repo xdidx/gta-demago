@@ -232,7 +232,7 @@ namespace DemagoScript
 
             if (Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true))
             {
-                this.fail("Vous vous êtes fait arrêté");
+                this.fail("Vous vous êtes fait arrêter");
             }
         }
 
