@@ -16,6 +16,7 @@ namespace DemagoScript
         public delegate void MissionStopEvent(Mission sender, string reason);
         public delegate void MissionOverEvent(Mission sender, string reason);
         public delegate void MissionAccomplishedEvent( Mission sender, TimeSpan elaspedTime );
+        public delegate void CheckpointLoadedEvent(Checkpoint sender);
 
         protected List<Goal> goals = new List<Goal>();
         private List<Checkpoint> checkpoints = new List<Checkpoint>();
@@ -26,7 +27,12 @@ namespace DemagoScript
         private bool over = false;
         private bool initialized = false;
         private bool failed = false;
-        private DateTime startMissionTime;
+        protected DateTime startMissionTime;
+
+        /// <summary>
+        /// Called when checkpoint is loaded.
+        /// </summary>
+        public event CheckpointLoadedEvent OnCheckpoinLoaded;
 
         /// <summary>
         /// Called when user start the mission.
@@ -72,6 +78,15 @@ namespace DemagoScript
             this.active = true;
             this.startMissionTime = DateTime.Now;
             Game.Player.WantedLevel = 0;
+
+            if (checkpoints.Count > 0)
+            {
+                OnCheckpoinLoaded?.Invoke(checkpoints[0]);
+            }
+            else
+            {
+                Tools.log("Aucun checkpoint dans la mission " + getName());
+            }
         }
 
         /**
@@ -240,7 +255,7 @@ namespace DemagoScript
         {
             Tools.log("load last checkpoint "+ lastCheckpointIndex);
 
-            if (lastCheckpointIndex > 0)
+            if (lastCheckpointIndex >= 0)
             {
                 if (lastCheckpointIndex >= checkpoints.Count)
                 {
@@ -263,14 +278,13 @@ namespace DemagoScript
                     }
                 }
 
-                checkpointToStart.start();
-
                 this.active = true;
+                this.over = false;
+                this.failed = false;
                 this.initialized = true;
-            }
-            else
-            {
-                start();
+
+                checkpointToStart.start();
+                OnCheckpoinLoaded?.Invoke(checkpointToStart);
             }
         }
 
@@ -281,7 +295,7 @@ namespace DemagoScript
             foreach ( Goal goal in goals )
                 goal.clear( removePhysicalElements );
 
-            if (keepGoalsList)
+            if (!keepGoalsList)
             {
                 if (removePhysicalElements)
                     goals.Clear();

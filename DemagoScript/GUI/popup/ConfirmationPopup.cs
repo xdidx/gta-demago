@@ -58,16 +58,16 @@ namespace DemagoScript.GUI.popup
                 {
                     this.hide();
                     Function.Call(Hash.SET_GAME_PAUSED, false);
-                    OnPopupAccept?.Invoke();
                     base.PopupClose();
+                    OnPopupAccept?.Invoke();
                 }
 
                 if (e.KeyCode == Keys.Escape)
                 {
                     this.hide();
                     Function.Call(Hash.SET_GAME_PAUSED, false);
-                    OnPopupRefuse?.Invoke();
                     base.PopupClose();
+                    OnPopupRefuse?.Invoke();
                 }
             }
         }
