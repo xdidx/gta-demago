@@ -27,88 +27,12 @@ namespace DemagoScript
 
         private static Vector3 lastPlayerPosition = Vector3.Zero;
         private static Timer clockTransitionTimer;
-
-        //traveling variables
-        private static List<Vector3> travelingPositions = new List<Vector3>();
-        private static float travelingDuration = 0;
-        private static int travelingIndex = 0;
-        private static bool mergeWithPlayerCameraOnTravelingEnd = true;
-        private static Camera travelingCamera;
-        private static float remainingTimeForTraveling = 0;
-        private static bool travelingHasTarget = false;
-        private static Entity travelingTarget;
-
+        
         public static void update()
         {
             lastPlayerPosition = Game.Player.Character.Position;
-
-            //traveling update
-            if (travelingIndex < travelingPositions.Count)
-            {
-                remainingTimeForTraveling -= (Game.LastFrameTime * 1000);
-
-                Vector3 distanceToNextPosition = travelingPositions[travelingIndex] - travelingCamera.Position;
-                float durationPerPosition = travelingDuration / (travelingPositions.Count - 1);
-                float remainingTimeForCurrentTransition = remainingTimeForTraveling - (durationPerPosition * (travelingPositions.Count - travelingIndex - 1));
-                float remainingFrames = remainingTimeForCurrentTransition / (Game.LastFrameTime * 1000);
-
-                if (remainingFrames <= 0)
-                {
-                    travelingIndex++;
-                }
-                else
-                {
-                    Vector3 travelingVector = distanceToNextPosition / remainingFrames;
-                    travelingCamera.Position += travelingVector;
-                }
-
-                if (travelingHasTarget && (travelingTarget == null || !travelingTarget.Exists()))
-                {
-                    travelingCamera.PointAt(Game.Player.Character);
-                }
-
-                if (travelingPositions.Count == travelingIndex)
-                {
-                    Function.Call(Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1);
-                }
-            }
         }
-
-        public static void stopTraveling()
-        {
-            travelingIndex = 0;
-            travelingPositions.Clear();
-            Function.Call(Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1);
-        }
-
-        public static void traveling(List<Vector3> positions, float duration, Entity target = null, bool mergeWithPlayerCameraOnEnd = false)
-        {
-            if (positions.Count > 1)
-            {
-                travelingPositions = positions;
-                travelingDuration = duration;
-                remainingTimeForTraveling = travelingDuration;
-                mergeWithPlayerCameraOnTravelingEnd = mergeWithPlayerCameraOnEnd;
-                travelingTarget = target;
-                travelingIndex = 0;
-
-                if (mergeWithPlayerCameraOnTravelingEnd)
-                {
-                    travelingPositions.Add(GameplayCamera.Position);
-                }
-
-                travelingHasTarget = false;
-                travelingCamera = World.CreateCamera(positions.First<Vector3>(), Vector3.Zero, GameplayCamera.FieldOfView);
-                if (target != null)
-                {
-                    travelingCamera.PointAt(target);
-                    travelingHasTarget = true;
-                }
-                Function.Call(Hash.RENDER_SCRIPT_CAMS, 1, 0, travelingCamera.Handle, 0, 0);
-                World.RenderingCamera = travelingCamera;
-            }
-        }
-
+                
         public static void setModel(Model newModel)
         {
             if (newModel.IsInCdImage && newModel.IsValid)

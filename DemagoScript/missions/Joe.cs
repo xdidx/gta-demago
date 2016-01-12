@@ -30,15 +30,13 @@ namespace DemagoScript
         private List<Ped> spectatorsPeds2 = new List<Ped>();
         private List<Ped> copsPeds = new List<Ped>();
         private List<Ped> spectatorsPeds3 = new List<Ped>();
-        private int playerLifeUpCounter = 0;
-        private bool bikeRegen;
-        private bool playerDown;
-        private bool playerWalked;
-        private bool playerMoved;
-        private bool introEnded;
-        private bool introCamera;
-        private int nbMusiqueEtape;
-        private int cameraChangeTimer, etapeMission;
+
+        private bool bikeRegen = false;
+        private bool playerDown = true;
+        private bool playerWalked = false;
+        private bool playerMoved = false;
+        private bool introEnded = false;
+        private int nbMusiqueEtape = -1, cameraChangeTimer = 0, etapeMission = 0, playerLifeUpCounter = 0;
         private Ped introPed, nadineMorano;
         private float startTime = 0;
         private Random random = new Random();
@@ -140,7 +138,6 @@ namespace DemagoScript
                 playerWalked = false;
                 playerMoved = false;
                 introEnded = false;
-                introCamera = false;
                 cameraChangeTimer = 0;
                 etapeMission = 0;
                 nbMusiqueEtape = -1;
@@ -168,10 +165,27 @@ namespace DemagoScript
 
                 introPed.Task.PlayAnimation("amb@world_human_picnic@male@base", "base", 8f, -1, true, -1f);
 
-                Camera planLargeCamera = World.CreateCamera(new Vector3(2213.186f, 2510.148f, 82.73711f), Vector3.Zero, 20);
-                planLargeCamera.PointAt(player);
-                Function.Call(Hash.RENDER_SCRIPT_CAMS, 1, 0, planLargeCamera.Handle, 0, 0);
-                World.RenderingCamera = planLargeCamera;
+
+                Vector3 largeShotPosition = new Vector3(2213.186f, 2510.148f, 82.73711f);
+                Vector3 firstShotPosition = new Vector3(2361.558f, 2527.512f, 46.66772f);
+                Vector3 secondShotPosition = new Vector3(2351.906f, 2530.494f, 48f);
+
+                List<CameraShot> cameraShots = new List<CameraShot>();
+
+                CameraShot cameraShot = new CameraShot(musicPlaylist.length("dialogue0") / 3, largeShotPosition);
+                cameraShot.setTarget(Game.Player.Character);
+                cameraShots.Add(cameraShot);
+
+                cameraShot = new CameraShot(musicPlaylist.length("dialogue0") / 3, firstShotPosition, secondShotPosition);
+                cameraShot.setTarget(Game.Player.Character);
+                cameraShots.Add(cameraShot);
+
+                cameraShot = new CameraShot(musicPlaylist.length("dialogue0") / 3, secondShotPosition, bikePositionAtHome);
+                cameraShot.setTarget(Game.Player.Character);
+                cameraShots.Add(cameraShot);
+
+                CameraShotsList camerasList = new CameraShotsList(cameraShots, musicPlaylist.length("dialogue0"));
+
 
                 Joe.bike.EnginePowerMultiplier = 100;
                 Joe.bike.IsInvincible = true;
@@ -212,24 +226,45 @@ namespace DemagoScript
             {
                 Tools.setClockTime(11, musicPlaylist.length("musique1"));
                 currentPlay = "musique1";
+                
+                Vector3 firstCameraPosition = firstSongPosition;
+                firstCameraPosition.X += 8;
+                firstCameraPosition.Z += 2;
+                Vector3 secondCameraPosition = firstCameraPosition;
+                secondCameraPosition.X += 8;
+                secondCameraPosition.Z += 2;
+                Vector3 thirdCameraPosition = secondCameraPosition;
+                thirdCameraPosition.X += 8;
+                thirdCameraPosition.Z += 2;
+                Vector3 fourthCameraPosition = thirdCameraPosition;
+                fourthCameraPosition.X -= 8;
+                fourthCameraPosition.Y -= 8;
 
-                List<Vector3> travelingPositions = new List<Vector3>();
-                Vector3 cameraPosition = firstSongPosition;
-                cameraPosition.X += 8;
-                cameraPosition.Z += 2;
-                travelingPositions.Add(cameraPosition);
-                cameraPosition.X -= 8;
-                cameraPosition.Y += 8;
-                travelingPositions.Add(cameraPosition);
-                cameraPosition.X -= 8;
-                cameraPosition.Y -= 8;
-                travelingPositions.Add(cameraPosition);
-                Tools.traveling(travelingPositions, musicPlaylist.length("musique1"), Game.Player.Character, true);
+                List<CameraShot> cameraShots = new List<CameraShot>();
+
+                CameraShot cameraShot = new CameraShot(musicPlaylist.length("musique1") / 3, firstCameraPosition, secondCameraPosition);
+                cameraShot.setTarget(Game.Player.Character);
+                cameraShots.Add(cameraShot);
+
+                cameraShot = new CameraShot(musicPlaylist.length("musique1") / 3, secondCameraPosition, thirdCameraPosition);
+                cameraShot.setTarget(Game.Player.Character);
+                cameraShots.Add(cameraShot);
+
+                cameraShot = new CameraShot(musicPlaylist.length("musique1") / 3, thirdCameraPosition, fourthCameraPosition);
+                cameraShot.setTarget(Game.Player.Character);
+                cameraShots.Add(cameraShot);
+
+                CameraShotsList camerasList = new CameraShotsList(cameraShots, musicPlaylist.length("musique1"));
 
                 Ped player = Game.Player.Character;
 
                 foreach (Ped spectator in spectatorsPeds)
                 {
+                    if (spectator.Position.DistanceTo(firstSongPosition) > 10)
+                    {
+                        spectator.Position = firstSongPosition.Around(7).Around(2);
+                    }
+
                     TaskSequence angrySpectator = new TaskSequence();
                     angrySpectator.AddTask.ClearAllImmediately();
                     angrySpectator.AddTask.TurnTo(player, 1000);
@@ -395,18 +430,36 @@ namespace DemagoScript
                     spectator.Task.PerformSequence(angrySpectator);
                 }
 
-                List<Vector3> travelingPositions = new List<Vector3>();
-                Vector3 cameraPosition = secondSongPosition;
-                cameraPosition.X += 4;
-                cameraPosition.Z += 2;
-                travelingPositions.Add(cameraPosition);
-                cameraPosition.X -= 4;
-                cameraPosition.Y += 4;
-                travelingPositions.Add(cameraPosition);
-                cameraPosition.X -= 4;
-                cameraPosition.Y -= 4;
-                travelingPositions.Add(cameraPosition);
-                Tools.traveling(travelingPositions, musicPlaylist.length("musique2"), Game.Player.Character, true);
+
+
+                Vector3 firstCameraPosition = secondSongPosition;
+                firstCameraPosition.X += 4;
+                firstCameraPosition.Z += 2;
+                Vector3 secondCameraPosition = firstCameraPosition;
+                secondCameraPosition.X -= 4;
+                secondCameraPosition.Y += 4;
+                Vector3 thirdCameraPosition = secondCameraPosition;
+                thirdCameraPosition.X -= 4;
+                thirdCameraPosition.Y -= 4;
+                Vector3 fourthCameraPosition = thirdCameraPosition;
+                fourthCameraPosition.X += 4;
+                fourthCameraPosition.Y += 4;
+
+                List<CameraShot> cameraShots = new List<CameraShot>();
+
+                CameraShot cameraShot = new CameraShot(musicPlaylist.length("musique2") / 3, firstCameraPosition, secondCameraPosition);
+                cameraShot.setTarget(Game.Player.Character);
+                cameraShots.Add(cameraShot);
+
+                cameraShot = new CameraShot(musicPlaylist.length("musique2") / 3, secondCameraPosition, thirdCameraPosition);
+                cameraShot.setTarget(Game.Player.Character);
+                cameraShots.Add(cameraShot);
+
+                cameraShot = new CameraShot(musicPlaylist.length("musique2") / 3, thirdCameraPosition, fourthCameraPosition);
+                cameraShot.setTarget(Game.Player.Character);
+                cameraShots.Add(cameraShot);
+
+                CameraShotsList camerasList = new CameraShotsList(cameraShots, musicPlaylist.length("musique2"));
             };
             
             GoToPositionInVehicle goToTheaterWithBikeGoal = new GoToPositionInVehicle(thirdSongBikePosition);
@@ -559,20 +612,36 @@ namespace DemagoScript
 
                     spectator.Task.PerformSequence(angrySpectator);
                 }
+                
+                Vector3 firstCameraPosition = secondSongPosition;
+                firstCameraPosition.X += 8;
+                firstCameraPosition.Z += 2;
+                Vector3 secondCameraPosition = firstCameraPosition;
+                secondCameraPosition.X -= 8;
+                secondCameraPosition.Y += 8;
+                Vector3 thirdCameraPosition = secondCameraPosition;
+                thirdCameraPosition.X -= 8;
+                thirdCameraPosition.Y -= 8;
+                Vector3 fourthCameraPosition = thirdCameraPosition;
+                fourthCameraPosition.X += 8;
+                fourthCameraPosition.Y += 8;
 
-                List<Vector3> travelingPositions = new List<Vector3>();
-                Vector3 cameraPosition = thirdSongPosition;
-                cameraPosition.X += 8;
-                cameraPosition.Z += 2;
-                travelingPositions.Add(cameraPosition);
-                cameraPosition.X -= 8;
-                cameraPosition.Y += 8;
-                travelingPositions.Add(cameraPosition);
-                cameraPosition.X -= 8;
-                cameraPosition.Y -= 8;
-                travelingPositions.Add(cameraPosition);
-                Tools.traveling(travelingPositions, musicPlaylist.length("musique3"), Game.Player.Character, true);
+                List<CameraShot> cameraShots = new List<CameraShot>();
 
+                CameraShot cameraShot = new CameraShot(musicPlaylist.length("musique3") / 3, firstCameraPosition, secondCameraPosition);
+                cameraShot.setTarget(Game.Player.Character);
+                cameraShots.Add(cameraShot);
+
+                cameraShot = new CameraShot(musicPlaylist.length("musique3") / 3, secondCameraPosition, thirdCameraPosition);
+                cameraShot.setTarget(Game.Player.Character);
+                cameraShots.Add(cameraShot);
+
+                cameraShot = new CameraShot(musicPlaylist.length("musique3") / 3, thirdCameraPosition, fourthCameraPosition);
+                cameraShot.setTarget(Game.Player.Character);
+                cameraShots.Add(cameraShot);
+
+                CameraShotsList camerasList = new CameraShotsList(cameraShots, musicPlaylist.length("musique3"));
+                                
                 World.Weather = Weather.Clouds;
             };
 
@@ -946,21 +1015,11 @@ namespace DemagoScript
                 if (Game.IsKeyPressed(System.Windows.Forms.Keys.Back))
                 {
                     elapsedTime = 37001;
-                    introCamera = true;
                     playerDown = false;
                     playerMoved = true;
                     playerWalked = true;
                 }
 
-                if (elapsedTime > 12000 && !introCamera)
-                {
-                    List<Vector3> positions = new List<Vector3>();
-                    positions.Add(new Vector3(2361.558f, 2527.512f, 46.66772f));
-                    positions.Add(new Vector3(2351.906f, 2530.494f, 48f));
-                    positions.Add(bikePositionAtHome);
-                    Tools.traveling(positions, 26000, introPed);
-                    introCamera = true;
-                }
                 if (elapsedTime > 15000 && playerDown)
                 {
                     introPed.Task.PlayAnimation("amb@world_human_picnic@male@exit", "exit", 8f, 3000, false, -1f);

@@ -52,6 +52,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="cameras\CameraShotsList.cs" />
+    <Compile Include="cameras\CameraShot.cs" />
     <Compile Include="DemagoScript.cs" />
     <Compile Include="GUI\elements\UIColor.cs" />
     <Compile Include="GUI\elements\UIRectElement.cs" />
