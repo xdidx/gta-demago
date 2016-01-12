@@ -17,7 +17,6 @@ namespace DemagoScript
         private float duration = 0;
 
         private Camera camera;
-        private Entity target = null;
 
         public CameraShot(float newDuration, Vector3 startPosition) : this(newDuration, startPosition, Vector3.Zero) { }
 
@@ -32,10 +31,15 @@ namespace DemagoScript
 
         public void update(float progressTime)
         {
-            if (progressTime < duration && endPosition != Vector3.Zero)
+            if (duration > 0 && progressTime < duration && endPosition != Vector3.Zero)
             {
                 float progressPercent = progressTime / duration;
+                Vector3 newPosition = startPosition + ((endPosition - startPosition) * progressPercent);
+
+                Tools.log("Update position" + Math.Round(progressPercent * 100) + "%", newPosition);
+
                 camera.Position = startPosition + ((endPosition - startPosition) * progressPercent);
+
             }
         }
 
@@ -49,12 +53,15 @@ namespace DemagoScript
             return camera;
         }
 
-        public void setTarget(Entity entity)
+        public void pointAtPlayer(bool pointAtPlayer)
         {
-            if (entity != null && entity.Exists())
+            if (pointAtPlayer)
             {
-                target = entity;
-                camera.PointAt(target);
+                camera.PointAt(Game.Player.Character);
+            }
+            else
+            {
+                camera.StopPointing();
             }
         }
     }

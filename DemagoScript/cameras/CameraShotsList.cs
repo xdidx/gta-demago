@@ -25,6 +25,7 @@ namespace DemagoScript
             {
                 this.cameraShots = newCameraShots;
                 this.maxDuration = newMaxDuration;
+                lastInstance = this;
             }
         }
 
@@ -40,32 +41,27 @@ namespace DemagoScript
         {
             if (lastInstance != null)
             {
-                lastInstance.cameraShotIndex = 0;
-                lastInstance.cameraShots.Clear();
+                lastInstance = null;
+                Function.Call(Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1);
             }
-            Function.Call(Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1);
         }
 
         public void update()
         {
-            timeOnShotsList += Game.LastFrameTime;
-            timeOnCurrentCamera += Game.LastFrameTime;
-
-            bool cameraChange = false;
             CameraShot currentCameraShot = cameraShots[cameraShotIndex];
             if (timeOnCurrentCamera > currentCameraShot.getDuration())
             {
                 cameraShotIndex++;
-                cameraChange = true;
+                timeOnCurrentCamera = 0;
             }
-
+            
             if (timeOnShotsList < maxDuration && cameraShotIndex < cameraShots.Count)
             {
-                if (cameraChange)
+                if (timeOnShotsList == 0 || currentCameraShot != cameraShots[cameraShotIndex])
                 {
                     currentCameraShot = cameraShots[cameraShotIndex];
+                    Tools.log("cameraChange, camera " + cameraShotIndex + " et " + timeOnShotsList + " < " + maxDuration);
                     Function.Call(Hash.RENDER_SCRIPT_CAMS, 1, 0, currentCameraShot.getCamera().Handle, 0, 0);
-                    World.RenderingCamera = currentCameraShot.getCamera();
                 }
 
                 currentCameraShot.update(timeOnCurrentCamera);
@@ -74,6 +70,9 @@ namespace DemagoScript
             {
                 stop();
             }
+
+            timeOnShotsList += Game.LastFrameTime * 1000;
+            timeOnCurrentCamera += Game.LastFrameTime * 1000;
         }
         
     }
