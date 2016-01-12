@@ -15,8 +15,9 @@ namespace DemagoScript
         private Vector3 startPosition = Vector3.Zero;
         private Vector3 endPosition = Vector3.Zero;
         private float duration = 0;
-
-        private Camera camera;
+        private bool pointAtPlayer = false;
+        private Camera camera = null;
+        private Entity target = null;
 
         public CameraShot(float newDuration, Vector3 startPosition) : this(newDuration, startPosition, Vector3.Zero) { }
 
@@ -25,21 +26,31 @@ namespace DemagoScript
             startPosition = newStartPosition;
             endPosition = newEndPosition;
             duration = newDuration;
-
-            camera = World.CreateCamera(startPosition, Vector3.Zero, GameplayCamera.FieldOfView);
         }
 
         public void update(float progressTime)
         {
+            if (camera == null)
+            {
+                camera = World.CreateCamera(startPosition, Vector3.Zero, GameplayCamera.FieldOfView);
+                camera.Position = startPosition;
+                if (pointAtPlayer)
+                {
+                    camera.PointAt(Game.Player.Character);
+                }
+                else if (target != null && target.Exists())
+                {
+                    camera.PointAt(target);
+                }
+                Function.Call(Hash.RENDER_SCRIPT_CAMS, 1, 0, camera.Handle, 0, 0);
+                World.RenderingCamera = camera;
+            }
+
             if (duration > 0 && progressTime < duration && endPosition != Vector3.Zero)
             {
                 float progressPercent = progressTime / duration;
                 Vector3 newPosition = startPosition + ((endPosition - startPosition) * progressPercent);
-
-                Tools.log("Update position" + Math.Round(progressPercent * 100) + "%", newPosition);
-
-                camera.Position = startPosition + ((endPosition - startPosition) * progressPercent);
-
+                camera.Position = newPosition;
             }
         }
 
@@ -53,16 +64,14 @@ namespace DemagoScript
             return camera;
         }
 
-        public void pointAtPlayer(bool pointAtPlayer)
+        public void setPointAtPlayer(bool newPointAtPlayer)
         {
-            if (pointAtPlayer)
-            {
-                camera.PointAt(Game.Player.Character);
-            }
-            else
-            {
-                camera.StopPointing();
-            }
+            pointAtPlayer = newPointAtPlayer;
+        }
+
+        public void setTarget(Entity newTarget)
+        {
+            target = newTarget;
         }
     }
 }
