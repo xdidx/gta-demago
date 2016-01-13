@@ -1004,33 +1004,36 @@ namespace DemagoScript
                 }
 
                 float elapsedTime = DemagoScript.getScriptTime() - startTime;
+                float musicTime = musicPlaylist.length("dialogue0");
+                float musicTimeSplit = musicTime / 3;
 
                 if (Game.IsKeyPressed(System.Windows.Forms.Keys.Back))
                 {
-                    elapsedTime = 37001;
+                    CameraShotsList.Instance.reset();
+                    elapsedTime = musicTime + 1;
                     playerDown = false;
                     playerMoved = true;
                     playerWalked = true;
                 }
 
-                if (elapsedTime > 15000 && playerDown)
+                if (elapsedTime > musicTimeSplit + 2000 && playerDown)
                 {
                     introPed.Task.PlayAnimation("amb@world_human_picnic@male@exit", "exit", 8f, 3000, false, -1f);
                     playerDown = false;
                 }
-                if (elapsedTime > 20000 && !playerWalked)
+                if (elapsedTime > musicTimeSplit + 5000 && !playerWalked)
                 {
                     introPed.Task.ClearAllImmediately();
                     introPed.Task.GoTo(joeHomePosition, true);
                     playerWalked = true;
                 }
-                if (elapsedTime > 33500 && !playerMoved)
+                if (elapsedTime > musicTimeSplit*2 && !playerMoved)
                 {
                     introPed.Task.ClearAllImmediately();
                     introPed.Task.PlayAnimation("gestures@m@standing@casual", "gesture_why", 8f, -1, false, -1f);
                     playerMoved = true;
                 }
-                if (elapsedTime > 37000 && !introEnded)
+                if (elapsedTime > musicTime && !introEnded)
                 {
                     musicPlaylist.pauseMusic("dialogue0");
                     currentPlay = "";

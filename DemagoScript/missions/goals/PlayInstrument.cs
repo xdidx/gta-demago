@@ -57,6 +57,7 @@ namespace DemagoScript
 
             if(Game.IsKeyPressed(System.Windows.Forms.Keys.Back))
             {
+                CameraShotsList.Instance.reset();
                 musiques.pauseMusic(musicToPlay);
                 Game.Player.Character.Task.ClearAllImmediately();
                 accomplish();
