@@ -41,6 +41,7 @@ namespace DemagoScript
                 return false;
             }
 
+            musiques.stopAll();
             musiques.playMusic( musicToPlay );
 
             startTime = DateTime.Now;
@@ -52,7 +53,7 @@ namespace DemagoScript
 
         public override bool update()
         {
-            if (isAccomplished())
+            if (!base.update() || isAccomplished())
                 return false;
 
             if(Game.IsKeyPressed(System.Windows.Forms.Keys.Back))
@@ -62,11 +63,9 @@ namespace DemagoScript
                 accomplish();
                 return false;
             }
+
             musiques.playMusic(musicToPlay);
-
-            if (!base.update())
-                return false;
-
+            
             SecondsToPlay -= Game.LastFrameTime;
             if (SecondsToPlay <= 0)
             {
@@ -75,7 +74,7 @@ namespace DemagoScript
                 return false;
             }
             else if (SecondsToPlay >= 0)
-                setGoalText("Attend que les spéctateurs aient assez apprécié la musique de Joe. (Back pour passer)");
+                setGoalText("Attend que les spectateurs aient assez apprécié la musique de Joe. (Back pour passer)");
             return true;
         }
 

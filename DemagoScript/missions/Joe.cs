@@ -235,8 +235,10 @@ namespace DemagoScript
             addGoal(firstSongGoals);
             firstSongGoals.OnGoalStart += (sender) =>
             {
-                Tools.setClockTime(11, musicPlaylist.length("musique1"));
                 currentPlay = "musique1";
+                Tools.setClockTime(11, musicPlaylist.length("musique1"));
+
+                Game.Player.WantedLevel = 0;
 
                 List<Vector3> travelingPositions = new List<Vector3>();
                 Vector3 cameraPosition = firstSongPosition;
@@ -347,9 +349,14 @@ namespace DemagoScript
             secondSongGoals.OnGoalStart += (sender) =>
             {
                 if (currentPlay != "")
+                { 
                     musicPlaylist.pauseMusic(currentPlay);
+                }
+
+                Game.Player.WantedLevel = 0;
 
                 currentPlay = "musique2";
+
                 World.Weather = Weather.Clouds;
                 foreach (Ped spectator in spectatorsPeds)
                 {
@@ -357,12 +364,6 @@ namespace DemagoScript
                     {
                         spectator.Delete();
                     }
-                }
-
-                if (currentPlay != "")
-                {
-                    musicPlaylist.pauseMusic(currentPlay);
-                    currentPlay = "";
                 }
 
                 Tools.setClockTime(16, musicPlaylist.length("musique2"));
@@ -420,7 +421,12 @@ namespace DemagoScript
             
             secondSongGoals.OnGoalAccomplished += (sender, elaspedTime) =>
             {
-                currentPlay = "";
+                if (currentPlay != "")
+                {
+                    musicPlaylist.pauseMusic(currentPlay);
+                    currentPlay = "";
+                }
+                
 
                 Function.Call(Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1);
 
@@ -495,9 +501,14 @@ namespace DemagoScript
             thirdSongGoals.OnGoalStart += (sender) =>
             {
                 if (currentPlay != "")
+                {
                     musicPlaylist.pauseMusic(currentPlay);
-
+                    currentPlay = "";
+                }
                 currentPlay = "musique3";
+
+                Game.Player.WantedLevel = 0;
+
                 chansonHoo2 = new Timer(musicPlaylist.length("musique3") - 19000);
                 chansonHoo2.OnTimerStop += (timerSender) =>
                 {
@@ -626,6 +637,7 @@ namespace DemagoScript
 
         private void musicPlay( string musique )
         {
+            Tools.log("Music play "+musique);
             currentPlay = musique;
             musicPlaylist.playMusic( currentPlay );
         }
@@ -664,7 +676,7 @@ namespace DemagoScript
 
             if (musicPlaylist != null)
             {
-                musicPlaylist.pauseMusic(currentPlay);
+                musicPlaylist.stopAll();
                 musicPlaylist.dispose();
             }
 
@@ -870,17 +882,19 @@ namespace DemagoScript
             if (!introEnded)
             {
                 float elapsedTime = DemagoScript.getScriptTime() - startTime;
+                float musicTime = musicPlaylist.length("dialogue0");
+                float musicTimeSplit = musicTime / 3;
 
-                if(Game.IsKeyPressed(System.Windows.Forms.Keys.Back))
+                if (Game.IsKeyPressed(System.Windows.Forms.Keys.Back))
                 {
-                    elapsedTime = 37001;
                     introCamera = true;
+                    elapsedTime = musicTime + 1;
                     playerDown = false;
                     playerMoved = true;
                     playerWalked = true;
                 }
 
-                if (elapsedTime > 12000 && !introCamera)
+                if (elapsedTime > musicTimeSplit && !introCamera)
                 {
                     List<Vector3> positions = new List<Vector3>();
                     positions.Add(new Vector3(2361.558f, 2527.512f, 46.66772f));
@@ -889,34 +903,37 @@ namespace DemagoScript
                     Tools.traveling(positions, 26000, introPed);
                     introCamera = true;
                 }
-                if (elapsedTime > 15000 && playerDown)
+                if (elapsedTime > musicTimeSplit + 2000 && playerDown)
                 {
-                    introPed.Task.PlayAnimation( "amb@world_human_picnic@male@exit", "exit", 8f, 3000, false, -1f );
+                    introPed.Task.PlayAnimation("amb@world_human_picnic@male@exit", "exit", 8f, 3000, false, -1f);
                     playerDown = false;
                 }
-                if ( elapsedTime > 20000 && !playerWalked ) {
+                if (elapsedTime > musicTimeSplit + 5000 && !playerWalked)
+                {
                     introPed.Task.ClearAllImmediately();
-                    introPed.Task.GoTo( joeHomePosition, true );
+                    introPed.Task.GoTo(joeHomePosition, true);
                     playerWalked = true;
                 }
-                if (elapsedTime > 33500 && !playerMoved)
+                if (elapsedTime > musicTimeSplit * 2 && !playerMoved)
                 {
                     introPed.Task.ClearAllImmediately();
                     introPed.Task.PlayAnimation("gestures@m@standing@casual", "gesture_why", 8f, -1, false, -1f);
                     playerMoved = true;
                 }
-                if ( elapsedTime > 37000 && !introEnded ) {
+                if (elapsedTime > musicTime && !introEnded)
+                {
                     musicPlaylist.pauseMusic("dialogue0");
                     currentPlay = "";
                     player.Task.ClearAllImmediately();
                     introPed.IsVisible = false;
                     introPed.Delete();
                     player.IsVisible = true;
-                    Function.Call( Hash.DISPLAY_HUD, true );
-                    Function.Call( Hash.DISPLAY_RADAR, true );
-                    Function.Call( Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1 );
+                    Function.Call(Hash.DISPLAY_HUD, true);
+                    Function.Call(Hash.DISPLAY_RADAR, true);
+                    Function.Call(Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1);
                     introEnded = true;
-                } else
+                }
+                else
                     cameraChangeTimer++;
             }
 

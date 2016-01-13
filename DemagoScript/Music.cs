@@ -79,10 +79,32 @@ namespace DemagoScript
             }
         }
 
-        public void restart( string key )
+        public void restart(string key)
         {
-            if ( keyExistInMusicTable( key ) ) {
+            if (keyExistInMusicTable(key))
+            {
                 musicTable[key].PlayPosition = 0;
+            }
+        }
+
+        public void stopMusic(string key)
+        {
+            if (keyExistInMusicTable(key))
+            {
+                musicTable[key].PlayPosition = 0;
+                musicTable[key].Paused = true;
+            }
+        }
+
+        public void stopAll()
+        {
+            foreach (String key in musicTable.Keys)
+            {
+                if (keyExistInMusicTable(key))
+                {
+                    musicTable[key].PlayPosition = 0;
+                    musicTable[key].Paused = true;
+                }
             }
         }
 

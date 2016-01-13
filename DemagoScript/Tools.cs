@@ -77,6 +77,7 @@ namespace DemagoScript
         {
             travelingIndex = 0;
             travelingPositions.Clear();
+            Function.Call(Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1);
         }
 
         public static void traveling(List<Vector3> positions, float duration, Entity target = null, bool mergeWithPlayerCameraOnEnd = false)
