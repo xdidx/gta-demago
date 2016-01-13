@@ -215,6 +215,7 @@ namespace DemagoScript
 
                         ped.Task.PerformSequence(incomingSpectator);
                         spectatorsPeds.Add(ped);
+                        Tools.log("GoTO sequence on spectator ped ");
                     }
                 }
 
@@ -225,8 +226,12 @@ namespace DemagoScript
             firstSongGoals.OnGoalStart += (sender) =>
             {
                 Tools.setClockTime(11, musicPlaylist.length("musique1"));
+
+                if (currentPlay != "")
+                    musicPlaylist.pauseMusic(currentPlay);
+
                 currentPlay = "musique1";
-                
+
                 Vector3 firstCameraPosition = firstSongPosition;
                 firstCameraPosition.X += 8;
                 firstCameraPosition.Z += 2;
@@ -370,8 +375,11 @@ namespace DemagoScript
                 if (currentPlay != "")
                     musicPlaylist.pauseMusic(currentPlay);
 
+                Tools.setClockTime(16, musicPlaylist.length("musique2"));
                 currentPlay = "musique2";
+
                 World.Weather = Weather.Clouds;
+
                 foreach (Ped spectator in spectatorsPeds)
                 {
                     if (spectator != null && spectator.Exists())
@@ -379,18 +387,10 @@ namespace DemagoScript
                         spectator.Delete();
                     }
                 }
-
-                if (currentPlay != "")
-                {
-                    musicPlaylist.pauseMusic(currentPlay);
-                    currentPlay = "";
-                }
-
-                Tools.setClockTime(16, musicPlaylist.length("musique2"));
-
+                
                 Ped player = Game.Player.Character;
 
-                foreach (Ped spectator in World.GetNearbyPeds(player, 12))
+                foreach (Ped spectator in World.GetNearbyPeds(player, 15))
                 {
                     if (spectator != null && spectator.Exists())
                     {
@@ -429,9 +429,7 @@ namespace DemagoScript
 
                     spectator.Task.PerformSequence(angrySpectator);
                 }
-
-
-
+                
                 Vector3 firstCameraPosition = secondSongPosition;
                 firstCameraPosition.X += 4;
                 firstCameraPosition.Z += 2;
@@ -558,14 +556,14 @@ namespace DemagoScript
             thirdSongGoals.OnGoalStart += (sender) =>
             {
                 Ped player = Game.Player.Character;
-                
-                nadineMorano.Task.FleeFrom(player);
-                musicPlaylist.playMusic("nadine");
-                musicPlaylist.playMusic("amphiHoo1");
 
                 if (currentPlay != "")
                     musicPlaylist.pauseMusic(currentPlay);
 
+                nadineMorano.Task.FleeFrom(player);
+                musicPlaylist.playMusic("nadine");
+                musicPlaylist.playMusic("amphiHoo1");
+                
                 currentPlay = "musique3";
                 chansonHoo2 = new Timer(musicPlaylist.length("musique3") - 19000);
                 chansonHoo2.OnTimerStop += (timerSender) =>
@@ -587,12 +585,6 @@ namespace DemagoScript
                     {
                         ped.Delete();
                     }
-                }
-
-                if (currentPlay != "")
-                {
-                    musicPlaylist.pauseMusic(currentPlay);
-                    currentPlay = "";
                 }
 
                 player.Heading = 180;

@@ -64,7 +64,7 @@ namespace DemagoScript
         {
             return this.camera;
         }
-
+        
         public void activateCamera()
         {
             Function.Call( Hash.RENDER_SCRIPT_CAMS, 1, 0, this.camera.Handle, 0, 0 );
@@ -74,11 +74,6 @@ namespace DemagoScript
         public void lookAt( Entity target )
         {
             this.camera.PointAt( target );
-        }
-
-        public void lookAt( Vector3 target )
-        {
-            this.camera.Direction = target;
         }
     }
 }
