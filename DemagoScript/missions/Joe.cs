@@ -157,8 +157,11 @@ namespace DemagoScript
             planLargeCamera.PointAt(player);
             Function.Call(Hash.RENDER_SCRIPT_CAMS, 1, 0, planLargeCamera.Handle, 0, 0);
             World.RenderingCamera = planLargeCamera;
-            
-            bike = World.CreateVehicle(VehicleHash.TriBike, bikePositionAtHome);
+
+            bike = null;
+            while (bike == null) {
+                bike = World.CreateVehicle( VehicleHash.TriBike, bikePositionAtHome );
+            }
             bike.EnginePowerMultiplier = 100;
             bike.IsInvincible = true;
             bike.CanTiresBurst = false;
@@ -208,8 +211,8 @@ namespace DemagoScript
             while (nadineMorano == null || !nadineMorano.Exists())
             {
                 nadineMorano = World.CreatePed(PedHash.Business02AFM, thirdSongPosition);
-                nadineMorano.Task.TurnTo(spectatorsPeds3[0]);
             }
+            nadineMorano.Task.TurnTo( spectatorsPeds3[0] );
 
             Function.Call(Hash.SET_PED_COMPONENT_VARIATION, nadineMorano.Handle, 2, 1, 2, 2);
 
