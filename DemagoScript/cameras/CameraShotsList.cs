@@ -12,68 +12,105 @@ namespace DemagoScript
 {
     class CameraShotsList
     {
-        private List<CameraShot> cameraShots = new List<CameraShot>();
-        private float maxDuration = 0;
-        private int cameraShotIndex = 0;
-        private float timeOnCurrentCamera = 0;
-        private float timeOnShotsList = 0;
-        private static CameraShotsList lastInstance = null;
+        private List<CameraShot> sequence       = new List<CameraShot>();
+        private float sequence_elapsed_time     = 0;
+        private float sequence_total_duration   = 0;
+        private int   current_index             = 0;
+        private float current_elapsed_time      = 0;
+        private CameraShot current_element      = null;
 
-        public CameraShotsList(List<CameraShot> newCameraShots, float newMaxDuration)
+        private static CameraShotsList instance = null;
+
+        private CameraShotsList() { }
+
+        public static CameraShotsList Instance
         {
-            if (newCameraShots.Count > 1)
-            {
-                this.cameraShots = newCameraShots;
-                this.maxDuration = newMaxDuration;
-                lastInstance = this;
+            get {
+                if ( CameraShotsList.instance == null ) {
+                    CameraShotsList.instance = new CameraShotsList();
+                }
+                return CameraShotsList.instance;
             }
         }
 
-        public static void updateCameraShots()
+        // Init
+        public void initialize( List<CameraShot> sequence, float sequence_duration )
         {
-            if (lastInstance != null)
-            {
-                lastInstance.update();
-            }
-        }
+            this.reset();
 
-        public static void stop()
-        {
-            if (lastInstance != null)
-            {
-                lastInstance = null;
-                Function.Call(Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1);
-            }
-        }
-
-        public void update()
-        {
-            CameraShot currentCameraShot = cameraShots[cameraShotIndex];
-            if (timeOnCurrentCamera > currentCameraShot.getDuration())
-            {
-                cameraShotIndex++;
-                timeOnCurrentCamera = 0;
+            if ( sequence == null || sequence.Count <= 0 ) {
+                Tools.log( "CameraShotsList: sequence list cannot be empty or null." );
+                return;
             }
             
-            if (timeOnShotsList < maxDuration && cameraShotIndex < cameraShots.Count)
-            {
-                if (timeOnShotsList == 0 || currentCameraShot != cameraShots[cameraShotIndex])
-                {
-                    currentCameraShot = cameraShots[cameraShotIndex];
-                    Tools.log("cameraChange, camera " + cameraShotIndex + " et " + timeOnShotsList + " < " + maxDuration);
-                    Function.Call(Hash.RENDER_SCRIPT_CAMS, 1, 0, currentCameraShot.getCamera().Handle, 0, 0);
+            this.sequence = sequence;
+            this.sequence_total_duration = sequence_duration;
+            this.current_element = this.sequence[this.current_index];
+            Tools.log( "CameraShotsList: initialisation ok." );
+        }
+
+        // Update
+        public void update()
+        {
+            // Si on a pas d'élément courant alors on sort
+            if ( this.current_element == null ) { // CAD qu'on a pas encore initialisé
+                return;
+            }
+
+            // Si l'element en cours dure plus longtemps que prévu
+            if ( this.current_elapsed_time > this.current_element.getDuration() ) {
+
+                // On passe au suivant
+                this.next();
+
+            }
+
+            // Si la sequence est en cours et que l'index n'est pas trop grand
+            if ( this.sequence_elapsed_time < this.sequence_total_duration && this.current_index < this.sequence.Count ) {
+
+                // On recupere le current element
+                this.current_element = this.sequence[this.current_index];
+
+                // Changement de CameraShot
+                if ( this.current_elapsed_time == 0 ) {
+                    Tools.log( "CameraShotsList: change camera " + current_index + " et " + sequence_elapsed_time + " < " + sequence_total_duration );
+                    this.current_element.activateCamera();
                 }
 
-                currentCameraShot.update(timeOnCurrentCamera);
-            }
-            else
-            {
-                stop();
+                // Mise à jour du CameraShot
+                this.current_element.update( this.current_elapsed_time );
+
+            } else { // Sinon (si la sequence n'est plus en cours)
+
+                // On stop la sequence
+                this.reset();
+
             }
 
-            timeOnShotsList += Game.LastFrameTime * 1000;
-            timeOnCurrentCamera += Game.LastFrameTime * 1000;
+            // Mise à jours des temps
+            float time = Game.LastFrameTime * 1000;
+            this.current_elapsed_time += time; // element
+            this.sequence_elapsed_time += time; // sequence
         }
-        
+
+        // Element suivant dans la sequence
+        public void next()
+        {
+            Tools.log( "CameraShotsList: next." );
+            this.current_index++;
+            this.current_elapsed_time = 0;
+        }
+
+        // On reset la sequence
+        public void reset()
+        {
+            Tools.log( "CameraShotsList: reset." );
+            this.current_index = 0;
+            this.current_elapsed_time = 0;
+            this.current_element = null;
+            this.sequence = null;
+            this.sequence_total_duration = 0;
+            Function.Call( Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1 );
+        }
     }
 }

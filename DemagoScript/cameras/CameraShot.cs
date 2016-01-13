@@ -12,57 +12,73 @@ namespace DemagoScript
 {
     class CameraShot
     {
-        private Vector3 startPosition = Vector3.Zero;
-        private Vector3 endPosition = Vector3.Zero;
-        private float duration = 0;
+        private Vector3 start_position   = Vector3.Zero;
+        private Vector3 end_position     = Vector3.Zero;
+        private float   duration        = 0;
+        private float   percentage      = 0;
 
         private Camera camera;
 
-        public CameraShot(float newDuration, Vector3 startPosition) : this(newDuration, startPosition, Vector3.Zero) { }
+        public CameraShot(float duration, Vector3 start_position) : this(duration, start_position, Vector3.Zero) { }
 
-        public CameraShot(float newDuration, Vector3 newStartPosition, Vector3 newEndPosition)
+        public CameraShot(float duration, Vector3 start_position, Vector3 end_position)
         {
-            startPosition = newStartPosition;
-            endPosition = newEndPosition;
-            duration = newDuration;
+            this.start_position = start_position;
+            this.end_position   = end_position; // if == Vector3.Zero then its a fixed camera shot
+            this.duration       = duration;
 
-            camera = World.CreateCamera(startPosition, Vector3.Zero, GameplayCamera.FieldOfView);
+            this.camera = World.CreateCamera(
+                this.start_position,            // position
+                Vector3.Zero,                   // rotation
+                GameplayCamera.FieldOfView      // fov
+            );
         }
 
-        public void update(float progressTime)
+        /**
+         * Boucle de rendu
+         * @param progressTime (temps depuis lequel il est activé)
+         */
+        public void update( float progressTime )
         {
-            if (duration > 0 && progressTime < duration && endPosition != Vector3.Zero)
-            {
-                float progressPercent = progressTime / duration;
-                Vector3 newPosition = startPosition + ((endPosition - startPosition) * progressPercent);
+            // Plan fixe, pas la peine d'aller plus loin
+            if ( this.duration <= 0 || this.end_position == Vector3.Zero ) {
+                return;
+            }
+            
+            // Pourcentage d'avancement
+            this.percentage = progressTime / this.duration;
 
-                Tools.log("Update position" + Math.Round(progressPercent * 100) + "%", newPosition);
-
-                camera.Position = startPosition + ((endPosition - startPosition) * progressPercent);
-
+            // Si le plan est actif depuis moins de temps que son temps max alors
+            if ( progressTime <= this.duration && this.end_position != Vector3.Zero ) {
+                // On modifie la position de la camera
+                this.camera.Position = this.start_position + ( ( this.end_position - this.start_position ) * this.percentage );
             }
         }
 
         public float getDuration()
         {
-            return duration;
+            return this.duration;
         }
 
         public Camera getCamera()
         {
-            return camera;
+            return this.camera;
         }
 
-        public void pointAtPlayer(bool pointAtPlayer)
+        public void activateCamera()
         {
-            if (pointAtPlayer)
-            {
-                camera.PointAt(Game.Player.Character);
-            }
-            else
-            {
-                camera.StopPointing();
-            }
+            Function.Call( Hash.RENDER_SCRIPT_CAMS, 1, 0, this.camera.Handle, 0, 0 );
+            World.RenderingCamera = this.camera;
+        }
+        
+        public void lookAt( Entity target )
+        {
+            this.camera.PointAt( target );
+        }
+
+        public void lookAt( Vector3 target )
+        {
+            this.camera.Direction = target;
         }
     }
 }

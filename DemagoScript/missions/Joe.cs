@@ -171,22 +171,22 @@ namespace DemagoScript
                 Vector3 secondShotPosition = new Vector3(2351.906f, 2530.494f, 48f);
 
                 List<CameraShot> cameraShots = new List<CameraShot>();
+                float time_split = musicPlaylist.length( "dialogue0" ) / 3;
 
-                CameraShot cameraShot = new CameraShot(musicPlaylist.length("dialogue0") / 3, largeShotPosition);
-                cameraShot.pointAtPlayer(true);
+                CameraShot cameraShot = new CameraShot( time_split, largeShotPosition );
+                cameraShot.lookAt( introPed );
                 cameraShots.Add(cameraShot);
 
-                cameraShot = new CameraShot(musicPlaylist.length("dialogue0") / 3, firstShotPosition, secondShotPosition);
-                cameraShot.pointAtPlayer(true);
+                cameraShot = new CameraShot( time_split, firstShotPosition, secondShotPosition );
+                cameraShot.lookAt( introPed );
                 cameraShots.Add(cameraShot);
 
-                cameraShot = new CameraShot(musicPlaylist.length("dialogue0") / 3, secondShotPosition, bikePositionAtHome);
-                cameraShot.pointAtPlayer(true);
+                cameraShot = new CameraShot( time_split, secondShotPosition, bikePositionAtHome );
+                cameraShot.lookAt( introPed );
                 cameraShots.Add(cameraShot);
-
-                CameraShotsList camerasList = new CameraShotsList(cameraShots, musicPlaylist.length("dialogue0"));
-
-
+                
+                CameraShotsList.Instance.initialize( cameraShots, musicPlaylist.length( "dialogue0" ) );
+                
                 Joe.bike.EnginePowerMultiplier = 100;
                 Joe.bike.IsInvincible = true;
                 Joe.bike.CanTiresBurst = false;
@@ -243,18 +243,18 @@ namespace DemagoScript
                 List<CameraShot> cameraShots = new List<CameraShot>();
 
                 CameraShot cameraShot = new CameraShot(musicPlaylist.length("musique1") / 3, firstCameraPosition, secondCameraPosition);
-                cameraShot.pointAtPlayer(true);
+                cameraShot.lookAt( Game.Player.Character );
                 cameraShots.Add(cameraShot);
 
                 cameraShot = new CameraShot(musicPlaylist.length("musique1") / 3, secondCameraPosition, thirdCameraPosition);
-                cameraShot.pointAtPlayer(true);
+                cameraShot.lookAt( Game.Player.Character );
                 cameraShots.Add(cameraShot);
 
                 cameraShot = new CameraShot(musicPlaylist.length("musique1") / 3, thirdCameraPosition, fourthCameraPosition);
-                cameraShot.pointAtPlayer(true);
+                cameraShot.lookAt( Game.Player.Character );
                 cameraShots.Add(cameraShot);
-
-                CameraShotsList camerasList = new CameraShotsList(cameraShots, musicPlaylist.length("musique1"));
+                
+                CameraShotsList.Instance.initialize( cameraShots, musicPlaylist.length( "musique1" ) );
 
                 Ped player = Game.Player.Character;
 
@@ -448,18 +448,19 @@ namespace DemagoScript
                 List<CameraShot> cameraShots = new List<CameraShot>();
 
                 CameraShot cameraShot = new CameraShot(musicPlaylist.length("musique2") / 3, firstCameraPosition, secondCameraPosition);
-                cameraShot.pointAtPlayer(true);
+                cameraShot.lookAt( Game.Player.Character );
                 cameraShots.Add(cameraShot);
 
                 cameraShot = new CameraShot(musicPlaylist.length("musique2") / 3, secondCameraPosition, thirdCameraPosition);
-                cameraShot.pointAtPlayer(true);
+                cameraShot.lookAt( Game.Player.Character );
                 cameraShots.Add(cameraShot);
 
                 cameraShot = new CameraShot(musicPlaylist.length("musique2") / 3, thirdCameraPosition, fourthCameraPosition);
-                cameraShot.pointAtPlayer(true);
+                cameraShot.lookAt( Game.Player.Character );
                 cameraShots.Add(cameraShot);
+                
+                CameraShotsList.Instance.initialize( cameraShots, musicPlaylist.length( "musique2" ) );
 
-                CameraShotsList camerasList = new CameraShotsList(cameraShots, musicPlaylist.length("musique2"));
             };
             
             GoToPositionInVehicle goToTheaterWithBikeGoal = new GoToPositionInVehicle(thirdSongBikePosition);
@@ -629,19 +630,19 @@ namespace DemagoScript
                 List<CameraShot> cameraShots = new List<CameraShot>();
 
                 CameraShot cameraShot = new CameraShot(musicPlaylist.length("musique3") / 3, firstCameraPosition, secondCameraPosition);
-                cameraShot.pointAtPlayer(true);
+                cameraShot.lookAt( Game.Player.Character );
                 cameraShots.Add(cameraShot);
 
                 cameraShot = new CameraShot(musicPlaylist.length("musique3") / 3, secondCameraPosition, thirdCameraPosition);
-                cameraShot.pointAtPlayer(true);
+                cameraShot.lookAt( Game.Player.Character );
                 cameraShots.Add(cameraShot);
 
                 cameraShot = new CameraShot(musicPlaylist.length("musique3") / 3, thirdCameraPosition, fourthCameraPosition);
-                cameraShot.pointAtPlayer(true);
+                cameraShot.lookAt( Game.Player.Character );
                 cameraShots.Add(cameraShot);
+                
+                CameraShotsList.Instance.initialize( cameraShots, musicPlaylist.length( "musique2" ) );
 
-                CameraShotsList camerasList = new CameraShotsList(cameraShots, musicPlaylist.length("musique3"));
-                                
                 World.Weather = Weather.Clouds;
             };
 

@@ -97,7 +97,7 @@ namespace DemagoScript
 
             Tools.update();
             Timer.updateAllTimers();
-            CameraShotsList.updateCameraShots();
+            CameraShotsList.Instance.update();
 
             foreach (Mission mission in missions)
             {
@@ -216,7 +216,7 @@ namespace DemagoScript
 
                 newMission.OnMissionOver += (sender, reason) =>
                 {
-                    CameraShotsList.stop();
+                    CameraShotsList.Instance.reset();
                 };
 
                 missions.Add(newMission);
