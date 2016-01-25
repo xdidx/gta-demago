@@ -12,7 +12,7 @@ namespace DemagoScript.GUI.popup
         private UITextElement content = null;
 
         private UITextElement infos = null;
-        private const string INFOS = "\"Entrer\" pour fermer";
+        private const string INFOS = "\"Entrée\" pour fermer";
 
         /// <summary>
         /// Called when user close popup.

@@ -175,7 +175,7 @@ namespace DemagoScript
                         creditsPopup.add(new UITextElement("Facebook : http://facebook.com/realmyop", 0.5, 0.42, 0.5, true, Font.ChaletLondon, UIColor.WHITE));
                         creditsPopup.add(new UITextElement("Twitter : http://twitter.com/RealMyop", 0.5, 0.45, 0.5, true, Font.ChaletLondon, UIColor.WHITE));
                         creditsPopup.add(new UITextElement("Venez nombreux !", 0.5, 0.525, 1, true, Font.HouseScript, UIColor.WHITE));
-                        creditsPopup.add(new UITextElement("Entrer pour fermer", 0.5, 0.9, 0.6, true, Font.HouseScript, UIColor.WHITE));
+                        creditsPopup.add(new UITextElement("Entrée pour fermer", 0.5, 0.9, 0.6, true, Font.HouseScript, UIColor.WHITE));
                         creditsPopup.OnPopupClose += () =>
                         {
                             GUIManager.Instance.popupManager.remove(creditsPopup);

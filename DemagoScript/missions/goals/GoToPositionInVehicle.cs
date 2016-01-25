@@ -157,7 +157,7 @@ namespace DemagoScript
 
         public bool isArrived()
         {
-            return isOver() || destination.DistanceTo( Game.Player.Character.Position ) < 8;
+            return (isOver() || destination.DistanceTo( Game.Player.Character.Position ) < 8) && Game.Player.Character.IsInVehicle();
         }
 
         public override void clear( bool removePhysicalElements = false )
