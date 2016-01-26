@@ -265,11 +265,6 @@ namespace DemagoScript
 
                 foreach (Ped spectator in spectatorsPeds)
                 {
-                    if (spectator.Position.DistanceTo(firstSongPosition) > 10)
-                    {
-                        spectator.Position = firstSongPosition.Around(7).Around(2);
-                    }
-
                     TaskSequence angrySpectator = new TaskSequence();
                     angrySpectator.AddTask.ClearAllImmediately();
                     angrySpectator.AddTask.TurnTo(player, 1000);
@@ -1037,13 +1032,20 @@ namespace DemagoScript
                 {
                     musicPlaylist.pauseMusic("dialogue0");
                     currentPlay = "";
+                    
+                    foreach (Ped spectator in spectatorsPeds)
+                        if (spectator.Position.DistanceTo(firstSongPosition) > 10)
+                            spectator.Position = firstSongPosition.Around(7).Around(2);
+
                     player.Task.ClearAllImmediately();
                     introPed.IsVisible = false;
                     introPed.Delete();
                     player.IsVisible = true;
+
                     Function.Call(Hash.DISPLAY_HUD, true);
                     Function.Call(Hash.DISPLAY_RADAR, true);
                     Function.Call(Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1);
+
                     introEnded = true;
                 }
                 else
