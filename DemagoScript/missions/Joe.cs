@@ -233,33 +233,47 @@ namespace DemagoScript
                 currentPlay = "musique1";
 
                 Vector3 firstCameraPosition = firstSongPosition;
-                firstCameraPosition.X += 8;
                 firstCameraPosition.Z += 2;
+                firstCameraPosition.X += 4;
+                firstCameraPosition.Y += 4;
                 Vector3 secondCameraPosition = firstCameraPosition;
-                secondCameraPosition.X += 8;
-                secondCameraPosition.Z += 2;
-                Vector3 thirdCameraPosition = secondCameraPosition;
-                thirdCameraPosition.X += 8;
-                thirdCameraPosition.Z += 2;
-                Vector3 fourthCameraPosition = thirdCameraPosition;
-                fourthCameraPosition.X -= 8;
-                fourthCameraPosition.Y -= 8;
+                secondCameraPosition.X -= 8;
+
+                Vector3 thirdCameraPosition = Vector3.Zero;
+                thirdCameraPosition.X = 2321;
+                thirdCameraPosition.Y = 2555.7f;
+                thirdCameraPosition.Z = firstSongPosition.Z;
+
+                Vector3 fourthCameraPosition = Vector3.Zero;
+                fourthCameraPosition.X = 2338;
+                fourthCameraPosition.Y = 2548.5f;
+                fourthCameraPosition.Z = firstSongPosition.Z;
+
+                Vector3 fifthCameraPosition = firstSongPosition;
+                fifthCameraPosition.X += 1;
+                fifthCameraPosition.Z -= 1;
+                Vector3 sixthCameraPosition = fifthCameraPosition;
+                sixthCameraPosition.Z += 2;
 
                 List<CameraShot> cameraShots = new List<CameraShot>();
 
-                CameraShot cameraShot = new CameraShot(musicPlaylist.length("musique1") / 3, firstCameraPosition, secondCameraPosition);
+                CameraShot cameraShot = new CameraShot(musicPlaylist.length("musique1") / 4, firstCameraPosition, secondCameraPosition);
                 cameraShot.lookAt( Game.Player.Character );
                 cameraShots.Add(cameraShot);
 
-                cameraShot = new CameraShot(musicPlaylist.length("musique1") / 3, secondCameraPosition, thirdCameraPosition);
+                cameraShot = new CameraShot(musicPlaylist.length("musique1") / 4, thirdCameraPosition);
                 cameraShot.lookAt( Game.Player.Character );
                 cameraShots.Add(cameraShot);
 
-                cameraShot = new CameraShot(musicPlaylist.length("musique1") / 3, thirdCameraPosition, fourthCameraPosition);
-                cameraShot.lookAt( Game.Player.Character );
+                cameraShot = new CameraShot(musicPlaylist.length("musique1") / 4, fourthCameraPosition);
+                cameraShot.lookAt(Game.Player.Character);
                 cameraShots.Add(cameraShot);
-                
-                CameraShotsList.Instance.initialize( cameraShots, musicPlaylist.length( "musique1" ) );
+
+                cameraShot = new CameraShot(musicPlaylist.length("musique1") / 4, fifthCameraPosition, sixthCameraPosition);
+                cameraShot.lookAt(Game.Player.Character);
+                cameraShots.Add(cameraShot);
+
+                CameraShotsList.Instance.initialize( cameraShots );
 
                 Ped player = Game.Player.Character;
 

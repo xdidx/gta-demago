@@ -34,7 +34,7 @@ namespace DemagoScript
         }
 
         // Init
-        public void initialize( List<CameraShot> sequence, float sequence_duration )
+        public void initialize( List<CameraShot> sequence, float sequence_duration = 0 )
         {
             this.reset();
 
@@ -66,14 +66,13 @@ namespace DemagoScript
             }
 
             // Si la sequence est en cours et que l'index n'est pas trop grand
-            if ( this.sequence_elapsed_time < this.sequence_total_duration && this.current_index < this.sequence.Count ) {
-
+            if ((this.sequence_total_duration == 0 || this.sequence_elapsed_time < this.sequence_total_duration) && this.current_index < this.sequence.Count )
+            { 
                 // On recupere le current element
                 this.current_element = this.sequence[this.current_index];
 
                 // Changement de CameraShot
                 if ( this.current_elapsed_time == 0 ) {
-                    Tools.log( "CameraShotsList: change camera " + current_index + " et " + sequence_elapsed_time + " < " + sequence_total_duration );
                     this.current_element.activateCamera();
                 }
 
