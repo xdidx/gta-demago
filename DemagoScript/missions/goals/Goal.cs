@@ -71,7 +71,8 @@ namespace DemagoScript
 
         public virtual bool initialize()
         {
-            if ( initialized ) {
+            if ( initialized )
+            {
                 return false;
             }
 
@@ -96,6 +97,7 @@ namespace DemagoScript
         public virtual void reset()
         {
             initialized = false;
+            clear(false);
         }
 
         public abstract void clear( bool removePhysicalElements = false );

@@ -28,7 +28,10 @@ namespace DemagoScript.GUI.popup
         public void update()
         {
             foreach ( Popup popup in this.popups ) {
-                popup.draw();
+                if (popup != null)
+                {
+                    popup.draw();
+                }
             }
         }
 

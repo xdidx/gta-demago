@@ -25,7 +25,7 @@ namespace DemagoScript.GUI.popup
         private UITextElement infos = null;
         private const string INFOS = "\"Entrée\" pour valider, \"Echap\" pour annuler";
         
-        public ConfirmationPopup( string text_title, string text_content )
+        public ConfirmationPopup( string text_title, string text_content) : base()
         {            
             // background
             this.background = new UIRectElement( 0, 0, 2, 2, UIColor.BLACK, 230 );
@@ -58,6 +58,7 @@ namespace DemagoScript.GUI.popup
                 {
                     this.hide();
                     Function.Call(Hash.SET_GAME_PAUSED, false);
+                    base.PopupClose();
                     OnPopupAccept?.Invoke();
                 }
 
@@ -65,6 +66,7 @@ namespace DemagoScript.GUI.popup
                 {
                     this.hide();
                     Function.Call(Hash.SET_GAME_PAUSED, false);
+                    base.PopupClose();
                     OnPopupRefuse?.Invoke();
                 }
             }

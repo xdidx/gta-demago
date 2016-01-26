@@ -61,7 +61,12 @@ namespace DemagoScript
 
             foreach (Vector3 checkpoint in checkPoints)
             {
-                addGoal(new GoToPositionInVehicle(checkpoint, bus));
+                GoToPositionInVehicle goToFirstCheckpointGoal = new GoToPositionInVehicle(checkpoint);
+                goToFirstCheckpointGoal.OnGoalStart += (sender) => 
+                {
+                    goToFirstCheckpointGoal.setVehicle(bus);
+                };
+                addGoal(goToFirstCheckpointGoal);
             }
         }
 
@@ -332,9 +337,9 @@ namespace DemagoScript
             trapStarted = false;
         }
 
-        public override void clear(bool removePhysicalElements = false)
+        public override void clear(bool removePhysicalElements = false, bool keepGoalsList = false)
         {
-            base.clear(removePhysicalElements);
+            base.clear(removePhysicalElements, keepGoalsList);
 
             if (bus != null && bus.Exists())
             {

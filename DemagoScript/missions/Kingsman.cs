@@ -17,7 +17,7 @@ namespace DemagoScript
         {
 
             base.doInitialization();
-            
+
             musicPlaylist = new Music(musicFile);
             musicPlaylist.setVolume(0.9f);
 
@@ -52,13 +52,26 @@ namespace DemagoScript
             Ped[] peds = World.GetAllPeds();
             for (int i = 0; i < peds.Length; i++)
             {
-                if (peds[i] != Game.Player.Character && !peds[i].IsInCombat && !peds[i].IsInMeleeCombat && !peds[i].IsDead)
+                if (peds[i].IsIdle && peds[i] != Game.Player.Character && !peds[i].IsDead)
                 {
                     //Tools.log(peds[i].IsInMeleeCombat+" = Melee "+ peds[i].IsInCombat + " = Combat fight" + i);
-                    peds[i].Task.FightAgainst(Tools.GetClosestPedAroundPed(Game.Player.Character));
+                    peds[i].Task.FightAgainst(Tools.GetClosestPedAroundPed(peds[i]));
                 }
             }
         }
 
+        public override void clear(bool removePhysicalElements = false, bool keepGoalsList = false)
+        {
+            base.clear(removePhysicalElements, keepGoalsList);
+
+            Ped[] peds = World.GetAllPeds();
+            for (int i = 0; i < peds.Length; i++)
+            {
+                if (peds[i] != Game.Player.Character)
+                {
+                    peds[i].MarkAsNoLongerNeeded();
+                }
+            }
+        } 
     }
 }

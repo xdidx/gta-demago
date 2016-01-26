@@ -28,7 +28,7 @@ namespace DemagoScript
         private bool seeVehicle = false;
         private bool godPlayer = false;
         private bool godVehicle = false;
-        private Model oldModel = null;
+        private static Model oldModel = null;
         private Vehicle toChangeVehicle = null;
 
         private UIMenuCheckboxItem godVehicleActiveItem, seeVehicleActiveItem, godPlayerActiveItem, seePlayerActiveItem;
@@ -49,6 +49,19 @@ namespace DemagoScript
             var missionsMenu = menuPool.AddSubMenu(mainMenu, "Missions");
             foreach (Mission mission in missions)
             {
+                mission.OnCheckpoinLoaded += (checkpoint) =>
+                {
+                    Model playerModel = Game.Player.Character.Model;
+                    if (playerModel == PedHash.Michael || playerModel == PedHash.Franklin || playerModel == PedHash.Trevor)
+                    {
+                        oldModel = playerModel;
+                    }
+                    else
+                    {
+                        oldModel = null;
+                    }
+                };
+
                 mission.OnMissionOver += (sender, reason) =>
                 {
                     resetPlayerModel();
@@ -61,10 +74,6 @@ namespace DemagoScript
                 {
                     if (item == startItem)
                     {
-                        if (oldModel == null && (Game.Player.Character.Model == PedHash.Michael || Game.Player.Character.Model == PedHash.Franklin || Game.Player.Character.Model == PedHash.Trevor))
-                        {
-                            oldModel = Game.Player.Character.Model;
-                        }
                         mission.start();
                     }
                 };
@@ -309,8 +318,6 @@ namespace DemagoScript
                         {
                             UI.Notify("Requête refusée");                            
                         };
-
-                        GUIManager.Instance.popupManager.add(this.testPopup);
                     }
                     
                     this.testPopup.show();
@@ -383,7 +390,7 @@ namespace DemagoScript
                     {
                         seeVehicle = checked_;
                         toChangeVehicle.IsVisible = !seeVehicle;
-                        player.IsVisible = seePlayer;
+                        player.IsVisible = !seePlayer;
                     }
                     else
                     {
@@ -414,10 +421,7 @@ namespace DemagoScript
 
             Ped player = Game.Player.Character;
 
-            if (playerModelIsInvalid())
-            {
-            }
-            else
+            if (playerModelIsValid())
             {
                 if (player.IsInVehicle() && toChangeVehicle == null)
                 {
@@ -452,50 +456,93 @@ namespace DemagoScript
             }
         }
 
-        private bool playerModelIsInvalid()
+        private bool playerModelIsValid()
         {
             Ped player = Game.Player.Character;
-            return ((player.IsDead || Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true)) && player.Model != oldModel && oldModel != null);
+            return (oldModel == null || player.Model == oldModel || (!player.IsDead && !Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true)));
         }
 
         private void resetPlayerModel()
         {
             Ped player = Game.Player.Character;
-            if (oldModel != null && player.Model != oldModel)
+            if (player.Model != oldModel)
             {
+                if (oldModel == null || !oldModel.IsValid)
+                {
+                    Tools.log("resetPlayerModel set Michael");
+                    oldModel = new Model(PedHash.Michael);
+                }
+
                 if (player.IsDead)
                 {
+
                     Ped replacementPed = Function.Call<Ped>(Hash.CLONE_PED, Game.Player.Character, Function.Call<int>(Hash.GET_ENTITY_HEADING, Function.Call<int>(Hash.PLAYER_PED_ID)), false, true);
                     replacementPed.Kill();
 
-                    player.IsVisible = false;
-
+                    Tools.log("BUG Crash with function SET_PLAYER_MODEL, why?");
                     Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
+                    Tools.log("not working :/");
+
+                    player = Game.Player.Character;
+                    player.IsVisible = false;
+                    player.Task.StandStill(-1);
+                    player.IsInvincible = true;
 
                     while (Game.Player.IsDead)
-                        Script.Wait(100);
-
-                    player.IsVisible = true;
-
-                    ConfirmationPopup checkpointPopup = new ConfirmationPopup("Vous vous êtes fait tué", "Voulez vous revenir au dernier checkpoint ?");
-                    checkpointPopup.OnPopupAccept += () => 
                     {
-                    };
-                }
-                else if(Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true))
-                {
-                    Script.Wait(4000);
-                    Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
-                    ConfirmationPopup checkpointPopup = new ConfirmationPopup("Vous vous êtes fait arrêté", "Voulez vous revenir au dernier checkpoint ?");
+                        if (Game.Player.Character.IsDead)
+                        {
+                            resetPlayerModel();
+                            return;
+                        }
+                        else
+                        {
+                            Script.Wait(100);
+                        }
+                    }
+
+                    ConfirmationPopup checkpointPopup = new ConfirmationPopup("Vous êtes mort", "Voulez-vous revenir au dernier checkpoint ?");
                     checkpointPopup.OnPopupAccept += () =>
                     {
+                        DemagoScript.loadLastCheckpoint();
                     };
+                    checkpointPopup.OnPopupRefuse += () =>
+                    {
+                        DemagoScript.clearMissions();
+                    };
+                    checkpointPopup.OnPopupClose += () =>
+                    {
+                        Game.Player.Character.IsVisible = true;
+                        Game.Player.Character.IsInvincible = false;
+                    };
+                    checkpointPopup.show();
+                }
+                else if (Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true))
+                {
+                    Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
+                    player = Game.Player.Character;
+                    player.IsVisible = false;
+
+                    ConfirmationPopup checkpointPopup = new ConfirmationPopup("Vous vous êtes fait arrêter", "Voulez-vous revenir au dernier checkpoint ?");
+                    checkpointPopup.OnPopupAccept += () =>
+                    {
+                        DemagoScript.loadLastCheckpoint();
+                    };
+                    checkpointPopup.OnPopupRefuse += () =>
+                    {
+                        DemagoScript.clearMissions();
+                    };
+                    checkpointPopup.OnPopupClose += () =>
+                    {
+                        player.IsVisible = true;
+                    };
+                    checkpointPopup.show();
                 }
                 else
                 {
                     Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
                 }
-            }         
+            }
         }
 
         public void OnKeyDown(object sender, KeyEventArgs e)

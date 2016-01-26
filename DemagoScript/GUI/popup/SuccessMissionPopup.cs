@@ -5,7 +5,7 @@ using System.Windows.Forms;
 
 namespace DemagoScript.GUI.popup
 {
-    class SuccessMissionPopup : Popup
+    class SuccessMissionPopup : NotificationPopup
     {
         private UIRectElement background = null;
         private UITextElement title = null;
@@ -13,13 +13,8 @@ namespace DemagoScript.GUI.popup
 
         private UITextElement infos = null;
         private const string INFOS = "\"Entrée\" pour fermer";
-
-        /// <summary>
-        /// Called when user close popup.
-        /// </summary>
-        public event PopupCloseEvent OnPopupClose;
-
-        public SuccessMissionPopup(string missionName, string missionTime)
+        
+        public SuccessMissionPopup(string missionName, string missionTime) : base()
         {
             // background
             this.background = new UIRectElement(0.5, 0.5, 0.3, 0.2, UIColor.BLACK, 200);
@@ -66,7 +61,7 @@ namespace DemagoScript.GUI.popup
                 {
                     this.hide();
                     Function.Call(Hash.SET_GAME_PAUSED, false);
-                    OnPopupClose?.Invoke();
+                    base.PopupClose();
                 }
             }
         }

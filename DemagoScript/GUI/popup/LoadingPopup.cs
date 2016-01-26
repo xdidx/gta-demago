@@ -11,7 +11,7 @@ namespace DemagoScript.GUI.popup
         private UITextElement title = null;
         private UITextElement content = null;
 
-        public LoadingPopup( string text_title, string text_content )
+        public LoadingPopup( string text_title, string text_content) : base()
         {            
             // background
             this.background = new UIRectElement( 0, 0, 2, 2, UIColor.BLACK, 230 );
