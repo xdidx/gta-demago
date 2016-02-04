@@ -103,12 +103,12 @@ namespace DemagoScript
         // On reset la sequence
         public void reset()
         {
-            Tools.log( "CameraShotsList: reset." );
+            this.sequence = null;
+            this.sequence_elapsed_time = 0;
+            this.sequence_total_duration = 0;
             this.current_index = 0;
             this.current_elapsed_time = 0;
             this.current_element = null;
-            this.sequence = null;
-            this.sequence_total_duration = 0;
             Function.Call( Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1 );
         }
     }
