@@ -309,6 +309,11 @@ namespace DemagoScript
             return getTextFromTimespan(new TimeSpan(0, 0, (int)seconds));
         }
 
+        public static string getTextFromMilliSeconds(float seconds)
+        {
+            return getTextFromTimespan(new TimeSpan(0, 0, (int)(seconds / 1000)));
+        }        
+
         public static string getTextFromTimespan(TimeSpan time)
         {
             var totalTime = "";

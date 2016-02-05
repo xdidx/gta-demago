@@ -32,19 +32,27 @@ namespace DemagoScript
         private float bombTriggerSpeedInKmh = 40.0f;
         private float escortDistance = 30.0f;
 
+        private bool policeMan1IsWaiting = true;
+        private bool policeMan1IsRushing = true;
+        private bool policeMan2IsWaiting = true;
+        private bool policeMan2IsRushing = true;
+
         public static Vector3 startPosition { get; } = new Vector3(50f, -1200f, 40f);
         public static Vector3 aeroportPosition { get; } = new Vector3(-1685, -2930, 13f);
         public static List<Vector3> checkPoints { get; } = new List<Vector3> { new Vector3(-452f, -1403f, 33f), new Vector3(-946f, -2755, 13f), aeroportPosition };
 
-        public override string getName()
+        private UIResText speedCounterText = null;
+        private UIResText speedCounterShadow = null;
+
+        public Speed()
         {
-            return "Mission Speed";
+            this.name = "Mission Speed";
         }
 
-        protected override void doInitialization()
+        public override void populateDestructibleElements()
         {
-            base.doInitialization();
-
+            base.populateDestructibleElements();
+            
             if (activatedEscort)
             {
                 escortDistance = 30f;
@@ -54,28 +62,13 @@ namespace DemagoScript
             if (activatedSpeedCounter)
             {
                 speedCounterText = new UIResText("", new Point(330, Game.ScreenResolution.Height - 70), 0.7f, Color.WhiteSmoke, GTA.Font.ChaletComprimeCologne, UIResText.Alignment.Left);
-                speedCounterShawdow = new UIResText("", new Point(332, Game.ScreenResolution.Height - 68), 0.7f, Color.Black, GTA.Font.ChaletComprimeCologne, UIResText.Alignment.Left);
+                speedCounterShadow = new UIResText("", new Point(332, Game.ScreenResolution.Height - 68), 0.7f, Color.Black, GTA.Font.ChaletComprimeCologne, UIResText.Alignment.Left);
             }
 
-            initializeBus(startPosition);
-
-            foreach (Vector3 checkpoint in checkPoints)
-            {
-                GoToPositionInVehicle goToFirstCheckpointGoal = new GoToPositionInVehicle(checkpoint);
-                goToFirstCheckpointGoal.OnGoalStart += (sender) => 
-                {
-                    goToFirstCheckpointGoal.setVehicle(bus);
-                };
-                addGoal(goToFirstCheckpointGoal);
-            }
-        }
-
-        public void initializeBus(Vector3 startPosition)
-        {
             bus = World.CreateVehicle(VehicleHash.Bus, Tools.GetSafeRoadPos(startPosition));
             bus.Rotation = new Vector3(0, 0, 90);
             Game.Player.Character.SetIntoVehicle(bus, VehicleSeat.Driver);
-            
+
             int passengersNumber = (int)Math.Round((decimal)bus.PassengerSeats / 2);
             for (int i = 0; i < passengersNumber; i++)
             {
@@ -91,8 +84,74 @@ namespace DemagoScript
                     Tools.log("Passenger not created");
                 }
             }
+
+            foreach (Vector3 checkpoint in checkPoints)
+            {
+                GoToPositionInVehicle goToFirstCheckpointObjective = new GoToPositionInVehicle(checkpoint);
+                goToFirstCheckpointObjective.OnStarted += (sender) =>
+                {
+                    goToFirstCheckpointObjective.setVehicle(bus);
+                };
+                addObjective(goToFirstCheckpointObjective);
+            }
         }
 
+        public override void removeDestructibleElements(bool removePhysicalElements = false)
+        {
+            base.removeDestructibleElements(removePhysicalElements);
+
+            if (bus != null && bus.Exists())
+            {
+                bus.MarkAsNoLongerNeeded();
+                if (removePhysicalElements)
+                    bus.Delete();
+            }
+
+            foreach (Ped passenger in passengers)
+            {
+                if (passenger != null && passenger.Exists())
+                {
+                    passenger.MarkAsNoLongerNeeded();
+                    if (removePhysicalElements)
+                        passenger.Delete();
+                }
+            }
+            if (removePhysicalElements)
+                passengers.Clear();
+
+            if (policeMan1 != null && policeMan1.Exists())
+            {
+                if (policeMan1.CurrentVehicle != null && policeMan1.CurrentVehicle.Exists())
+                {
+                    policeMan1.CurrentVehicle.MarkAsNoLongerNeeded();
+                    if (removePhysicalElements)
+                        policeMan1.CurrentVehicle.Delete();
+                }
+                policeMan1.MarkAsNoLongerNeeded();
+                if (removePhysicalElements)
+                {
+                    policeMan1.Delete();
+                    policeMan1 = null;
+                }
+            }
+
+            if (policeMan2 != null && policeMan2.Exists())
+            {
+                if (policeMan2.CurrentVehicle != null && policeMan2.CurrentVehicle.Exists())
+                {
+                    policeMan2.CurrentVehicle.MarkAsNoLongerNeeded();
+                    if (removePhysicalElements)
+                        policeMan2.CurrentVehicle.Delete();
+                }
+                policeMan2.MarkAsNoLongerNeeded();
+                if (removePhysicalElements)
+                {
+                    policeMan2.Delete();
+                    policeMan2 = null;
+                }
+            }
+        }
+        
         public void initializeEscort(Vector3 startPosition)
         {
             if (policeCar1 != null && policeCar1.Exists())
@@ -164,9 +223,12 @@ namespace DemagoScript
             }
         }
         
-        public override void update()
+        public override bool update()
         {
-            base.update();
+            if (!base.update())
+            {
+                return false;
+            }
 
             if (activatedSpeedCounter)
             {
@@ -177,7 +239,7 @@ namespace DemagoScript
             {
                 removeTraffic();
             }
-
+            
             if (activedRemoveWantedSearch)
             {
                 removeWantedSearch();
@@ -192,6 +254,8 @@ namespace DemagoScript
             {
                 escort();
             }
+
+            return true;
         }
 
         private void checkExplosion()
@@ -223,10 +287,6 @@ namespace DemagoScript
             }
         }
 
-        private bool policeMan1IsWaiting = true;
-        private bool policeMan1IsRushing = true;
-        private bool policeMan2IsWaiting = true;
-        private bool policeMan2IsRushing = true;
         private void escort()
         {
             /*
@@ -292,8 +352,6 @@ namespace DemagoScript
             }
         }
 
-        private UIResText speedCounterText = null;
-        private UIResText speedCounterShawdow = null;
         private void showSpeedCounter()
         {
             if (activatedSpeedCounter && speedCounterText != null)
@@ -320,8 +378,8 @@ namespace DemagoScript
                         speedCounterText.Color = Color.WhiteSmoke;
                     }
 
-                    speedCounterShawdow.Caption = Tools.getVehicleSpeedInKmh(Game.Player.Character.CurrentVehicle);
-                    speedCounterShawdow.Draw();
+                    speedCounterShadow.Caption = Tools.getVehicleSpeedInKmh(Game.Player.Character.CurrentVehicle);
+                    speedCounterShadow.Draw();
 
                     speedCounterText.Caption = Tools.getVehicleSpeedInKmh(Game.Player.Character.CurrentVehicle);
                     speedCounterText.Draw();
@@ -336,63 +394,7 @@ namespace DemagoScript
             lastVehicle = null;
             trapStarted = false;
         }
-
-        public override void clear(bool removePhysicalElements = false, bool keepGoalsList = false)
-        {
-            base.clear(removePhysicalElements, keepGoalsList);
-
-            if (bus != null && bus.Exists())
-            {
-                bus.MarkAsNoLongerNeeded();
-                if (removePhysicalElements)
-                    bus.Delete();
-            }
-
-            foreach (Ped passenger in passengers)
-            {
-                if (passenger != null && passenger.Exists())
-                {
-                    passenger.MarkAsNoLongerNeeded();
-                    if (removePhysicalElements)
-                        passenger.Delete();
-                }
-            }
-            if (removePhysicalElements)
-                passengers.Clear();
-
-            if (policeMan1 != null && policeMan1.Exists())
-            {
-                if (policeMan1.CurrentVehicle != null && policeMan1.CurrentVehicle.Exists())
-                {
-                    policeMan1.CurrentVehicle.MarkAsNoLongerNeeded();
-                    if (removePhysicalElements)
-                        policeMan1.CurrentVehicle.Delete();
-                }
-                policeMan1.MarkAsNoLongerNeeded();
-                if (removePhysicalElements)
-                { 
-                    policeMan1.Delete();
-                    policeMan1 = null;
-                }
-            }
-
-            if (policeMan2 != null && policeMan2.Exists())
-            {
-                if (policeMan2.CurrentVehicle != null && policeMan2.CurrentVehicle.Exists())
-                {
-                    policeMan2.CurrentVehicle.MarkAsNoLongerNeeded();
-                    if (removePhysicalElements)
-                        policeMan2.CurrentVehicle.Delete();
-                }
-                policeMan2.MarkAsNoLongerNeeded();
-                if (removePhysicalElements)
-                {
-                    policeMan2.Delete();
-                    policeMan2 = null;
-                }
-            }
-        }
-
+       
         public override void fillMenu(ref UIMenu menu)
         {
             var explosionsItem = new UIMenuCheckboxItem("Activer les explosions", activatedExplosion, "Activer les explosions quand le vehicule passe en dessous des 40km/h ?");

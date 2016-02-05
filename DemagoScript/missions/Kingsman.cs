@@ -8,15 +8,14 @@ namespace DemagoScript
         private Music musicPlaylist = null;
         private string[] musicFile = { "kingsman", "Kingsman.wav" };
 
-        public override string getName()
+        public Kingsman()
         {
-            return "Kingsman Mod";
+            this.name = "Kingsman Mod";
         }
-
-        protected override void doInitialization()
+        
+        public override void populateDestructibleElements()
         {
-
-            base.doInitialization();
+            base.populateDestructibleElements();
 
             musicPlaylist = new Music(musicFile);
             musicPlaylist.setVolume(0.9f);
@@ -40,14 +39,33 @@ namespace DemagoScript
                 }
             }
 
-            Goal waitGoal = new Wait(194);
-            addGoal(waitGoal);
-
+            AbstractObjective waitObjective = new Wait(194000);
+            addObjective(waitObjective);
         }
 
-        public override void update()
+        public override void removeDestructibleElements(bool removePhysicalElements = false)
         {
-            base.update();
+            base.removeDestructibleElements(removePhysicalElements);
+
+            Ped[] peds = World.GetAllPeds();
+            for (int i = 0; i < peds.Length; i++)
+            {
+                if (peds[i] != Game.Player.Character)
+                {
+                    peds[i].MarkAsNoLongerNeeded();
+                }
+            }
+
+            musicPlaylist.dispose();
+            musicPlaylist = null;
+        }
+
+        public override bool update()
+        {
+            if (!base.update())
+            {
+                return false;
+            }
 
             Ped[] peds = World.GetAllPeds();
             for (int i = 0; i < peds.Length; i++)
@@ -58,20 +76,8 @@ namespace DemagoScript
                     peds[i].Task.FightAgainst(Tools.GetClosestPedAroundPed(peds[i]));
                 }
             }
+
+            return true;
         }
-
-        public override void clear(bool removePhysicalElements = false, bool keepGoalsList = false)
-        {
-            base.clear(removePhysicalElements, keepGoalsList);
-
-            Ped[] peds = World.GetAllPeds();
-            for (int i = 0; i < peds.Length; i++)
-            {
-                if (peds[i] != Game.Player.Character)
-                {
-                    peds[i].MarkAsNoLongerNeeded();
-                }
-            }
-        } 
     }
 }

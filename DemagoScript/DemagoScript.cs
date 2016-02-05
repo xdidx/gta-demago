@@ -37,27 +37,8 @@ namespace DemagoScript
                 {
                     if (mission.isInProgress())
                     {
-                        mission.stop("Mission terminée à votre demande");
+                        mission.stop();
                     }
-                }
-            }
-        }
-
-        public static void loadLastCheckpoint()
-        {
-            if (lastMission != null)
-            {
-                lastMission.loadLastCheckpoint();
-            }
-        }
-
-        public static void clearMissions()
-        {
-            if (missions != null)
-            {
-                foreach (Mission mission in missions)
-                {
-                    mission.clear(true);
                 }
             }
         }
@@ -68,9 +49,7 @@ namespace DemagoScript
             {
                 return;
             }
-
-            createMissions();
-
+            
             GUIManager.Instance.initialize(missions);
 
             initialized = true;
@@ -108,6 +87,7 @@ namespace DemagoScript
             }
 
             GUIManager.Instance.update();
+
         }
 
         private void OnKeyDown(object sender, KeyEventArgs e)
@@ -129,10 +109,7 @@ namespace DemagoScript
         {
             isPaused = !isPaused;
 
-            foreach (Mission mission in missions)
-            {
-                mission.setPause(isPaused);
-            }
+            //TODO : audio player pause
         }
 
         private void playerSitting()
@@ -164,29 +141,22 @@ namespace DemagoScript
             {
                 Mission newMission = (Mission)Activator.CreateInstance(missionClass);
 
-                newMission.OnMissionStart += (sender) =>
+                newMission.OnStarted += (sender) =>
                 {
-                    lastMission = newMission;
-                    foreach (Mission mission in missions)
+                    if (lastMission != null)
                     {
-                        if (mission.isInProgress())
-                        {
-                            mission.stop("Une autre mission a été démarrée");
-                        }
-                        else
-                        {
-                            mission.clear(true, false);
-                        }
+                        lastMission.stop();
                     }
+                    lastMission = newMission;
                     GTA.UI.Notify(sender.getName());
                 };
 
-                newMission.OnMissionAccomplished += (sender, time) =>
+                newMission.OnAccomplished += (sender, time) =>
                 {
                     string missionTime = "Une erreur est survenue, merci de nous dire comment :)";
-                    if (Tools.getTextFromTimespan(time) != "")
+                    if (Tools.getTextFromMilliSeconds(time) != "")
                     {
-                        missionTime = "En " + Tools.getTextFromTimespan(time);
+                        missionTime = "En " + Tools.getTextFromMilliSeconds(time);
                     }
 
                     SuccessMissionPopup successPopup = new SuccessMissionPopup(sender.getName(), missionTime);
@@ -214,7 +184,7 @@ namespace DemagoScript
                     };
                 };
 
-                newMission.OnMissionOver += (sender, reason) =>
+                newMission.OnEnded += (sender) =>
                 {
                     CameraShotsList.Instance.reset();
                 };

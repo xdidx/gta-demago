@@ -38,7 +38,6 @@ namespace DemagoScript
         private bool introEnded = false;
         private int nbMusiqueEtape = -1, cameraChangeTimer = 0, etapeMission = 0, playerLifeUpCounter = 0;
         private Ped introPed, nadineMorano;
-        private float startTime = 0;
         private Random random = new Random();
 
         private List<string[]> musiques = new List<string[]>();
@@ -47,9 +46,689 @@ namespace DemagoScript
         private string interruptPlay = "";
         private string currentInterruptPlay = "";
 
-        public override string getName()
+        public Joe()
         {
-            return "Joe l'anticonformiste";
+            this.name = "Joe l'anticonformiste";
+        }
+
+        public override void populateDestructibleElements()
+        {
+            base.populateDestructibleElements();
+
+            loadMusic();
+
+            musicPlaylist = new Music(musiques);
+            musicPlaylist.setVolume(0.9f);
+
+            #region Objectives 
+
+            GoToPosition goToFirstSongObjective = new GoToPosition(firstSongPosition);
+            goToFirstSongObjective.OnStarted += (sender) =>
+            {
+                createBike(bikePositionAtHome);
+
+                bikeRegen = false;
+                playerDown = true;
+                playerWalked = false;
+                playerMoved = false;
+                introEnded = false;
+                cameraChangeTimer = 0;
+                etapeMission = 0;
+                nbMusiqueEtape = -1;
+
+                World.Weather = Weather.ExtraSunny;
+                Tools.setClockTime(10);
+                Tools.setDemagoModel(DemagoModel.Joe);
+
+                Ped player = Game.Player.Character;
+                player.MaxHealth = 300;
+                player.Armor = 100;
+                player.Health = player.MaxHealth;
+                Function.Call(Hash.SET_PED_MAX_HEALTH, player, player.MaxHealth);
+
+                Tools.TeleportPlayer(joeStart, false);
+                introPed = Function.Call<Ped>(Hash.CLONE_PED, Game.Player.Character, Function.Call<int>(Hash.GET_ENTITY_HEADING, Function.Call<int>(Hash.PLAYER_PED_ID)), false, true);
+                Tools.TeleportPlayer(joeHomePosition);
+
+                player.IsVisible = false;
+                player.Heading += 35;
+                player.Task.StandStill(-1);
+
+                introPed.Task.PlayAnimation("amb@world_human_picnic@male@base", "base", 8f, -1, true, -1f);
+
+                //Camera gestion
+                Function.Call(Hash.DISPLAY_HUD, false);
+                Function.Call(Hash.DISPLAY_RADAR, false);
+
+                Vector3 largeShotPosition = new Vector3(2213.186f, 2510.148f, 82.73711f);
+                Vector3 firstShotPosition = new Vector3(2361.558f, 2527.512f, 46.66772f);
+                Vector3 secondShotPosition = new Vector3(2351.906f, 2530.494f, 48f);
+
+                List<CameraShot> cameraShots = new List<CameraShot>();
+                float time_split = musicPlaylist.length("dialogue0") / 3;
+
+                CameraShot cameraShot = new CameraShot(time_split, largeShotPosition);
+                cameraShot.lookAt(introPed);
+                cameraShots.Add(cameraShot);
+
+                cameraShot = new CameraShot(time_split, firstShotPosition, secondShotPosition);
+                cameraShot.lookAt(introPed);
+                cameraShots.Add(cameraShot);
+
+                cameraShot = new CameraShot(time_split, secondShotPosition, bikePositionAtHome);
+                cameraShot.lookAt(introPed);
+                cameraShots.Add(cameraShot);
+
+                CameraShotsList.Instance.initialize(cameraShots, musicPlaylist.length("dialogue0"));
+
+                Joe.bike.EnginePowerMultiplier = 100;
+                Joe.bike.IsInvincible = true;
+                Joe.bike.CanTiresBurst = false;
+
+                List<PedHash> spectatorsHashesFirstSong = new List<PedHash>();
+                spectatorsHashesFirstSong.Add(PedHash.Ashley);
+                spectatorsHashesFirstSong.Add(PedHash.Car3Guy2);
+                spectatorsHashesFirstSong.Add(PedHash.Car3Guy1);
+                spectatorsHashesFirstSong.Add(PedHash.Bankman);
+                spectatorsHashesFirstSong.Add(PedHash.Barry);
+                spectatorsHashesFirstSong.Add(PedHash.Beach01AFM);
+                spectatorsHashesFirstSong.Add(PedHash.Beach01AFY);
+                spectatorsHashesFirstSong.Add(PedHash.Beach01AMM);
+                spectatorsHashesFirstSong.Add(PedHash.Beach02AMM);
+
+                foreach (PedHash hash in spectatorsHashesFirstSong)
+                {
+                    Ped ped = World.CreatePed(hash, firstSongPosition.Around(50), 0);
+                    if (ped != null && ped.Exists())
+                    {
+                        TaskSequence incomingSpectator = new TaskSequence();
+                        incomingSpectator.AddTask.GoTo(firstSongPosition.Around(7).Around(2));
+                        incomingSpectator.AddTask.TurnTo(player);
+                        incomingSpectator.AddTask.LookAt(player);
+                        incomingSpectator.AddTask.PlayAnimation("facials@gen_male@variations@angry", "mood_angry_1", 8f, -1, true, -1f);
+
+                        ped.Task.PerformSequence(incomingSpectator);
+                        spectatorsPeds.Add(ped);
+                        Tools.log("GoTO sequence on spectator ped ");
+                    }
+                }
+
+                musicPlay("dialogue0");
+            };
+
+            AbstractObjective firstSongObjectives = new PlayInstrument(InstrumentHash.Guitar, musicPlaylist.length("musique1"), "musique1", musicPlaylist);
+            firstSongObjectives.OnStarted += (sender) =>
+            {
+                currentPlay = "musique1";
+                Tools.setClockTime(11, musicPlaylist.length("musique1"));
+
+                if (currentPlay != "")
+                    musicPlaylist.pauseMusic(currentPlay);
+
+                currentPlay = "musique1";
+
+                Vector3 firstCameraPosition = firstSongPosition;
+                firstCameraPosition.Z += 2;
+                firstCameraPosition.X += 4;
+                firstCameraPosition.Y += 4;
+                Vector3 secondCameraPosition = firstCameraPosition;
+                secondCameraPosition.X -= 8;
+
+                Vector3 thirdCameraPosition = Vector3.Zero;
+                thirdCameraPosition.X = 2321;
+                thirdCameraPosition.Y = 2555.7f;
+                thirdCameraPosition.Z = firstSongPosition.Z;
+
+                Vector3 fourthCameraPosition = Vector3.Zero;
+                fourthCameraPosition.X = 2338;
+                fourthCameraPosition.Y = 2548.5f;
+                fourthCameraPosition.Z = firstSongPosition.Z;
+
+                Vector3 fifthCameraPosition = firstSongPosition;
+                fifthCameraPosition.X += 1;
+                fifthCameraPosition.Z -= 1;
+                Vector3 sixthCameraPosition = fifthCameraPosition;
+                sixthCameraPosition.Z += 2;
+
+                List<CameraShot> cameraShots = new List<CameraShot>();
+
+                CameraShot cameraShot = new CameraShot(musicPlaylist.length("musique1") / 4, firstCameraPosition, secondCameraPosition);
+                cameraShot.lookAt(Game.Player.Character);
+                cameraShots.Add(cameraShot);
+
+                cameraShot = new CameraShot(musicPlaylist.length("musique1") / 4, thirdCameraPosition);
+                cameraShot.lookAt(Game.Player.Character);
+                cameraShots.Add(cameraShot);
+
+                cameraShot = new CameraShot(musicPlaylist.length("musique1") / 4, fourthCameraPosition);
+                cameraShot.lookAt(Game.Player.Character);
+                cameraShots.Add(cameraShot);
+
+                cameraShot = new CameraShot(musicPlaylist.length("musique1") / 4, fifthCameraPosition, sixthCameraPosition);
+                cameraShot.lookAt(Game.Player.Character);
+                cameraShots.Add(cameraShot);
+
+                CameraShotsList.Instance.initialize(cameraShots);
+
+                Ped player = Game.Player.Character;
+
+                foreach (Ped spectator in spectatorsPeds)
+                {
+                    TaskSequence angrySpectator = new TaskSequence();
+                    angrySpectator.AddTask.ClearAllImmediately();
+                    angrySpectator.AddTask.TurnTo(player, 1000);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_what_hard", 8f, -1, false, -1f);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_yes_soft", 0.01f, musicPlaylist.length("musique1") - 6000, true, -1f);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_you_soft", 8f, -1, false, -1f);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_no_hard", 8f, -1, true, -1f);
+
+                    spectator.Task.PerformSequence(angrySpectator);
+                }
+            };
+
+            GoToPositionInVehicle goToPoliceWithBikeObjective = new GoToPositionInVehicle(roadFaceToPoliceStationPosition);
+            goToPoliceWithBikeObjective.OnStarted += (sender) =>
+            {
+                createBike(bikePositionAtHome);
+                goToPoliceWithBikeObjective.setVehicle(Joe.bike);
+
+                currentPlay = "";
+                Function.Call(Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1);
+
+                foreach (Ped spectator in spectatorsPeds)
+                {
+                    if (spectator != null && spectator.Exists())
+                    {
+                        spectator.Task.ClearAllImmediately();
+                        if (random.Next(0, 1) == 0)
+                        {
+                            spectator.Task.FightAgainst(Game.Player.Character);
+                        }
+                        else
+                        {
+                            spectator.Task.UseMobilePhone();
+                        }
+
+                    }
+                }
+
+                Ped player = Game.Player.Character;
+                player.Health = 300;
+                player.Armor = 100;
+                GTA.UI.ShowSubtitle("Spectateurs : C'est nul ! Casse toi ! On a appelé les flics !", 3000);
+
+                Tools.setClockTime(14, 50000);
+                Game.Player.WantedLevel = 2;
+                World.Weather = Weather.Clouds;
+
+                etapeMission = 1;
+            };
+
+            GoToPosition goToSecondSongObjective = new GoToPosition(secondSongPosition);
+            goToSecondSongObjective.OnStarted += (sender) =>
+            {
+                List<PedHash> spectatorsHashesSecondSong = new List<PedHash>();
+                spectatorsHashesSecondSong.Add(PedHash.Cop01SFY);
+                spectatorsHashesSecondSong.Add(PedHash.Cop01SMY);
+                spectatorsHashesSecondSong.Add(PedHash.Cop01SFY);
+                spectatorsHashesSecondSong.Add(PedHash.Cop01SMY);
+
+                foreach (PedHash hash in spectatorsHashesSecondSong)
+                {
+                    Ped ped = World.CreatePed(hash, new Vector3(451.7534f, -978.9359f, 30.68965f));
+                    if (ped != null && ped.Exists())
+                        copsPeds.Add(ped);
+
+                    ped = World.CreatePed(hash, secondSongPosition.Around(2));
+                    if (ped != null && ped.Exists())
+                    {
+                        ped.Task.WanderAround(secondSongPosition, 5);
+                        copsPeds.Add(ped);
+                    }
+                }
+
+                Ped pedWaiting = World.CreatePed(PedHash.Hooker01SFY, new Vector3(441.7531f, -987.5613f, 30.68965f));
+                if (pedWaiting != null && pedWaiting.Exists())
+                {
+                    pedWaiting.Task.UseMobilePhone();
+                    spectatorsPeds2.Add(pedWaiting);
+                }
+                pedWaiting = World.CreatePed(PedHash.Hooker02SFY, new Vector3(441.7531f, -985.9871f, 30.68965f));
+                if (pedWaiting != null && pedWaiting.Exists())
+                {
+                    pedWaiting.Task.UseMobilePhone();
+                    spectatorsPeds2.Add(pedWaiting);
+                }
+                pedWaiting = World.CreatePed(PedHash.Hooker03SFY, new Vector3(440.7078f, -987.5613f, 30.68965f));
+                if (pedWaiting != null && pedWaiting.Exists())
+                {
+                    pedWaiting.Task.UseMobilePhone();
+                    spectatorsPeds2.Add(pedWaiting);
+                }
+                pedWaiting = World.CreatePed(PedHash.Lost01GMY, new Vector3(440.7078f, -985.9871f, 30.68965f));
+                if (pedWaiting != null && pedWaiting.Exists())
+                {
+                    pedWaiting.Task.UseMobilePhone();
+                    spectatorsPeds2.Add(pedWaiting);
+                }
+            };
+
+            AbstractObjective secondSongObjectives = new PlayInstrument(InstrumentHash.Guitar, musicPlaylist.length("musique2"), "musique2", musicPlaylist);
+            secondSongObjectives.OnStarted += (sender) =>
+            {
+                if (currentPlay != "")
+                {
+                    musicPlaylist.pauseMusic(currentPlay);
+                }
+
+                Game.Player.WantedLevel = 0;
+
+                Tools.setClockTime(16, musicPlaylist.length("musique2"));
+                currentPlay = "musique2";
+
+                World.Weather = Weather.Clouds;
+
+                foreach (Ped spectator in spectatorsPeds)
+                {
+                    if (spectator != null && spectator.Exists())
+                    {
+                        spectator.Delete();
+                    }
+                }
+
+                Ped player = Game.Player.Character;
+
+                foreach (Ped spectator in World.GetNearbyPeds(player, 15))
+                {
+                    if (spectator != null && spectator.Exists())
+                    {
+                        spectator.Task.ClearAllImmediately();
+                        Function.Call(Hash.TASK_TURN_PED_TO_FACE_ENTITY, spectator.Handle, player.Handle);
+                        spectator.Task.LookAt(Game.Player.Character);
+                    }
+                }
+
+                TaskSequence policeSurrounding = new TaskSequence();
+                policeSurrounding.AddTask.TurnTo(player);
+                policeSurrounding.AddTask.StandStill(10000);
+                policeSurrounding.AddTask.GoTo(player.Position.Around(2).Around(1));
+                policeSurrounding.AddTask.TurnTo(player);
+                policeSurrounding.AddTask.LookAt(player);
+
+                player.Heading = 90;
+
+                foreach (Ped spectator in copsPeds)
+                {
+                    if (spectator != null && spectator.Exists())
+                    {
+                        spectator.Task.PerformSequence(policeSurrounding);
+                    }
+                }
+
+                foreach (Ped spectator in spectatorsPeds2)
+                {
+                    TaskSequence angrySpectator = new TaskSequence();
+                    angrySpectator.AddTask.ClearAllImmediately();
+                    angrySpectator.AddTask.TurnTo(player, 1000);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_what_hard", 8f, -1, false, -1f);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_yes_soft", 0.01f, musicPlaylist.length("musique2") - 6000, true, -1f);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_you_soft", 8f, -1, false, -1f);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_no_hard", 8f, -1, true, -1f);
+
+                    spectator.Task.PerformSequence(angrySpectator);
+                }
+
+                Vector3 firstCameraPosition = secondSongPosition;
+                firstCameraPosition.X += 4;
+                firstCameraPosition.Z += 2;
+                Vector3 secondCameraPosition = firstCameraPosition;
+                secondCameraPosition.X -= 4;
+                secondCameraPosition.Y += 4;
+                Vector3 thirdCameraPosition = secondCameraPosition;
+                thirdCameraPosition.X -= 4;
+                thirdCameraPosition.Y -= 4;
+                Vector3 fourthCameraPosition = thirdCameraPosition;
+                fourthCameraPosition.X += 4;
+                fourthCameraPosition.Y += 4;
+
+                List<CameraShot> cameraShots = new List<CameraShot>();
+
+                CameraShot cameraShot = new CameraShot(musicPlaylist.length("musique2") / 3, firstCameraPosition, secondCameraPosition);
+                cameraShot.lookAt(Game.Player.Character);
+                cameraShots.Add(cameraShot);
+
+                cameraShot = new CameraShot(musicPlaylist.length("musique2") / 3, secondCameraPosition, thirdCameraPosition);
+                cameraShot.lookAt(Game.Player.Character);
+                cameraShots.Add(cameraShot);
+
+                cameraShot = new CameraShot(musicPlaylist.length("musique2") / 3, thirdCameraPosition, fourthCameraPosition);
+                cameraShot.lookAt(Game.Player.Character);
+                cameraShots.Add(cameraShot);
+
+                CameraShotsList.Instance.initialize(cameraShots, musicPlaylist.length("musique2"));
+
+            };
+
+            GoToPositionInVehicle goToTheaterWithBikeObjective = new GoToPositionInVehicle(thirdSongBikePosition);
+            goToTheaterWithBikeObjective.OnStarted += (sender) =>
+            {
+                createBike(roadFaceToPoliceStationPosition);
+                goToTheaterWithBikeObjective.setVehicle(Joe.bike);
+
+                Function.Call(Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1);
+
+                Ped player = Game.Player.Character;
+                if (player.Position.DistanceTo(secondSongPosition) > 50)
+                    Tools.TeleportPlayer(secondSongPosition, false);
+
+                currentPlay = "";
+
+                foreach (Ped ped in copsPeds)
+                {
+                    if (ped != null && ped.Exists())
+                    {
+                        ped.Weapons.Give(WeaponHash.Pistol, 1, true, true);
+                        Function.Call(Hash.SET_PED_AS_COP, ped, true);
+                        ped.MarkAsNoLongerNeeded();
+                    }
+                }
+
+                foreach (Ped spectator in spectatorsPeds2)
+                {
+                    if (spectator != null && spectator.Exists())
+                    {
+                        spectator.Task.ClearAllImmediately();
+                        if (random.Next(0, 1) == 0)
+                        {
+                            spectator.Task.FleeFrom(Game.Player.Character);
+                        }
+                        else
+                        {
+                            spectator.Task.UseMobilePhone();
+                        }
+                    }
+                }
+
+                List<PedHash> spectatorsHashesThirdSong = new List<PedHash>();
+                spectatorsHashesThirdSong.Add(PedHash.Beach01AFM);
+                spectatorsHashesThirdSong.Add(PedHash.MovAlien01);
+                spectatorsHashesThirdSong.Add(PedHash.Jesus01);
+                spectatorsHashesThirdSong.Add(PedHash.Zombie01);
+
+                for (int num = 0; num < 120; num++)
+                {
+                    Ped ped = World.CreatePed(spectatorsHashesThirdSong.ElementAt<PedHash>(random.Next(spectatorsHashesThirdSong.Count)), thirdSongPublicPosition1 + (float)random.NextDouble() * thirdSongPublicPosition2 + (float)random.NextDouble() * thirdSongPublicPosition3);
+
+                    if (ped != null && ped.Exists())
+                    {
+                        if (ped.Model == PedHash.MovAlien01)
+                        {
+                            Function.Call(Hash.SET_PED_COMPONENT_VARIATION, ped.Handle, 0, 0, 0, 2);
+                            Function.Call(Hash.SET_PED_COMPONENT_VARIATION, ped.Handle, 3, 0, 0, 2);
+                            Function.Call(Hash.SET_PED_COMPONENT_VARIATION, ped.Handle, 4, 1, 0, 2);
+                        }
+
+                        spectatorsPeds3.Add(ped);
+                    }
+                }
+
+                while (nadineMorano == null || !nadineMorano.Exists())
+                {
+                    nadineMorano = World.CreatePed(PedHash.Business02AFM, thirdSongPosition);
+                    nadineMorano.Task.TurnTo(spectatorsPeds3[0]);
+                }
+
+                Function.Call(Hash.SET_PED_COMPONENT_VARIATION, nadineMorano.Handle, 2, 1, 2, 2);
+
+                player.Health = 300;
+                player.Armor = 100;
+
+                World.Weather = Weather.Clouds;
+                Tools.setClockTime(18, 40000);
+                etapeMission = 2;
+
+                Script.Wait(2000);
+                Game.Player.WantedLevel = 1;
+            };
+            goToTheaterWithBikeObjective.OnFirstTimeOnVehicle += (sender, vehicle) => {
+                Ped player = Game.Player.Character;
+                player.Health = 300;
+                player.Armor = 100;
+                Game.Player.WantedLevel = 3;
+            };
+
+            GoToPosition goToThirdSongPosition = new GoToPosition(thirdSongPosition);
+
+            Timer chansonHoo2;
+            AbstractObjective thirdSongObjectives = new PlayInstrument(InstrumentHash.Guitar, musicPlaylist.length("musique3"), "musique3", musicPlaylist);
+            thirdSongObjectives.OnStarted += (sender) =>
+            {
+                Ped player = Game.Player.Character;
+
+                if (currentPlay != "")
+                    musicPlaylist.pauseMusic(currentPlay);
+
+                nadineMorano.Task.FleeFrom(player);
+                musicPlaylist.playMusic("nadine");
+                musicPlaylist.playMusic("amphiHoo1");
+
+                currentPlay = "musique3";
+                chansonHoo2 = new Timer(musicPlaylist.length("musique3") - 19000);
+                chansonHoo2.OnTimerStop += (timerSender) =>
+                {
+                    musicPlaylist.playMusic("amphiHoo2");
+                };
+
+                foreach (Ped spectator in spectatorsPeds2)
+                {
+                    if (spectator != null && spectator.Exists())
+                    {
+                        spectator.Delete();
+                    }
+                }
+
+                foreach (Ped ped in copsPeds)
+                {
+                    if (ped != null && ped.Exists())
+                    {
+                        ped.Delete();
+                    }
+                }
+
+                player.Heading = 180;
+                Game.Player.WantedLevel = 0;
+
+                Function.Call(Hash.TASK_TURN_PED_TO_FACE_COORD, player.Handle, 640f, 448f, 100f, -1);
+                Tools.setClockTime(20, musicPlaylist.length("musique3"));
+
+                foreach (Ped spectator in spectatorsPeds3)
+                {
+                    TaskSequence angrySpectator = new TaskSequence();
+                    angrySpectator.AddTask.ClearAllImmediately();
+                    angrySpectator.AddTask.TurnTo(player, 1000);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_what_hard", 8f, -1, false, -1f);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_yes_soft", 0.01f, musicPlaylist.length("musique3") - 6000, true, -1f);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_you_soft", 8f, -1, false, -1f);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_no_hard", 8f, -1, true, -1f);
+
+                    spectator.Task.PerformSequence(angrySpectator);
+                }
+
+                Vector3 firstCameraPosition = secondSongPosition;
+                firstCameraPosition.X += 8;
+                firstCameraPosition.Z += 2;
+                Vector3 secondCameraPosition = firstCameraPosition;
+                secondCameraPosition.X -= 8;
+                secondCameraPosition.Y += 8;
+                Vector3 thirdCameraPosition = secondCameraPosition;
+                thirdCameraPosition.X -= 8;
+                thirdCameraPosition.Y -= 8;
+                Vector3 fourthCameraPosition = thirdCameraPosition;
+                fourthCameraPosition.X += 8;
+                fourthCameraPosition.Y += 8;
+
+                List<CameraShot> cameraShots = new List<CameraShot>();
+
+                CameraShot cameraShot = new CameraShot(musicPlaylist.length("musique3") / 3, firstCameraPosition, secondCameraPosition);
+                cameraShot.lookAt(Game.Player.Character);
+                cameraShots.Add(cameraShot);
+
+                cameraShot = new CameraShot(musicPlaylist.length("musique3") / 3, secondCameraPosition, thirdCameraPosition);
+                cameraShot.lookAt(Game.Player.Character);
+                cameraShots.Add(cameraShot);
+
+                cameraShot = new CameraShot(musicPlaylist.length("musique3") / 3, thirdCameraPosition, fourthCameraPosition);
+                cameraShot.lookAt(Game.Player.Character);
+                cameraShots.Add(cameraShot);
+
+                CameraShotsList.Instance.initialize(cameraShots, musicPlaylist.length("musique2"));
+
+                World.Weather = Weather.Clouds;
+            };
+
+            GoToPositionInVehicle goToHome = new GoToPositionInVehicle(joeHomePosition);
+            goToHome.OnStarted += (sender) =>
+            {
+                createBike(thirdSongBikePosition);
+                goToHome.setVehicle(Joe.bike);
+
+                Ped player = Game.Player.Character;
+                if (player.Position.DistanceTo(thirdSongPosition) > 50)
+                    Tools.TeleportPlayer(thirdSongPosition, false);
+
+                currentPlay = "";
+
+                chansonHoo2 = null;
+                Function.Call(Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1);
+
+                player.Health = 300;
+                player.Armor = 100;
+                bikeRegen = true;
+                Game.Player.WantedLevel = 4;
+                Tools.setClockTime(21, 10000);
+                World.Weather = Weather.ThunderStorm;
+
+                int number = 0;
+
+                foreach (Ped ped in spectatorsPeds3)
+                {
+                    if (ped != null && ped.Exists() && ped != player)
+                    {
+                        ped.Task.ClearAllImmediately();
+                        if (number < 10)
+                        {
+                            ped.Task.FightAgainst(Game.Player.Character);
+                        }
+                        else
+                        {
+                            if (number < 55)
+                            {
+                                ped.Task.ReactAndFlee(Game.Player.Character);
+                            }
+                            else
+                            {
+                                ped.Task.FleeFrom(Game.Player.Character);
+                            }
+                        }
+
+                        number++;
+                    }
+
+                }
+
+                GTA.UI.ShowSubtitle("Spectateurs : C'est nul ! Casse toi ! On a encore appelé les flics ! Tu vas avoir des problèmes !", 3000);
+                etapeMission = 3;
+            };
+            goToHome.OnFirstTimeOnVehicle += (sender, vehicle) => {
+                goToHome.AdviceText = "Evite les routes pour éviter les voitures de police";
+                Tools.setClockTime(22, 10000);
+            };
+            goToHome.OnAccomplished += (sender, elapsedTime) => {
+                musicPlay("dialogue10");
+            };
+
+            addObjective(goToFirstSongObjective);
+            addObjective(firstSongObjectives);
+            addObjective(goToPoliceWithBikeObjective);
+            addObjective(goToSecondSongObjective);
+            addObjective(secondSongObjectives);
+            addObjective(goToTheaterWithBikeObjective);
+            addObjective(goToThirdSongPosition);
+            addObjective(thirdSongObjectives);
+            addObjective(goToHome);
+
+            #endregion
+
+        }
+
+        public override void removeDestructibleElements(bool removePhysicalElements = false)
+        {
+            base.removeDestructibleElements(removePhysicalElements);
+
+            if (introPed != null && introPed.Exists())
+                introPed.Delete();
+
+            if (nadineMorano != null && nadineMorano.Exists())
+            {
+                if (removePhysicalElements)
+                    nadineMorano.Delete();
+
+                nadineMorano.MarkAsNoLongerNeeded();
+            }
+
+            if (musicPlaylist != null)
+            {
+                musicPlaylist.pauseMusic(currentPlay);
+                musicPlaylist.dispose();
+            }
+
+            if (bike != null && Joe.bike.Exists())
+            {
+                if (removePhysicalElements)
+                    Joe.bike.Delete();
+
+                Joe.bike.MarkAsNoLongerNeeded();
+            }
+
+            foreach (Ped spectator in spectatorsPeds)
+                if (spectator != null && spectator.Exists())
+                {
+                    spectator.MarkAsNoLongerNeeded();
+                    if (removePhysicalElements)
+                        spectator.Delete();
+                }
+
+            spectatorsPeds.Clear();
+
+            foreach (Ped spectator in copsPeds)
+                if (spectator != null && spectator.Exists())
+                {
+                    spectator.MarkAsNoLongerNeeded();
+                    if (removePhysicalElements)
+                        spectator.Delete();
+                }
+
+            copsPeds.Clear();
+
+            foreach (Ped spectator in spectatorsPeds2)
+                if (spectator != null && spectator.Exists())
+                {
+                    spectator.MarkAsNoLongerNeeded();
+                    if (removePhysicalElements)
+                        spectator.Delete();
+                }
+
+            spectatorsPeds2.Clear();
+
+            foreach (Ped spectator in spectatorsPeds3)
+                if (spectator != null && spectator.Exists())
+                {
+                    spectator.MarkAsNoLongerNeeded();
+                    if (removePhysicalElements)
+                        spectator.Delete();
+                }
+
+            spectatorsPeds2.Clear();
         }
 
         private void loadMusic()
@@ -116,630 +795,7 @@ namespace DemagoScript
                 Joe.bike.Position = position;
             }
         }
-
-        protected override void doInitialization()
-        {
-            base.doInitialization();
-
-            loadMusic();
-
-            musicPlaylist = new Music(musiques);
-            musicPlaylist.setVolume(0.9f);
-
-            #region Goals 
-            
-            GoToPosition goToFirstSongGoal = new GoToPosition(firstSongPosition);
-            goToFirstSongGoal.OnGoalStart += (sender) =>
-            {
-                createBike(bikePositionAtHome);
-
-                bikeRegen = false;
-                playerDown = true;
-                playerWalked = false;
-                playerMoved = false;
-                introEnded = false;
-                cameraChangeTimer = 0;
-                etapeMission = 0;
-                nbMusiqueEtape = -1;
-                
-                World.Weather = Weather.ExtraSunny;
-                Tools.setClockTime(10);
-                Tools.setDemagoModel(DemagoModel.Joe);
-
-                Ped player = Game.Player.Character;
-                player.MaxHealth = 300;
-                player.Armor = 100;
-                player.Health = player.MaxHealth;
-                Function.Call(Hash.SET_PED_MAX_HEALTH, player, player.MaxHealth);
-
-                Tools.TeleportPlayer(joeStart, false);
-                introPed = Function.Call<Ped>(Hash.CLONE_PED, Game.Player.Character, Function.Call<int>(Hash.GET_ENTITY_HEADING, Function.Call<int>(Hash.PLAYER_PED_ID)), false, true);
-                Tools.TeleportPlayer(joeHomePosition);
-
-                player.IsVisible = false;
-                player.Heading += 35;
-                player.Task.StandStill(-1);
-
-                introPed.Task.PlayAnimation("amb@world_human_picnic@male@base", "base", 8f, -1, true, -1f);
-
-                //Camera gestion
-                Function.Call(Hash.DISPLAY_HUD, false);
-                Function.Call(Hash.DISPLAY_RADAR, false);
-
-                Vector3 largeShotPosition = new Vector3(2213.186f, 2510.148f, 82.73711f);
-                Vector3 firstShotPosition = new Vector3(2361.558f, 2527.512f, 46.66772f);
-                Vector3 secondShotPosition = new Vector3(2351.906f, 2530.494f, 48f);
-
-                List<CameraShot> cameraShots = new List<CameraShot>();
-                float time_split = musicPlaylist.length( "dialogue0" ) / 3;
-
-                CameraShot cameraShot = new CameraShot( time_split, largeShotPosition );
-                cameraShot.lookAt( introPed );
-                cameraShots.Add(cameraShot);
-
-                cameraShot = new CameraShot( time_split, firstShotPosition, secondShotPosition );
-                cameraShot.lookAt( introPed );
-                cameraShots.Add(cameraShot);
-
-                cameraShot = new CameraShot( time_split, secondShotPosition, bikePositionAtHome );
-                cameraShot.lookAt( introPed );
-                cameraShots.Add(cameraShot);
-                
-                CameraShotsList.Instance.initialize( cameraShots, musicPlaylist.length( "dialogue0" ) );
-                
-                Joe.bike.EnginePowerMultiplier = 100;
-                Joe.bike.IsInvincible = true;
-                Joe.bike.CanTiresBurst = false;
-
-                List<PedHash> spectatorsHashesFirstSong = new List<PedHash>();
-                spectatorsHashesFirstSong.Add(PedHash.Ashley);
-                spectatorsHashesFirstSong.Add(PedHash.Car3Guy2);
-                spectatorsHashesFirstSong.Add(PedHash.Car3Guy1);
-                spectatorsHashesFirstSong.Add(PedHash.Bankman);
-                spectatorsHashesFirstSong.Add(PedHash.Barry);
-                spectatorsHashesFirstSong.Add(PedHash.Beach01AFM);
-                spectatorsHashesFirstSong.Add(PedHash.Beach01AFY);
-                spectatorsHashesFirstSong.Add(PedHash.Beach01AMM);
-                spectatorsHashesFirstSong.Add(PedHash.Beach02AMM);
-
-                foreach (PedHash hash in spectatorsHashesFirstSong)
-                {
-                    Ped ped = World.CreatePed(hash, firstSongPosition.Around(50), 0);
-                    if (ped != null && ped.Exists())
-                    {
-                        TaskSequence incomingSpectator = new TaskSequence();
-                        incomingSpectator.AddTask.GoTo(firstSongPosition.Around(7).Around(2));
-                        incomingSpectator.AddTask.TurnTo(player);
-                        incomingSpectator.AddTask.LookAt(player);
-                        incomingSpectator.AddTask.PlayAnimation("facials@gen_male@variations@angry", "mood_angry_1", 8f, -1, true, -1f);
-
-                        ped.Task.PerformSequence(incomingSpectator);
-                        spectatorsPeds.Add(ped);
-                        Tools.log("GoTO sequence on spectator ped ");
-                    }
-                }
-
-                musicPlay("dialogue0");
-            };
-
-            Goal firstSongGoals = new PlayInstrument(InstrumentHash.Guitar, musicPlaylist.length("musique1"), "musique1", musicPlaylist);
-            firstSongGoals.OnGoalStart += (sender) =>
-            {
-                currentPlay = "musique1";
-                Tools.setClockTime(11, musicPlaylist.length("musique1"));
-
-                if (currentPlay != "")
-                    musicPlaylist.pauseMusic(currentPlay);
-
-                currentPlay = "musique1";
-
-                Vector3 firstCameraPosition = firstSongPosition;
-                firstCameraPosition.Z += 2;
-                firstCameraPosition.X += 4;
-                firstCameraPosition.Y += 4;
-                Vector3 secondCameraPosition = firstCameraPosition;
-                secondCameraPosition.X -= 8;
-
-                Vector3 thirdCameraPosition = Vector3.Zero;
-                thirdCameraPosition.X = 2321;
-                thirdCameraPosition.Y = 2555.7f;
-                thirdCameraPosition.Z = firstSongPosition.Z;
-
-                Vector3 fourthCameraPosition = Vector3.Zero;
-                fourthCameraPosition.X = 2338;
-                fourthCameraPosition.Y = 2548.5f;
-                fourthCameraPosition.Z = firstSongPosition.Z;
-
-                Vector3 fifthCameraPosition = firstSongPosition;
-                fifthCameraPosition.X += 1;
-                fifthCameraPosition.Z -= 1;
-                Vector3 sixthCameraPosition = fifthCameraPosition;
-                sixthCameraPosition.Z += 2;
-
-                List<CameraShot> cameraShots = new List<CameraShot>();
-
-                CameraShot cameraShot = new CameraShot(musicPlaylist.length("musique1") / 4, firstCameraPosition, secondCameraPosition);
-                cameraShot.lookAt( Game.Player.Character );
-                cameraShots.Add(cameraShot);
-
-                cameraShot = new CameraShot(musicPlaylist.length("musique1") / 4, thirdCameraPosition);
-                cameraShot.lookAt( Game.Player.Character );
-                cameraShots.Add(cameraShot);
-
-                cameraShot = new CameraShot(musicPlaylist.length("musique1") / 4, fourthCameraPosition);
-                cameraShot.lookAt(Game.Player.Character);
-                cameraShots.Add(cameraShot);
-
-                cameraShot = new CameraShot(musicPlaylist.length("musique1") / 4, fifthCameraPosition, sixthCameraPosition);
-                cameraShot.lookAt(Game.Player.Character);
-                cameraShots.Add(cameraShot);
-
-                CameraShotsList.Instance.initialize( cameraShots );
-
-                Ped player = Game.Player.Character;
-
-                foreach (Ped spectator in spectatorsPeds)
-                {
-                    TaskSequence angrySpectator = new TaskSequence();
-                    angrySpectator.AddTask.ClearAllImmediately();
-                    angrySpectator.AddTask.TurnTo(player, 1000);
-                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_what_hard", 8f, -1, false, -1f);
-                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_yes_soft", 0.01f, musicPlaylist.length("musique1") - 6000, true, -1f);
-                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_you_soft", 8f, -1, false, -1f);
-                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_no_hard", 8f, -1, true, -1f);
-
-                    spectator.Task.PerformSequence(angrySpectator);
-                }
-            };
-            
-            GoToPositionInVehicle goToPoliceWithBikeGoal = new GoToPositionInVehicle(roadFaceToPoliceStationPosition);
-            goToPoliceWithBikeGoal.OnGoalStart += (sender) =>
-            {
-                createBike(bikePositionAtHome);
-                goToPoliceWithBikeGoal.setVehicle(Joe.bike);
-
-                currentPlay = "";
-                Function.Call(Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1);
-
-                foreach (Ped spectator in spectatorsPeds)
-                {
-                    if (spectator != null && spectator.Exists())
-                    {
-                        spectator.Task.ClearAllImmediately();
-                        if (random.Next(0, 1) == 0)
-                        {
-                            spectator.Task.FightAgainst(Game.Player.Character);
-                        }
-                        else
-                        {
-                            spectator.Task.UseMobilePhone();
-                        }
-
-                    }
-                }
-
-                Ped player = Game.Player.Character;
-                player.Health = 300;
-                player.Armor = 100;
-                GTA.UI.ShowSubtitle("Spectateurs : C'est nul ! Casse toi ! On a appelé les flics !", 3000);
-
-                Tools.setClockTime(14, 50000);
-                Game.Player.WantedLevel = 2;
-                World.Weather = Weather.Clouds;
-
-                etapeMission = 1;
-            };
-
-            GoToPosition goToSecondSongGoal = new GoToPosition(secondSongPosition);
-            goToSecondSongGoal.OnGoalStart += (sender) =>
-            {
-                List<PedHash> spectatorsHashesSecondSong = new List<PedHash>();
-                spectatorsHashesSecondSong.Add(PedHash.Cop01SFY);
-                spectatorsHashesSecondSong.Add(PedHash.Cop01SMY);
-                spectatorsHashesSecondSong.Add(PedHash.Cop01SFY);
-                spectatorsHashesSecondSong.Add(PedHash.Cop01SMY);
-
-                foreach (PedHash hash in spectatorsHashesSecondSong)
-                {
-                    Ped ped = World.CreatePed(hash, new Vector3(451.7534f, -978.9359f, 30.68965f));
-                    if (ped != null && ped.Exists())
-                        copsPeds.Add(ped);
-
-                    ped = World.CreatePed(hash, secondSongPosition.Around(2));
-                    if (ped != null && ped.Exists())
-                    {
-                        ped.Task.WanderAround(secondSongPosition, 5);
-                        copsPeds.Add(ped);
-                    }
-                }
-
-                Ped pedWaiting = World.CreatePed(PedHash.Hooker01SFY, new Vector3(441.7531f, -987.5613f, 30.68965f));
-                if (pedWaiting != null && pedWaiting.Exists())
-                {
-                    pedWaiting.Task.UseMobilePhone();
-                    spectatorsPeds2.Add(pedWaiting);
-                }
-                pedWaiting = World.CreatePed(PedHash.Hooker02SFY, new Vector3(441.7531f, -985.9871f, 30.68965f));
-                if (pedWaiting != null && pedWaiting.Exists())
-                {
-                    pedWaiting.Task.UseMobilePhone();
-                    spectatorsPeds2.Add(pedWaiting);
-                }
-                pedWaiting = World.CreatePed(PedHash.Hooker03SFY, new Vector3(440.7078f, -987.5613f, 30.68965f));
-                if (pedWaiting != null && pedWaiting.Exists())
-                {
-                    pedWaiting.Task.UseMobilePhone();
-                    spectatorsPeds2.Add(pedWaiting);
-                }
-                pedWaiting = World.CreatePed(PedHash.Lost01GMY, new Vector3(440.7078f, -985.9871f, 30.68965f));
-                if (pedWaiting != null && pedWaiting.Exists())
-                {
-                    pedWaiting.Task.UseMobilePhone();
-                    spectatorsPeds2.Add(pedWaiting);
-                }
-            };
-
-            Goal secondSongGoals = new PlayInstrument(InstrumentHash.Guitar, musicPlaylist.length("musique2"), "musique2", musicPlaylist);
-            secondSongGoals.OnGoalStart += (sender) =>
-            {
-                if (currentPlay != "")
-                { 
-                    musicPlaylist.pauseMusic(currentPlay);
-                }
-
-                Game.Player.WantedLevel = 0;
-
-                Tools.setClockTime(16, musicPlaylist.length("musique2"));
-                currentPlay = "musique2";
-
-                World.Weather = Weather.Clouds;
-
-                foreach (Ped spectator in spectatorsPeds)
-                {
-                    if (spectator != null && spectator.Exists())
-                    {
-                        spectator.Delete();
-                    }
-                }
-                
-                Ped player = Game.Player.Character;
-
-                foreach (Ped spectator in World.GetNearbyPeds(player, 15))
-                {
-                    if (spectator != null && spectator.Exists())
-                    {
-                        spectator.Task.ClearAllImmediately();
-                        Function.Call(Hash.TASK_TURN_PED_TO_FACE_ENTITY, spectator.Handle, player.Handle);
-                        spectator.Task.LookAt(Game.Player.Character);
-                    }
-                }
-
-                TaskSequence policeSurrounding = new TaskSequence();
-                policeSurrounding.AddTask.TurnTo(player);
-                policeSurrounding.AddTask.StandStill(10000);
-                policeSurrounding.AddTask.GoTo(player.Position.Around(2).Around(1));
-                policeSurrounding.AddTask.TurnTo(player);
-                policeSurrounding.AddTask.LookAt(player);
-
-                player.Heading = 90;
-
-                foreach (Ped spectator in copsPeds)
-                {
-                    if (spectator != null && spectator.Exists())
-                    {
-                        spectator.Task.PerformSequence(policeSurrounding);
-                    }
-                }
-
-                foreach (Ped spectator in spectatorsPeds2)
-                {
-                    TaskSequence angrySpectator = new TaskSequence();
-                    angrySpectator.AddTask.ClearAllImmediately();
-                    angrySpectator.AddTask.TurnTo(player, 1000);
-                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_what_hard", 8f, -1, false, -1f);
-                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_yes_soft", 0.01f, musicPlaylist.length("musique2") - 6000, true, -1f);
-                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_you_soft", 8f, -1, false, -1f);
-                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_no_hard", 8f, -1, true, -1f);
-
-                    spectator.Task.PerformSequence(angrySpectator);
-                }
-                
-                Vector3 firstCameraPosition = secondSongPosition;
-                firstCameraPosition.X += 4;
-                firstCameraPosition.Z += 2;
-                Vector3 secondCameraPosition = firstCameraPosition;
-                secondCameraPosition.X -= 4;
-                secondCameraPosition.Y += 4;
-                Vector3 thirdCameraPosition = secondCameraPosition;
-                thirdCameraPosition.X -= 4;
-                thirdCameraPosition.Y -= 4;
-                Vector3 fourthCameraPosition = thirdCameraPosition;
-                fourthCameraPosition.X += 4;
-                fourthCameraPosition.Y += 4;
-
-                List<CameraShot> cameraShots = new List<CameraShot>();
-
-                CameraShot cameraShot = new CameraShot(musicPlaylist.length("musique2") / 3, firstCameraPosition, secondCameraPosition);
-                cameraShot.lookAt( Game.Player.Character );
-                cameraShots.Add(cameraShot);
-
-                cameraShot = new CameraShot(musicPlaylist.length("musique2") / 3, secondCameraPosition, thirdCameraPosition);
-                cameraShot.lookAt( Game.Player.Character );
-                cameraShots.Add(cameraShot);
-
-                cameraShot = new CameraShot(musicPlaylist.length("musique2") / 3, thirdCameraPosition, fourthCameraPosition);
-                cameraShot.lookAt( Game.Player.Character );
-                cameraShots.Add(cameraShot);
-                
-                CameraShotsList.Instance.initialize( cameraShots, musicPlaylist.length( "musique2" ) );
-
-            };
-            
-            GoToPositionInVehicle goToTheaterWithBikeGoal = new GoToPositionInVehicle(thirdSongBikePosition);
-            goToTheaterWithBikeGoal.OnGoalStart += (sender) =>
-            {
-                createBike(roadFaceToPoliceStationPosition);
-                goToTheaterWithBikeGoal.setVehicle(Joe.bike);
-
-                Function.Call(Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1);
-
-                Ped player = Game.Player.Character;
-                if (player.Position.DistanceTo(secondSongPosition) > 50)
-                    Tools.TeleportPlayer(secondSongPosition, false);
-                
-                currentPlay = "";
-
-                foreach (Ped ped in copsPeds)
-                {
-                    if (ped != null && ped.Exists())
-                    {
-                        ped.Weapons.Give(WeaponHash.Pistol, 1, true, true);
-                        Function.Call(Hash.SET_PED_AS_COP, ped, true);
-                        ped.MarkAsNoLongerNeeded();
-                    }
-                }
-
-                foreach (Ped spectator in spectatorsPeds2)
-                {
-                    if (spectator != null && spectator.Exists())
-                    {
-                        spectator.Task.ClearAllImmediately();
-                        if (random.Next(0, 1) == 0)
-                        {
-                            spectator.Task.FleeFrom(Game.Player.Character);
-                        }
-                        else
-                        {
-                            spectator.Task.UseMobilePhone();
-                        }
-                    }
-                }
-
-                List<PedHash> spectatorsHashesThirdSong = new List<PedHash>();
-                spectatorsHashesThirdSong.Add(PedHash.Beach01AFM);
-                spectatorsHashesThirdSong.Add(PedHash.MovAlien01);
-                spectatorsHashesThirdSong.Add(PedHash.Jesus01);
-                spectatorsHashesThirdSong.Add(PedHash.Zombie01);
-
-                for (int num = 0; num < 120; num++)
-                {
-                    Ped ped = World.CreatePed(spectatorsHashesThirdSong.ElementAt<PedHash>(random.Next(spectatorsHashesThirdSong.Count)), thirdSongPublicPosition1 + (float)random.NextDouble() * thirdSongPublicPosition2 + (float)random.NextDouble() * thirdSongPublicPosition3);
-
-                    if (ped != null && ped.Exists())
-                    {
-                        if (ped.Model == PedHash.MovAlien01)
-                        {
-                            Function.Call(Hash.SET_PED_COMPONENT_VARIATION, ped.Handle, 0, 0, 0, 2);
-                            Function.Call(Hash.SET_PED_COMPONENT_VARIATION, ped.Handle, 3, 0, 0, 2);
-                            Function.Call(Hash.SET_PED_COMPONENT_VARIATION, ped.Handle, 4, 1, 0, 2);
-                        }
-
-                        spectatorsPeds3.Add(ped);
-                    }
-                }
-
-                while (nadineMorano == null || !nadineMorano.Exists())
-                {
-                    nadineMorano = World.CreatePed(PedHash.Business02AFM, thirdSongPosition);
-                    nadineMorano.Task.TurnTo(spectatorsPeds3[0]);
-                }
-
-                Function.Call(Hash.SET_PED_COMPONENT_VARIATION, nadineMorano.Handle, 2, 1, 2, 2);
-
-                player.Health = 300;
-                player.Armor = 100;
-                
-                World.Weather = Weather.Clouds;
-                Tools.setClockTime(18, 40000);
-                etapeMission = 2;
-
-                Script.Wait(2000);
-                Game.Player.WantedLevel = 1;
-            };
-            goToTheaterWithBikeGoal.OnFirstTimeOnVehicle += (sender, vehicle) => {
-                Ped player = Game.Player.Character;
-                player.Health = 300;
-                player.Armor = 100;
-                Game.Player.WantedLevel = 3;
-            };
-
-            GoToPosition goToThirdSongPosition = new GoToPosition(thirdSongPosition);
-
-            Timer chansonHoo2;
-            Goal thirdSongGoals = new PlayInstrument(InstrumentHash.Guitar, musicPlaylist.length("musique3"), "musique3", musicPlaylist);
-            thirdSongGoals.OnGoalStart += (sender) =>
-            {
-                Ped player = Game.Player.Character;
-
-                if (currentPlay != "")
-                    musicPlaylist.pauseMusic(currentPlay);
-
-                nadineMorano.Task.FleeFrom(player);
-                musicPlaylist.playMusic("nadine");
-                musicPlaylist.playMusic("amphiHoo1");
-                
-                currentPlay = "musique3";
-                chansonHoo2 = new Timer(musicPlaylist.length("musique3") - 19000);
-                chansonHoo2.OnTimerStop += (timerSender) =>
-                {
-                    musicPlaylist.playMusic("amphiHoo2");
-                };
-
-                foreach (Ped spectator in spectatorsPeds2)
-                {
-                    if (spectator != null && spectator.Exists())
-                    {
-                        spectator.Delete();
-                    }
-                }
-
-                foreach (Ped ped in copsPeds)
-                {
-                    if (ped != null && ped.Exists())
-                    {
-                        ped.Delete();
-                    }
-                }
-
-                player.Heading = 180;
-                Game.Player.WantedLevel = 0;
-
-                Function.Call(Hash.TASK_TURN_PED_TO_FACE_COORD, player.Handle, 640f, 448f, 100f, -1);
-                Tools.setClockTime(20, musicPlaylist.length("musique3"));
-
-                foreach (Ped spectator in spectatorsPeds3)
-                {
-                    TaskSequence angrySpectator = new TaskSequence();
-                    angrySpectator.AddTask.ClearAllImmediately();
-                    angrySpectator.AddTask.TurnTo(player, 1000);
-                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_what_hard", 8f, -1, false, -1f);
-                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_yes_soft", 0.01f, musicPlaylist.length("musique3") - 6000, true, -1f);
-                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_you_soft", 8f, -1, false, -1f);
-                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_no_hard", 8f, -1, true, -1f);
-
-                    spectator.Task.PerformSequence(angrySpectator);
-                }
-                
-                Vector3 firstCameraPosition = secondSongPosition;
-                firstCameraPosition.X += 8;
-                firstCameraPosition.Z += 2;
-                Vector3 secondCameraPosition = firstCameraPosition;
-                secondCameraPosition.X -= 8;
-                secondCameraPosition.Y += 8;
-                Vector3 thirdCameraPosition = secondCameraPosition;
-                thirdCameraPosition.X -= 8;
-                thirdCameraPosition.Y -= 8;
-                Vector3 fourthCameraPosition = thirdCameraPosition;
-                fourthCameraPosition.X += 8;
-                fourthCameraPosition.Y += 8;
-
-                List<CameraShot> cameraShots = new List<CameraShot>();
-
-                CameraShot cameraShot = new CameraShot(musicPlaylist.length("musique3") / 3, firstCameraPosition, secondCameraPosition);
-                cameraShot.lookAt( Game.Player.Character );
-                cameraShots.Add(cameraShot);
-
-                cameraShot = new CameraShot(musicPlaylist.length("musique3") / 3, secondCameraPosition, thirdCameraPosition);
-                cameraShot.lookAt( Game.Player.Character );
-                cameraShots.Add(cameraShot);
-
-                cameraShot = new CameraShot(musicPlaylist.length("musique3") / 3, thirdCameraPosition, fourthCameraPosition);
-                cameraShot.lookAt( Game.Player.Character );
-                cameraShots.Add(cameraShot);
-                
-                CameraShotsList.Instance.initialize( cameraShots, musicPlaylist.length( "musique2" ) );
-
-                World.Weather = Weather.Clouds;
-            };
-
-            GoToPositionInVehicle goToHome = new GoToPositionInVehicle(joeHomePosition);
-            goToHome.OnGoalStart += (sender) =>
-            {
-                createBike(thirdSongBikePosition);
-                goToHome.setVehicle(Joe.bike);
-
-                Ped player = Game.Player.Character;
-                if (player.Position.DistanceTo(thirdSongPosition) > 50)
-                    Tools.TeleportPlayer(thirdSongPosition, false);
-                
-                currentPlay = "";
-
-                chansonHoo2 = null;
-                Function.Call(Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1);
-
-                player.Health = 300;
-                player.Armor = 100;
-                bikeRegen = true;
-                Game.Player.WantedLevel = 4;
-                Tools.setClockTime(21, 10000);
-                World.Weather = Weather.ThunderStorm;
-
-                int number = 0;
-
-                foreach (Ped ped in spectatorsPeds3)
-                {
-                    if (ped != null && ped.Exists() && ped != player)
-                    {
-                        ped.Task.ClearAllImmediately();
-                        if (number < 10)
-                        {
-                            ped.Task.FightAgainst(Game.Player.Character);
-                        }
-                        else
-                        {
-                            if (number < 55)
-                            {
-                                ped.Task.ReactAndFlee(Game.Player.Character);
-                            }
-                            else
-                            {
-                                ped.Task.FleeFrom(Game.Player.Character);
-                            }
-                        }
-
-                        number++;
-                    }
-
-                }
-
-                GTA.UI.ShowSubtitle("Spectateurs : C'est nul ! Casse toi ! On a encore appelé les flics ! Tu vas avoir des problèmes !", 3000);
-                etapeMission = 3;
-            };
-            goToHome.OnFirstTimeOnVehicle += (sender, vehicle) => {
-                goToHome.setAdviceText("Evite les routes pour éviter les voitures de police");
-                Tools.setClockTime(22, 10000);
-            };
-            goToHome.OnGoalAccomplished += (sender, elapsedTime) => {
-                musicPlay("dialogue10");
-            };
-
-            addGoal(goToFirstSongGoal);
-            addGoal(firstSongGoals);
-            addGoal(goToPoliceWithBikeGoal);
-            addGoal(goToSecondSongGoal);
-            addGoal(secondSongGoals);
-            addGoal(goToTheaterWithBikeGoal);
-            addGoal(goToThirdSongPosition);
-            addGoal(thirdSongGoals);
-            addGoal(goToHome);
-
-            #endregion
-
-            #region Checkpoints
-            
-            Checkpoint firstCheckpoint = new Checkpoint(goToFirstSongGoal);
-            Checkpoint secondCheckpoint = new Checkpoint(goToTheaterWithBikeGoal);
-            Checkpoint thirdCheckpoint = new Checkpoint(goToHome);
-
-            addCheckpoint(firstCheckpoint);
-            addCheckpoint(secondCheckpoint);
-            addCheckpoint(thirdCheckpoint);
-
-            #endregion
-
-            startTime = DemagoScript.getScriptTime();
-        }
-
+        
         private void musicPlay(string musique)
         {
             Tools.log("Music play "+musique);
@@ -747,9 +803,8 @@ namespace DemagoScript
             musicPlaylist.playMusic(currentPlay);
         }
 
-        public override void setPause(bool isPaused)
+        public void setPause(bool isPaused)
         {
-            base.setPause(isPaused);
             if (musicPlaylist != null)
             {
                 if (isPaused)
@@ -763,85 +818,13 @@ namespace DemagoScript
                 }
             }
         }
-
-        public override void clear(bool removePhysicalElements = false, bool keepGoalsList = false)
+        
+        public override bool update()
         {
-            base.clear(removePhysicalElements, keepGoalsList);
-
-            if (introPed != null && introPed.Exists())
-                introPed.Delete();
-
-            if (nadineMorano != null && nadineMorano.Exists())
+            if (!base.update())
             {
-                if (removePhysicalElements)
-                    nadineMorano.Delete();
-
-                nadineMorano.MarkAsNoLongerNeeded();
+                return false;
             }
-            
-            if (musicPlaylist != null)
-            {
-                musicPlaylist.pauseMusic(currentPlay);
-                if (!keepGoalsList)
-                {
-                    musicPlaylist.dispose();
-                }
-            }
-
-            World.Weather = Weather.Clear;
-
-            if (bike != null && Joe.bike.Exists())
-            {
-                if (removePhysicalElements)
-                    Joe.bike.Delete();
-
-                Joe.bike.MarkAsNoLongerNeeded();
-            }
-
-            foreach (Ped spectator in spectatorsPeds)
-                if (spectator != null && spectator.Exists())
-                {
-                    spectator.MarkAsNoLongerNeeded();
-                    if (removePhysicalElements)
-                        spectator.Delete();
-                }
-
-            spectatorsPeds.Clear();
-
-            foreach (Ped spectator in copsPeds)
-                if (spectator != null && spectator.Exists())
-                {
-                    spectator.MarkAsNoLongerNeeded();
-                    if (removePhysicalElements)
-                        spectator.Delete();
-                }
-
-            copsPeds.Clear();
-
-            foreach (Ped spectator in spectatorsPeds2)
-                if (spectator != null && spectator.Exists())
-                {
-                    spectator.MarkAsNoLongerNeeded();
-                    if (removePhysicalElements)
-                        spectator.Delete();
-                }
-
-            spectatorsPeds2.Clear();
-
-            foreach (Ped spectator in spectatorsPeds3)
-                if (spectator != null && spectator.Exists())
-                {
-                    spectator.MarkAsNoLongerNeeded();
-                    if (removePhysicalElements)
-                        spectator.Delete();
-                }
-
-            spectatorsPeds2.Clear();
-        }
-
-        public override void update()
-        {
-            base.update();
 
             updateIntro();
 
@@ -866,6 +849,8 @@ namespace DemagoScript
             }
 
             Game.Player.Character.Weapons.RemoveAll();
+
+            return true;
         }
 
         private void updatePlaylist()
@@ -1008,8 +993,7 @@ namespace DemagoScript
 
         private void updateIntro()
         {
-            TimeSpan missionElapsedTime = DateTime.Now - startMissionTime;
-            if (!introEnded && startTime >= missionElapsedTime.TotalSeconds)
+            if (!introEnded)
             {
                 Ped player = Game.Player.Character;
 
@@ -1018,38 +1002,44 @@ namespace DemagoScript
                     player.IsVisible = false;
                 }
 
-                float elapsedTime = DemagoScript.getScriptTime() - startTime;
+                float elapsedMilliseconds = this.getElaspedTime();
+
                 float musicTime = musicPlaylist.length("dialogue0");
                 float musicTimeSplit = musicTime / 3;
 
                 if (Game.IsKeyPressed(System.Windows.Forms.Keys.Back))
                 {
                     CameraShotsList.Instance.reset();
-                    elapsedTime = musicTime + 1;
+                    elapsedMilliseconds = musicTime + 1;
                     playerDown = false;
                     playerMoved = true;
                     playerWalked = true;
                 }
 
-                if (elapsedTime > musicTimeSplit + 2000 && playerDown)
+
+                if (elapsedMilliseconds > musicTimeSplit + 2000 && playerDown)
                 {
+                    Tools.log("+2000");
                     introPed.Task.PlayAnimation("amb@world_human_picnic@male@exit", "exit", 8f, 3000, false, -1f);
                     playerDown = false;
                 }
-                if (elapsedTime > musicTimeSplit + 5000 && !playerWalked)
+                if (elapsedMilliseconds > musicTimeSplit + 5000 && !playerWalked)
                 {
+                    Tools.log("+5000");
                     introPed.Task.ClearAllImmediately();
                     introPed.Task.GoTo(joeHomePosition, true);
                     playerWalked = true;
                 }
-                if (elapsedTime > musicTimeSplit*2 && !playerMoved)
+                if (elapsedMilliseconds > musicTimeSplit * 2 && !playerMoved)
                 {
+                    Tools.log("*2");
                     introPed.Task.ClearAllImmediately();
                     introPed.Task.PlayAnimation("gestures@m@standing@casual", "gesture_why", 8f, -1, false, -1f);
                     playerMoved = true;
                 }
-                if (elapsedTime > musicTime && !introEnded)
+                if (elapsedMilliseconds > musicTime && !introEnded)
                 {
+                    Tools.log("introEnded ");
                     musicPlaylist.pauseMusic("dialogue0");
                     currentPlay = "";
                     

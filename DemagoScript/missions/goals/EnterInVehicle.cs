@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DemagoScript
 {
-    class EnterInVehicle : Goal
+    class EnterInVehicle : AbstractObjective
     {
         private Vector3 position;
         private Vehicle vehicle;
@@ -17,26 +17,38 @@ namespace DemagoScript
 
         public EnterInVehicle( Vector3 position, VehicleHash vehicleHash )
         {
+            this.name = "Enter in Vehicle";
+
             this.position = position;
             this.vehicleHash = vehicleHash;
         }
 
-        public override bool initialize()
+        public override void populateDestructibleElements()
         {
-            if ( !base.initialize() ) {
-                return false;
-            }
-
-            vehicle = World.CreateVehicle( vehicleHash, position );
+            vehicle = World.CreateVehicle(vehicleHash, position);
             vehicle.AddBlip();
             vehicle.CurrentBlip.Sprite = BlipSprite.HelicopterAnimated;
             vehicle.CurrentBlip.Color = BlipColor.Green;
             vehicle.CurrentBlip.IsFlashing = true;
             vehicle.CurrentBlip.ShowRoute = true;
-
-            return true;
         }
 
+        public override void removeDestructibleElements(bool removePhysicalElements = false)
+        {
+            if (vehicle != null && vehicle.Exists())
+            {
+                if (vehicle.CurrentBlip != null)
+                {
+                    vehicle.CurrentBlip.Remove();
+                }
+
+                if (removePhysicalElements)
+                {
+                    vehicle.Delete();
+                }
+            }
+        }
+        
         public override bool update()
         {
             if ( !base.update() ) {
@@ -51,32 +63,19 @@ namespace DemagoScript
                 accomplish();
             } else if ( vehicle.Position.DistanceTo( Game.Player.Character.Position ) < 50 ) {
                 if ( vehicleHash == VehicleHash.Buzzard ) {
-                    setGoalText( "Monte dans l'hélicoptère" );
+                    this.ObjectiveText = "Monte dans l'hélicoptère";
                 } else {
-                    setGoalText( "Monte dans le véhicule" );
+                    this.ObjectiveText = "Monte dans le véhicule";
                 }
             } else {
                 if ( vehicleHash == VehicleHash.Buzzard ) {
-                    setGoalText( "Rejoins l'hélicoptère pour t'enfuir" );
+                    this.ObjectiveText = "Rejoins l'hélicoptère pour t'enfuir";
                 } else {
-                    setGoalText( "Rejoins le véhicule pour t'enfuir" );
+                    this.ObjectiveText = "Rejoins le véhicule pour t'enfuir";
                 }
             }
 
             return true;
-        }
-
-        public override void clear( bool removePhysicalElements = false )
-        {
-            if ( vehicle != null && vehicle.Exists() ) {
-                if ( vehicle.CurrentBlip != null ) {
-                    vehicle.CurrentBlip.Remove();
-                }
-
-                if ( removePhysicalElements ) {
-                    vehicle.Delete();
-                }
-            }
         }
     }
 }

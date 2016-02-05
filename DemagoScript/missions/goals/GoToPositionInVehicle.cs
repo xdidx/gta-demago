@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace DemagoScript
 {
-    class GoToPositionInVehicle : Goal
+    class GoToPositionInVehicle : AbstractObjective
     {
-        public delegate void FirstTimeOnVehicleEvent( Goal sender, Vehicle vehicle );
+        public delegate void FirstTimeOnVehicleEvent( AbstractObjective sender, Vehicle vehicle );
         public event FirstTimeOnVehicleEvent OnFirstTimeOnVehicle;
 
         private Vector3 destination;
@@ -21,12 +21,13 @@ namespace DemagoScript
         private Vector3 vehiclePosition;
         private Vector3 vehicleRotation;
         private bool teleportPlayerInVehicle;
-        private int errorsNumber = 0;
         private bool alreadyMountedOnBike = false;
         private int destinationCheckpoint = -1;
 
         public GoToPositionInVehicle( Vector3 position, VehicleHash newVehicleHash, Vector3 newVehiclePosition, Vector3 newVehicleRotation, bool newTeleportPlayerInVehicle )
         {
+            this.name = "Go to position in vehicle";
+
             destination = position;
             vehicleHash = newVehicleHash;
             vehiclePosition = newVehiclePosition;
@@ -36,31 +37,24 @@ namespace DemagoScript
 
         public GoToPositionInVehicle( Vector3 position )
         {
+            this.name = "Go to position in vehicle";
+
             destination = position;
             vehiclePosition = Vector3.Zero;
             vehicleRotation = Vector3.Zero;
             teleportPlayerInVehicle = false;
         }
 
-        public override bool initialize()
+        public override void populateDestructibleElements()
         {
-            if ( !base.initialize() )
-                return false;
-
             alreadyMountedOnBike = false;
 
             if (!vehicleHasBeenGivenInConstruct())
             {
-                vehicle = World.CreateVehicle(vehicleHash, vehiclePosition);
-                if (vehicle == null)
+                vehicle = null;
+                while (vehicle == null)
                 {
-                    errorsNumber++;
-                    if (errorsNumber > 10)
-                    {
-                        fail("Impossible d'initaliser la voiture");
-                        reset();
-                        return false;
-                    }
+                    vehicle = World.CreateVehicle(vehicleHash, vehiclePosition);
                 }
 
                 vehicle.Rotation = vehicleRotation;
@@ -76,9 +70,25 @@ namespace DemagoScript
 
             createDestinationBlip();
 
-            destination = Tools.GetGroundedPosition( destination );
+            destination = Tools.GetGroundedPosition(destination);
+        }
 
-            return true;
+        public override void removeDestructibleElements(bool removePhysicalElements = false)
+        {
+            if (vehicle != null && vehicle.Exists())
+            {
+                if (removePhysicalElements && vehicleHasBeenGivenInConstruct())
+                    vehicle.Delete();
+
+                if (vehicle.CurrentBlip != null)
+                    vehicle.CurrentBlip.Remove();
+            }
+
+            if (destinationCheckpoint >= 0)
+                Function.Call(Hash.DELETE_CHECKPOINT, destinationCheckpoint);
+
+            if (destinationBlip != null && destinationBlip.Exists())
+                destinationBlip.Remove();
         }
 
         public bool vehicleHasBeenGivenInConstruct()
@@ -140,7 +150,7 @@ namespace DemagoScript
                     createdDestinationCheckpoint();
 
                 if ( !isArrived() )
-                    setGoalText( "Rejoins l'endroit indiqué par le GPS" );
+                    ObjectiveText = "Rejoins l'endroit indiqué par le GPS";
 
                 if ( !alreadyMountedOnBike )
                     OnFirstTimeOnVehicle?.Invoke( this, vehicle );
@@ -162,31 +172,15 @@ namespace DemagoScript
                     vehicle.CurrentBlip.ShowRoute = true;
                 }
 
-                setGoalText( "Rejoins ton véhicule pour continuer la mission" );
+                ObjectiveText = "Rejoins ton véhicule pour continuer la mission";
             }
             return true;
         }
 
         public bool isArrived()
         {
-            return (isOver() || destination.DistanceTo( Game.Player.Character.Position ) < 8) && Game.Player.Character.IsInVehicle();
+            return destination.DistanceTo( Game.Player.Character.Position ) < 8 && Game.Player.Character.IsInVehicle();
         }
 
-        public override void clear( bool removePhysicalElements = false )
-        {
-            if ( vehicle != null && vehicle.Exists() ) {
-                if ( removePhysicalElements && vehicleHasBeenGivenInConstruct() )
-                    vehicle.Delete();
-
-                if ( vehicle.CurrentBlip != null )
-                    vehicle.CurrentBlip.Remove();
-            }
-
-            if ( destinationCheckpoint >= 0 )
-                Function.Call( Hash.DELETE_CHECKPOINT, destinationCheckpoint );
-
-            if ( destinationBlip != null && destinationBlip.Exists() )
-                destinationBlip.Remove();
-        }
     }
 }

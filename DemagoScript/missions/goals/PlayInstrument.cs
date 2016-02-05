@@ -16,44 +16,48 @@ namespace DemagoScript
         Guitar
     }
 
-    class PlayInstrument : Goal
+    class PlayInstrument : AbstractObjective
     {
         private DateTime startTime;
         private Prop instrumentProp;
         private InstrumentHash instrumentHash;
         private string musicToPlay = "";
         private Music musiques;
-        private bool wasPaused = false;
 
         public float SecondsToPlay { get; set; }
 
         public PlayInstrument( InstrumentHash instrumentHash, float secondsToPlay, String musicToPlay, Music musics )
         {
+            this.name = "Play instrument";
+
             this.instrumentHash = instrumentHash;
             this.musicToPlay = musicToPlay;
             SecondsToPlay = secondsToPlay / 1000;
             musiques = musics;
         }
 
-        public override bool initialize()
+        public override void populateDestructibleElements()
         {
-            if ( !base.initialize() ) {
-                return false;
-            }
-
             musiques.stopAll();
-            musiques.playMusic( musicToPlay );
+            musiques.playMusic(musicToPlay);
 
             startTime = DateTime.Now;
 
             startAnimation();
+        }
 
-            return true;
+        public override void removeDestructibleElements(bool removePhysicalElements = false)
+        {
+            if (instrumentProp != null && instrumentProp.Exists())
+            {
+                instrumentProp.Delete();
+                instrumentProp = null;
+            }
         }
 
         public override bool update()
         {
-            if (!base.update() || isAccomplished())
+            if (!base.update())
                 return false;
 
             if(Game.IsKeyPressed(System.Windows.Forms.Keys.Back))
@@ -75,7 +79,7 @@ namespace DemagoScript
                 return false;
             }
             else if (SecondsToPlay >= 0)
-                setGoalText("Attend que les spectateurs aient assez apprécié la musique de Joe. (Back pour passer)");
+                ObjectiveText = "Attend que les spectateurs aient assez apprécié la musique de Joe. (Back pour passer)";
             return true;
         }
 
@@ -96,30 +100,6 @@ namespace DemagoScript
 
                     player.Task.PlayAnimation( "amb@world_human_musician@guitar@male@base", "base", 8f, -1, true, -1f );
                 }
-            }
-        }
-
-        public override void clear( bool removePhysicalElements = false )
-        {
-            if ( instrumentProp != null && instrumentProp.Exists() ) {
-                instrumentProp.Delete();
-                instrumentProp = null;
-            }
-        }
-
-        public override void setPause(bool isPaused)
-        {
-            if (isAccomplished())
-                return;
-
-            if (isPaused && musiques.isPlaying(musicToPlay))
-            {
-                musiques.pauseMusic(musicToPlay);
-                this.wasPaused = true;
-            }
-            else if (!isPaused && this.wasPaused)
-            {
-                musiques.playMusic(musicToPlay);
             }
         }
     }

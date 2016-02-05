@@ -13,16 +13,18 @@ namespace DemagoScript
     class Justice : Mission
     {
         public static Vector3 buzzardPosition { get; } = new Vector3(-206f, -1997f, 27.0f);
-        
-        public override string getName()
+        WeaponCollection savedWeapons;
+
+        public Justice()
         {
-            return "La justice";
+            this.name = "La justice";
         }
 
-        protected override void doInitialization()
+        public override void populateDestructibleElements()
         {
-            base.doInitialization();
-
+            base.populateDestructibleElements();
+            
+            savedWeapons = Game.Player.Character.Weapons;
             Game.Player.Character.Weapons.RemoveAll();
             foreach (WeaponHash hash in Enum.GetValues(typeof(WeaponHash)))
             {
@@ -39,8 +41,20 @@ namespace DemagoScript
             startPositions.Add(new Vector3(86.02232f, -1959.530f, 21.12170f));
             startPositions.Add(new Vector3(76.29898f, -1948.164f, 21.17414f));
 
-            addGoal(new SurviveInZone(PlacesPositions.GrooveStreet, startPositions, 120, 50));
-            addGoal(new EnterInVehicle(buzzardPosition, VehicleHash.Buzzard));
+            addObjective(new SurviveInZone(PlacesPositions.GrooveStreet, startPositions, 120, 50));
+            addObjective(new EnterInVehicle(buzzardPosition, VehicleHash.Buzzard));
+        }
+
+        public override void removeDestructibleElements(bool removePhysicalElements = false)
+        {
+            base.removeDestructibleElements(removePhysicalElements);
+            foreach (WeaponHash hash in Enum.GetValues(typeof(WeaponHash)))
+            {
+                if (savedWeapons[hash] != null)
+                {
+                    Game.Player.Character.Weapons.Give(hash, savedWeapons[hash].Ammo, false, true);
+                }
+            }
         }
     }
 }

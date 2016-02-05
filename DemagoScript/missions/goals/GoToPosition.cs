@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DemagoScript
 {
-    class GoToPosition : Goal
+    class GoToPosition : AbstractObjective
     {
         private Vector3 destination;
         private Blip destinationBlip = null;
@@ -17,16 +17,14 @@ namespace DemagoScript
 
         public GoToPosition( Vector3 position )
         {
+            this.name = "Go to position";
             destination = position;
         }
 
-        public override bool initialize()
+        public override void populateDestructibleElements()
         {
-            if ( !base.initialize() ) {
-                return false;
-            }
-
-            if ( destinationBlip != null ) {
+            if (destinationBlip != null)
+            {
                 destinationBlip.Remove();
             }
             createDestinationBlip();
@@ -35,7 +33,15 @@ namespace DemagoScript
             Function.Call(Hash._SET_CHECKPOINT_ICON_RGBA, finishCheckpoint, 0, 0, 256, 60);
             Function.Call(Hash.SET_CHECKPOINT_CYLINDER_HEIGHT, finishCheckpoint, Tools.GetGroundedPosition(destination).Z + 30.0f, Tools.GetGroundedPosition(destination).Z + 30.0f, 30.0f);
 
-            return true;
+        }
+
+        public override void removeDestructibleElements(bool removePhysicalElements = false)
+        {
+            if (destinationBlip != null && destinationBlip.GetType() == typeof(Blip) && destinationBlip.Exists())
+                destinationBlip.Remove();
+
+            if (finishCheckpoint >= 0)
+                Function.Call(Hash.DELETE_CHECKPOINT, finishCheckpoint);
         }
 
         public void createDestinationBlip()
@@ -59,24 +65,15 @@ namespace DemagoScript
             if ( destination.DistanceTo( Game.Player.Character.Position ) < 1.4 ) {
                 destinationBlip.Remove();
                 accomplish();
-                return false;
             } else {
                 if ( destinationBlip == null ) {
                     createDestinationBlip();
                 }
-                setGoalText( "Rejoins l'endroit indiqué par le GPS" );
+                this.ObjectiveText = "Rejoins l'endroit indiqué par le GPS";
             }
 
             return true;
         }
 
-        public override void clear( bool removePhysicalElements = false )
-        {
-            if ( destinationBlip != null && destinationBlip.Exists() )
-                destinationBlip.Remove();
-
-            if ( finishCheckpoint >= 0 )
-                Function.Call( Hash.DELETE_CHECKPOINT, finishCheckpoint );
-        }
     }
 }

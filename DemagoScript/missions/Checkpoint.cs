@@ -15,16 +15,16 @@ namespace DemagoScript
         /// </summary>
         public event CheckpointStartEvent OnCheckpointStart;
 
-        private Goal goalToLaunch = null;
+        private AbstractObjective objectiveToLaunch = null;
 
-        public Checkpoint(Goal goal)
+        public Checkpoint(AbstractObjective objective)
         {
-            goalToLaunch = goal;
+            objectiveToLaunch = objective;
         }
 
-        public Goal getGoalToLaunch()
+        public AbstractObjective getObjectiveToLaunch()
         {
-            return goalToLaunch;
+            return objectiveToLaunch;
         }
 
         public void start()

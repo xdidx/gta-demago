@@ -75,7 +75,7 @@
     <Compile Include="missions\goals\GoToPositionInVehicle.cs" />
     <Compile Include="missions\goals\EnterInVehicle.cs" />
     <Compile Include="missions\goals\SurviveInZone.cs" />
-    <Compile Include="missions\goals\Goal.cs" />
+    <Compile Include="missions\goals\AbstractObjective.cs" />
     <Compile Include="missions\goals\Wait.cs" />
     <Compile Include="missions\Justice.cs" />
     <Compile Include="missions\Joe.cs" />

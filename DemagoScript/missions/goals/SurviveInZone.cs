@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DemagoScript
 {
-    class SurviveInZone : Goal
+    class SurviveInZone : AbstractObjective
     {
         private bool alreadyEnter = false;
         private bool playerTargeted = false;
@@ -28,28 +28,44 @@ namespace DemagoScript
 
         public SurviveInZone( Vector3 startPosition, List<Vector3> startPositions, int secondsToSurvive, float maximumDistance )
         {
+            this.name = "Survive in zone";
+
             this.startPosition = startPosition;
             this.startPositions = startPositions;
             this.secondsToSurvive = secondsToSurvive;
             this.maximumDistance = maximumDistance;
-            ennemyRelationshipGroup = World.AddRelationshipGroup( "SurviveInZoneGoalEnnemies" );
+            ennemyRelationshipGroup = World.AddRelationshipGroup( "SurviveInZoneObjectiveEnnemies" );
         }
 
-        public override bool initialize()
+        public override void populateDestructibleElements()
         {
-            if ( !base.initialize() ) {
-                return false;
-            }
+            int ballasGroup = World.AddRelationshipGroup("Ballas");
 
-            int ballasGroup = World.AddRelationshipGroup( "Ballas" );
-
-            startPositionBlip = World.CreateBlip( startPosition );
+            startPositionBlip = World.CreateBlip(startPosition);
             startPositionBlip.Sprite = BlipSprite.Deathmatch;
             startPositionBlip.Color = BlipColor.Red;
             startPositionBlip.IsFlashing = true;
             startPositionBlip.ShowRoute = true;
+        }
 
-            return true;
+        public override void removeDestructibleElements(bool removePhysicalElements = false)
+        {
+            if (startPositionBlip != null && startPositionBlip.Exists())
+            {
+                startPositionBlip.Remove();
+            }
+
+            if (removePhysicalElements)
+            {
+                foreach (Ped ballasPed in ballasPeds)
+                {
+                    if (ballasPed != null && ballasPed.Exists())
+                    {
+                        ballasPed.Delete();
+                    }
+                }
+                ballasPeds.Clear();
+            }
         }
 
         public override bool update()
@@ -133,17 +149,18 @@ namespace DemagoScript
                     if ( remainingSeconds > 0 ) {
                         Game.Player.WantedLevel = 0;
                         //Game.MaxWantedLevel = 0;
-                        setGoalText( "Il reste " + remainingSeconds + " secondes à tenir" );
+                        ObjectiveText = "Il reste " + remainingSeconds + " secondes à tenir";
                     } else {
                         accomplish();
                         return false;
                     }
 
                     if ( Game.Player.Character.Position.DistanceTo( startPosition ) > ( maximumDistance * 0.9 ) ) {
-                        setWarningText( "Attention, il faut rester dans la zone de Groove Street !" );
+                        AdviceText = "Attention, il faut rester dans la zone de Groove Street !";
+                        //TODO : IT'S A WARNING, NOT A SIMPLE ADVICE
                         // GTA.Game.PlaySound afin de pouvoir avoir une alerte sonore légère ?
                     } else {
-                        clearAdviceText();
+                        AdviceText = "";
                     }
                 } else {
                     fail( "Vous êtes sorti de la zone" );
@@ -154,28 +171,13 @@ namespace DemagoScript
                     alreadyEnter = true;
                     startTime = DateTime.Now;
                 } else {
-                    setGoalText( "Va à Groove street et tue tous les Ballas qui ont envahi le quartier" );
+                    ObjectiveText = "Va à Groove street et tue tous les Ballas qui ont envahi le quartier";
                 }
             }
             #endregion
 
             return true;
         }
-
-        public override void clear( bool removePhysicalElements = false )
-        {
-            if ( startPositionBlip != null && startPositionBlip.Exists() ) {
-                startPositionBlip.Remove();
-            }
-
-            if ( removePhysicalElements ) {
-                foreach ( Ped ballasPed in ballasPeds ) {
-                    if ( ballasPed != null && ballasPed.Exists() ) {
-                        ballasPed.Delete();
-                    }
-                }
-                ballasPeds.Clear();
-            }
-        }
+        
     }
 }
