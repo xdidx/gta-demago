@@ -116,17 +116,8 @@ namespace DemagoScript
             }
 
             if ( !Function.Call<bool>( Hash.IS_HUD_HIDDEN ) ) {
-                //char[] charToTrim = { ' ' };
-                //if ( this.ObjectiveText.Trim(charToTrim) != "" ) {
-                if ( this.ObjectiveText != "" ) {
-                    Tools.trace( "setObjective on missionUI : " + this.ObjectiveText, System.Reflection.MethodBase.GetCurrentMethod().Name, "AbstractObjective" );
-                    GUIManager.Instance.missionUI.setObjective(this.ObjectiveText);
-                }
-
-                if ( this.AdviceText != "" ) {
-                    Tools.trace( "setAdvice on missionUI : " + this.ObjectiveText, System.Reflection.MethodBase.GetCurrentMethod().Name, "AbstractObjective" );
-                    GUIManager.Instance.missionUI.setAdvice(this.AdviceText);
-                }
+                GUIManager.Instance.missionUI.setObjective(this.ObjectiveText);
+                GUIManager.Instance.missionUI.setAdvice(this.AdviceText);
             }
 
             //increment elapsed time timestamp with LastFrameTime

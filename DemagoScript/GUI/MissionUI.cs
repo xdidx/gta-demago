@@ -23,11 +23,15 @@ namespace DemagoScript.GUI
 
         public void setObjective(string text)
         {
+            if ( String.IsNullOrWhiteSpace( text ) ) {
+                return;
+            }
+            
             this.objective = text;
 
             if (this.objectiveTextElement == null)
             {
-                this.objectiveTextElement = new UITextElement(this.objective, Game.ScreenResolution.Width / 2, Game.ScreenResolution.Height / 5, 0.7f, true, GTA.Font.ChaletComprimeCologne, UIColor.WHITE);
+                this.objectiveTextElement = new UITextElement(this.objective, 0.5, 0.2, 0.7f, true, GTA.Font.ChaletComprimeCologne, UIColor.WHITE);
                 this.add(this.objectiveTextElement);
             }
 
@@ -36,11 +40,15 @@ namespace DemagoScript.GUI
 
         public void setAdvice(string text)
         {
+            if ( String.IsNullOrWhiteSpace( text ) ) {
+                return;
+            }
+
             this.advice = text;
 
             if (this.adviceTextElement == null)
             {
-                this.adviceTextElement = new UITextElement(this.advice, Game.ScreenResolution.Width / 2, Game.ScreenResolution.Height / 5, 0.7f, true, GTA.Font.ChaletComprimeCologne, UIColor.GREEN);
+                this.adviceTextElement = new UITextElement(this.advice, 0.5, 0.2, 0.7f, true, GTA.Font.ChaletComprimeCologne, UIColor.GREEN);
                 this.add(this.adviceTextElement);
             }
 
