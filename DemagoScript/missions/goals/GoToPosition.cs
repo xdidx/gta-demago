@@ -37,11 +37,17 @@ namespace DemagoScript
 
         public override void removeDestructibleElements(bool removePhysicalElements = false)
         {
-            if (destinationBlip != null && destinationBlip.GetType() == typeof(Blip) && destinationBlip.Exists())
-                destinationBlip.Remove();
+            Tools.trace( "removePhysicalElements=" + removePhysicalElements, System.Reflection.MethodBase.GetCurrentMethod().Name, "GoToPosition" );
 
-            if (finishCheckpoint >= 0)
-                Function.Call(Hash.DELETE_CHECKPOINT, finishCheckpoint);
+            if ( destinationBlip != null && destinationBlip.GetType() == typeof(Blip) && destinationBlip.Exists()) {
+                destinationBlip.Remove();
+                destinationBlip = null;
+            }
+            
+            if (finishCheckpoint != -1) {
+                Function.Call( Hash.DELETE_CHECKPOINT, finishCheckpoint );
+                finishCheckpoint = -1;
+            }
         }
 
         public void createDestinationBlip()
