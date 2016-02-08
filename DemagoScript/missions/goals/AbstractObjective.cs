@@ -47,7 +47,9 @@ namespace DemagoScript
 
         ~AbstractObjective()
         {
-            removeDestructibleElements(true);
+            if (this.inProgress) {
+                removeDestructibleElements( true );
+            }
         }
 
         /// <summary>
@@ -86,7 +88,7 @@ namespace DemagoScript
         /// </summary>
         public virtual void start()
         {
-            Tools.log("start and populateDestructibleElements " + getName());
+            Tools.trace(getName(), System.Reflection.MethodBase.GetCurrentMethod().Name, "AbstractObjective");
 
             if (this.inProgress)
             {
@@ -113,11 +115,12 @@ namespace DemagoScript
 
             if ( !Function.Call<bool>( Hash.IS_HUD_HIDDEN ) ) {
                 if ( this.ObjectiveText != "" ) {
+                    Tools.trace( "setObjective on missionUI : " + this.ObjectiveText, System.Reflection.MethodBase.GetCurrentMethod().Name, "AbstractObjective" );
                     GUIManager.Instance.missionUI.setObjective(this.ObjectiveText);
                 }
 
-                if ( this.AdviceText != "" )
-                {
+                if ( this.AdviceText != "" ) {
+                    Tools.trace( "setAdvice on missionUI : " + this.ObjectiveText, System.Reflection.MethodBase.GetCurrentMethod().Name, "AbstractObjective" );
                     GUIManager.Instance.missionUI.setAdvice(this.AdviceText);
                 }
             }
@@ -132,7 +135,7 @@ namespace DemagoScript
         /// </summary>
         public virtual void stop()
         {
-            Tools.log("stop " + getName());
+            Tools.trace( getName(), System.Reflection.MethodBase.GetCurrentMethod().Name, "AbstractObjective" );
 
             this.inProgress = false;
             this.elapsedTime = 0;
@@ -148,7 +151,7 @@ namespace DemagoScript
         /// <param name="reason">Reason of fail</param>
         public virtual void fail(string reason)
         {
-            Tools.log("fail " + reason + getName());
+            Tools.trace( getName() + " (" + reason + ") ", System.Reflection.MethodBase.GetCurrentMethod().Name, "AbstractObjective" );
 
             this.stop();
             OnFailed?.Invoke(this, reason);
@@ -159,7 +162,7 @@ namespace DemagoScript
         /// </summary>
         public virtual void accomplish()
         {
-            Tools.log("accomplish " + getName());
+            Tools.trace( getName(), System.Reflection.MethodBase.GetCurrentMethod().Name, "AbstractObjective" );
 
             this.stop();
             OnAccomplished?.Invoke(this, 0);

@@ -22,8 +22,9 @@ namespace DemagoScript
 
         public override void removeDestructibleElements(bool removePhysicalElements = false)
         {
-            Tools.log("removeDestructibleElements");
-            foreach (AbstractObjective objective in objectives)
+            Tools.trace( getName() + " removePhysicalElements = " + removePhysicalElements, System.Reflection.MethodBase.GetCurrentMethod().Name, "Mission" );
+
+            foreach ( AbstractObjective objective in objectives)
                 objective.removeDestructibleElements(removePhysicalElements);
 
             if (removePhysicalElements)

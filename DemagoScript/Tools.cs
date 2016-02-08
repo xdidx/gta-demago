@@ -406,5 +406,19 @@ namespace DemagoScript
                 }
             }
         }
+
+        public static void trace(string message, string function = "", string function_class = "")
+        {
+            using ( StreamWriter logStreamWriter = new StreamWriter( Tools.pathToLogFile, true ) ) {
+                try {
+                    if (function_class != "") {
+                        function_class += "::";
+                    }
+                    logStreamWriter.WriteLine( "[" + DateTime.Now.ToString( "HH:mm:ss" ) + "]" + function_class + function + " - " + message );
+                } finally {
+                    logStreamWriter.Close();
+                }
+            }
+        }
     }
 }
