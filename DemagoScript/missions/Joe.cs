@@ -679,7 +679,7 @@ namespace DemagoScript
                 musicPlaylist.dispose();
             }
 
-            if (bike != null && Joe.bike.Exists())
+            if (Joe.bike != null && Joe.bike.Exists())
             {
                 if (removePhysicalElements)
                     Joe.bike.Delete();

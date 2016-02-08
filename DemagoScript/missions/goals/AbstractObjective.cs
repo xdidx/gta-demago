@@ -48,6 +48,8 @@ namespace DemagoScript
         ~AbstractObjective()
         {
             if (this.inProgress) {
+                this.inProgress = false;
+                this.elapsedTime = 0;
                 removeDestructibleElements( true );
             }
         }
@@ -114,6 +116,8 @@ namespace DemagoScript
             }
 
             if ( !Function.Call<bool>( Hash.IS_HUD_HIDDEN ) ) {
+                //char[] charToTrim = { ' ' };
+                //if ( this.ObjectiveText.Trim(charToTrim) != "" ) {
                 if ( this.ObjectiveText != "" ) {
                     Tools.trace( "setObjective on missionUI : " + this.ObjectiveText, System.Reflection.MethodBase.GetCurrentMethod().Name, "AbstractObjective" );
                     GUIManager.Instance.missionUI.setObjective(this.ObjectiveText);
@@ -133,14 +137,14 @@ namespace DemagoScript
         /// <summary>
         /// Stop the objective
         /// </summary>
-        public virtual void stop()
+        public virtual void stop( bool removePhysicalElements = false )
         {
             Tools.trace( getName(), System.Reflection.MethodBase.GetCurrentMethod().Name, "AbstractObjective" );
 
             this.inProgress = false;
             this.elapsedTime = 0;
-                        
-            this.removeDestructibleElements();
+
+            this.removeDestructibleElements(removePhysicalElements);
             
             OnEnded?.Invoke(this);
         }

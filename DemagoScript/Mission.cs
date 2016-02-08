@@ -41,9 +41,14 @@ namespace DemagoScript
             objectives[currentObjectiveIndex].start();
         }
 
-        public override void stop()
+        /// <summary>
+        /// When the mission is stopped, everything has to be removed
+        /// </summary>
+        /// <param name="removePhysicalElements"></param>
+        public override void stop( bool removePhysicalElements = true )
         {
-            base.stop();
+            Tools.trace( getName() + " removePhysicalElements = " + removePhysicalElements, System.Reflection.MethodBase.GetCurrentMethod().Name, "Mission" );
+            base.stop(removePhysicalElements);
             currentObjectiveIndex = 0;
         }
         
