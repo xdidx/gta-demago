@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using DemagoScript.GUI.elements;
+using DemagoScript.GUI;
 
 namespace DemagoScript
 {
@@ -85,6 +86,8 @@ namespace DemagoScript
         /// </summary>
         public virtual void start()
         {
+            Tools.log("start and populateDestructibleElements " + getName());
+
             if (this.inProgress)
             {
                 return;
@@ -95,7 +98,6 @@ namespace DemagoScript
             populateDestructibleElements();
 
             this.inProgress = true;
-            Tools.log("start " + getName());
 
             OnStarted?.Invoke(this);
         }
@@ -111,26 +113,12 @@ namespace DemagoScript
 
             if ( !Function.Call<bool>( Hash.IS_HUD_HIDDEN ) ) {
                 if ( this.ObjectiveText != "" ) {
-                    /*objectiveShadow.Caption = objectiveUIText.Caption = objectiveText;
-                    objectiveShadow.Draw();
-                    objectiveUIText.Draw();*/
-
-                    /*
-                    objectiveUIText = new UIResText( "", new Point( Game.ScreenResolution.Width / 2, Game.ScreenResolution.Height / 5 ), 0.7f, Color.WhiteSmoke, GTA.Font.ChaletComprimeCologne, UIResText.Alignment.Centered );
-                    objectiveShadow = new UIResText( "", new Point( Game.ScreenResolution.Width / 2 + 2, Game.ScreenResolution.Height / 5 + 2 ), 0.7f, Color.Black, GTA.Font.ChaletComprimeCologne, UIResText.Alignment.Centered );
-
-                    adviceUIText = new UIResText( "", new Point( Game.ScreenResolution.Width / 2, Game.ScreenResolution.Height / 5 + 40 ), 0.6f, Color.Green, GTA.Font.ChaletComprimeCologne, UIResText.Alignment.Centered );
-                    adviceShadow = new UIResText( "", new Point( Game.ScreenResolution.Width / 2 + 2, Game.ScreenResolution.Height / 5 + 42 ), 0.6f, Color.Black, GTA.Font.ChaletComprimeCologne, UIResText.Alignment.Centered );
-                    */
-
-            Tools.log("drawText " + ObjectiveText);
-                    // faire un GUIMananger.Instance.drawText(objectiveText)
-                    UITextElement.drawText(this.ObjectiveText, Game.ScreenResolution.Width / 2, Game.ScreenResolution.Height / 5, 0.7f, true, GTA.Font.ChaletComprimeCologne, UIColor.WHITE);
+                    GUIManager.Instance.missionUI.setObjective(this.ObjectiveText);
                 }
 
-                if ( this.AdviceText != "" ) {
-                    //faire un GUIManager.Instance.drawText(adviceText)
-                    UITextElement.drawText(this.AdviceText, Game.ScreenResolution.Width / 2, Game.ScreenResolution.Height / 5 + 40, 0.7f, true, GTA.Font.ChaletComprimeCologne, UIColor.BLACK);
+                if ( this.AdviceText != "" )
+                {
+                    GUIManager.Instance.missionUI.setAdvice(this.AdviceText);
                 }
             }
 
@@ -142,16 +130,15 @@ namespace DemagoScript
         /// <summary>
         /// Stop the objective
         /// </summary>
-        /// <param name="reason">Reason of stop</param>
         public virtual void stop()
         {
+            Tools.log("stop " + getName());
+
             this.inProgress = false;
             this.elapsedTime = 0;
                         
             this.removeDestructibleElements();
-
-            Tools.log("stop " + getName());
-
+            
             OnEnded?.Invoke(this);
         }
 
@@ -161,9 +148,10 @@ namespace DemagoScript
         /// <param name="reason">Reason of fail</param>
         public virtual void fail(string reason)
         {
+            Tools.log("fail " + reason + getName());
+
             this.stop();
             OnFailed?.Invoke(this, reason);
-            Tools.log("fail "+ reason+ getName());
         }
 
         /// <summary>
@@ -171,10 +159,10 @@ namespace DemagoScript
         /// </summary>
         public virtual void accomplish()
         {
+            Tools.log("accomplish " + getName());
+
             this.stop();
             OnAccomplished?.Invoke(this, 0);
-
-            Tools.log("accomplish "+getName());
         }
     }
 }

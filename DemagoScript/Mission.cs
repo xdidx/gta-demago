@@ -22,6 +22,7 @@ namespace DemagoScript
 
         public override void removeDestructibleElements(bool removePhysicalElements = false)
         {
+            Tools.log("removeDestructibleElements");
             foreach (AbstractObjective objective in objectives)
                 objective.removeDestructibleElements(removePhysicalElements);
 
@@ -35,6 +36,7 @@ namespace DemagoScript
 
             Game.Player.WantedLevel = 0;
 
+            Tools.log("start first objective");
             objectives[currentObjectiveIndex].start();
         }
 
@@ -57,9 +59,11 @@ namespace DemagoScript
         public void addObjective(AbstractObjective objective)
         {
             objective.OnFailed += (sender, reason) => {
+                Tools.log("On failed goal event" + sender.getName());
                 fail(reason);
             };
-            objective.OnEnded += (sender) => {
+            objective.OnAccomplished += (sender, elapsedTime) => {
+                Tools.log("On accomplished goal event" + sender.getName());
                 this.next();
             };
             objectives.Add(objective);
@@ -92,6 +96,8 @@ namespace DemagoScript
         {
             currentObjectiveIndex++;
             AbstractObjective objective = objectives[currentObjectiveIndex];
+            Tools.log("-----Next objective named " + objective.getName() + "!!!!");
+
             objective.start();
         }
 

@@ -37,6 +37,7 @@ namespace DemagoScript
                 {
                     if (mission.isInProgress())
                     {
+                        Tools.log("stopCurrentMission");
                         mission.stop();
                     }
                 }
@@ -145,6 +146,7 @@ namespace DemagoScript
                 {
                     if (lastMission != null)
                     {
+                        Tools.log("stop lastMission");
                         lastMission.stop();
                     }
                     lastMission = newMission;

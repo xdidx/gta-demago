@@ -1,4 +1,7 @@
-﻿using DemagoScript.GUI.popup;
+﻿using DemagoScript.GUI.elements;
+using DemagoScript.GUI.popup;
+using GTA;
+using GTA.Math;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
@@ -8,6 +11,7 @@ namespace DemagoScript.GUI
     {
         public DemagoMenu menu = null;
         public PopupManager popupManager = null;
+        public MissionUI missionUI = null;
 
         private static GUIManager instance;
 
@@ -29,12 +33,14 @@ namespace DemagoScript.GUI
         {
             this.menu = new DemagoMenu(missions);
             this.popupManager = new PopupManager();
+            this.missionUI = new MissionUI();
         }
 
         public void update()
         {
             this.menu.process();
             this.popupManager.update();
+            this.missionUI.draw();
         }
 
         public void OnKeyDown(object sender, KeyEventArgs e)

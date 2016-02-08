@@ -61,6 +61,7 @@
     <Compile Include="GUI\menu\DemagoMenu.cs" />
     <Compile Include="GUI\GUIManager.cs" />
     <Compile Include="GUI\IUIElement.cs" />
+    <Compile Include="GUI\MissionUI.cs" />
     <Compile Include="GUI\popup\LoadingPopup.cs" />
     <Compile Include="GUI\popup\ConfirmationPopup.cs" />
     <Compile Include="GUI\popup\SuccessMissionPopup.cs" />

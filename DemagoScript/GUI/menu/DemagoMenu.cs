@@ -7,6 +7,7 @@ using GTA.Native;
 using NativeUI;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -61,6 +62,7 @@ namespace DemagoScript
                 {
                     if (item == startItem)
                     {
+                        Tools.log("Start mission");
                         mission.start();
                     }
                 };
@@ -262,7 +264,6 @@ namespace DemagoScript
 
             var showMessageItem = new UIMenuItem("Afficher la popup de test");
 
-
             var toolsMenu = menuPool.AddSubMenu(mainMenu, "Outils");
             toolsMenu.AddItem(wantedLevelItem);
             toolsMenu.AddItem(wantedDownItem);
@@ -451,6 +452,10 @@ namespace DemagoScript
         //TODO : PUT THIS METHOD IN MISSION.CS
         private void resetPlayerModel()
         {
+            StackTrace stackTrace = new StackTrace();
+
+            Tools.log("resetPlayerModel");
+
             Ped player = Game.Player.Character;
             if (player.Model != oldModel)
             {

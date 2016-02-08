@@ -28,6 +28,11 @@ namespace DemagoScript.GUI.elements
             this.color = color;
         }
         
+        public void setText(string text)
+        {
+            this.text = text;
+        }
+
         public string getText()
         {
             return text;
@@ -45,21 +50,6 @@ namespace DemagoScript.GUI.elements
             Function.Call(Hash.SET_TEXT_DROPSHADOW, 2, 0, 0, 0, 205);
             Function.Call(Hash._ADD_TEXT_COMPONENT_STRING, this.text);
             Function.Call(Hash._DRAW_TEXT, (double)this.x, (double)this.y);
-        }
-
-        public static void drawText( string text, double x, double y, double scale, bool center, Font font, Vector3 color)
-        {
-            Tools.log("draw "+ text);
-            Function.Call( Hash.SET_TEXT_FONT, (int)font );
-            Function.Call( Hash.SET_TEXT_SCALE, scale, scale );
-            Function.Call( Hash.SET_TEXT_COLOUR, color.X, color.Y, color.Z, 255 );
-            Function.Call( Hash.SET_TEXT_WRAP, 0.0, 1.0 );
-            Function.Call( Hash.SET_TEXT_CENTRE, center );
-            Function.Call( Hash.SET_TEXT_EDGE, 2, 255, 255, 255, 205 );
-            Function.Call( Hash._SET_TEXT_ENTRY, "STRING" );
-            Function.Call( Hash.SET_TEXT_DROPSHADOW, 2, 0, 0, 0, 205 );
-            Function.Call( Hash._ADD_TEXT_COMPONENT_STRING, text );
-            Function.Call( Hash._DRAW_TEXT, x, y );
         }
     }
 }

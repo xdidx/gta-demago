@@ -62,11 +62,14 @@ namespace DemagoScript
 
             #region Objectives 
 
+            while (Joe.bike == null)
+            {
+                Joe.bike = World.CreateVehicle(VehicleHash.TriBike, bikePositionAtHome);
+            }
+
             GoToPosition goToFirstSongObjective = new GoToPosition(firstSongPosition);
             goToFirstSongObjective.OnStarted += (sender) =>
             {
-                createBike(bikePositionAtHome);
-
                 bikeRegen = false;
                 playerDown = true;
                 playerWalked = false;
@@ -227,11 +230,9 @@ namespace DemagoScript
             };
 
             GoToPositionInVehicle goToPoliceWithBikeObjective = new GoToPositionInVehicle(roadFaceToPoliceStationPosition);
+            goToPoliceWithBikeObjective.setVehicle(Joe.bike);
             goToPoliceWithBikeObjective.OnStarted += (sender) =>
             {
-                createBike(bikePositionAtHome);
-                goToPoliceWithBikeObjective.setVehicle(Joe.bike);
-
                 currentPlay = "";
                 Function.Call(Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1);
 
@@ -410,11 +411,9 @@ namespace DemagoScript
             };
 
             GoToPositionInVehicle goToTheaterWithBikeObjective = new GoToPositionInVehicle(thirdSongBikePosition);
+            goToTheaterWithBikeObjective.setVehicle(Joe.bike);
             goToTheaterWithBikeObjective.OnStarted += (sender) =>
             {
-                createBike(roadFaceToPoliceStationPosition);
-                goToTheaterWithBikeObjective.setVehicle(Joe.bike);
-
                 Function.Call(Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1);
 
                 Ped player = Game.Player.Character;
@@ -587,11 +586,9 @@ namespace DemagoScript
             };
 
             GoToPositionInVehicle goToHome = new GoToPositionInVehicle(joeHomePosition);
+            goToHome.setVehicle(Joe.bike);
             goToHome.OnStarted += (sender) =>
             {
-                createBike(thirdSongBikePosition);
-                goToHome.setVehicle(Joe.bike);
-
                 Ped player = Game.Player.Character;
                 if (player.Position.DistanceTo(thirdSongPosition) > 50)
                     Tools.TeleportPlayer(thirdSongPosition, false);
@@ -783,19 +780,7 @@ namespace DemagoScript
             musiques.Add( new string[] { "amphiHoo1", "joeDegueulasseHoo.wav" } );
             musiques.Add( new string[] { "amphiHoo2", "joeDegueulasseHoo2.wav" } );
         }
-
-        private void createBike(Vector3 position)
-        {
-            if (Joe.bike == null || !Joe.bike.Exists())
-            {
-                Joe.bike = World.CreateVehicle(VehicleHash.TriBike, position);
-            }
-            else
-            {
-                Joe.bike.Position = position;
-            }
-        }
-        
+                
         private void musicPlay(string musique)
         {
             Tools.log("Music play "+musique);
