@@ -553,7 +553,7 @@ namespace DemagoScript
                     spectator.Task.PerformSequence(angrySpectator);
                 }
 
-                Vector3 firstCameraPosition = secondSongPosition;
+                Vector3 firstCameraPosition = thirdSongPosition;
                 firstCameraPosition.X += 8;
                 firstCameraPosition.Z += 2;
                 Vector3 secondCameraPosition = firstCameraPosition;

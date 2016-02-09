@@ -49,7 +49,7 @@ namespace DemagoScript.GUI
 
             if (this.adviceTextElement == null)
             {
-                this.adviceTextElement = new UITextElement(this.advice, 0.5, 0.2, 0.7f, true, GTA.Font.ChaletComprimeCologne, UIColor.GREEN);
+                this.adviceTextElement = new UITextElement(this.advice, 0.5, 0.25, 0.7f, true, GTA.Font.ChaletComprimeCologne, UIColor.GREEN);
                 this.add(this.adviceTextElement);
             }
 

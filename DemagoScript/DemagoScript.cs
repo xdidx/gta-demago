@@ -43,7 +43,22 @@ namespace DemagoScript
                 }
             }
         }
-        
+
+        public static void failCurrentMission(string reason = "")
+        {
+            if (missions != null)
+            {
+                foreach (Mission mission in missions)
+                {
+                    if (mission.isInProgress())
+                    {
+                        Tools.log("fail CurrentMission");
+                        mission.fail(reason);
+                    }
+                }
+            }
+        }
+
         private void initialize()
         {
             if (initialized)

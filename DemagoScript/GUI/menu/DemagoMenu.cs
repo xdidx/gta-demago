@@ -402,11 +402,26 @@ namespace DemagoScript
             };
         }
 
+        private void checkIfPlayerIsDeadOrArrested()
+        {
+            if (Game.Player.IsDead)
+            {
+                DemagoScript.failCurrentMission("Vous êtes mort");
+            }
+
+            if (Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true))
+            {
+                DemagoScript.failCurrentMission("Vous vous êtes fait arrêter");
+            }
+        }
+
         public void process()
         {
             menuPool.ProcessMenus();
 
             Ped player = Game.Player.Character;
+            
+            checkIfPlayerIsDeadOrArrested();
 
             if (playerModelIsValid())
             {
@@ -461,20 +476,22 @@ namespace DemagoScript
             {
                 if (oldModel == null || !oldModel.IsValid)
                 {
+                    Tools.log("resetPlayerModel set Michael");
                     oldModel = new Model(PedHash.Michael);
                 }
 
-                bool playerIsDead = player.IsDead;
-                Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
-
-                if (playerIsDead)
+                if (player.IsDead)
                 {
-
                     Ped replacementPed = Function.Call<Ped>(Hash.CLONE_PED, Game.Player.Character, Function.Call<int>(Hash.GET_ENTITY_HEADING, Function.Call<int>(Hash.PLAYER_PED_ID)), false, true);
                     replacementPed.Kill();
 
+                    Tools.log("BUG Crash with function SET_PLAYER_MODEL, why?");
+                    Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
+                    Tools.log("not working :/");
+
                     player = Game.Player.Character;
                     player.Task.StandStill(-1);
+                    player.IsVisible = false;
                     player.IsInvincible = true;
 
                     while (Game.Player.IsDead)
@@ -489,13 +506,20 @@ namespace DemagoScript
                             Script.Wait(100);
                         }
                     }
+
+                    player.IsVisible = true;
+                    player.IsInvincible = false;
                 }
                 else if (Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true))
                 {
-                    player = Game.Player.Character;
+                    Script.Wait(3000);
+                    Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
+                    Game.Player.Character.IsVisible = false;
                 }
-
-                player.IsVisible = false;
+                else
+                {
+                    Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
+                }
             }
         }
 

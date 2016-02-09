@@ -87,9 +87,6 @@ namespace DemagoScript
                 return false;
             }
 
-
-            this.checkIfPlayerIsDeadOrArrested();
-
             if (currentObjectiveIndex < objectives.Count)
             {
                 AbstractObjective objective = objectives[currentObjectiveIndex];
@@ -106,22 +103,16 @@ namespace DemagoScript
         private void next()
         {
             currentObjectiveIndex++;
-            AbstractObjective objective = objectives[currentObjectiveIndex];
-            Tools.log("-----Next objective named " + objective.getName() + "!!!!");
 
-            objective.start();
-        }
-
-        private void checkIfPlayerIsDeadOrArrested()
-        {
-            if (Game.Player.IsDead)
+            if (currentObjectiveIndex >= objectives.Count)
             {
-                this.fail("Vous êtes mort");
+                this.accomplish();
             }
-
-            if (Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true))
+            else
             {
-                this.fail("Vous vous êtes fait arrêter");
+                AbstractObjective objective = objectives[currentObjectiveIndex];
+                Tools.log("-----Next objective named " + objective.getName() + "!!!!");
+                objective.start();
             }
         }
 

@@ -26,8 +26,12 @@ namespace DemagoScript
         /// </summary>
         public override void populateDestructibleElements()
         {
-            this.removeDestinationBlip();
-            this.createDestinationBlip();
+            destinationBlip = World.CreateBlip(destination);
+            destinationBlip.Sprite = BlipSprite.Crosshair;
+            destinationBlip.Color = BlipColor.Green;
+            destinationBlip.IsFlashing = true;
+            destinationBlip.ShowRoute = true;
+            destinationBlip.Position = destination;
 
             this.finishCheckpoint = Function.Call<int>(Hash.CREATE_CHECKPOINT, 24, this.destination.X, this.destination.Y, 0.0f, this.destination.X, this.destination.Y, 0.0f, 2f, 254, 207, 12, 200, 40);
             Function.Call(Hash._SET_CHECKPOINT_ICON_RGBA, this.finishCheckpoint, 0, 0, 256, 60);
@@ -38,8 +42,9 @@ namespace DemagoScript
         {
             Tools.trace( "removePhysicalElements=" + removePhysicalElements, System.Reflection.MethodBase.GetCurrentMethod().Name, "GoToPosition" );
 
-            if ( this.destinationBlip != null && this.destinationBlip.GetType() == typeof(Blip) && this.destinationBlip.Exists()) {
-                this.removeDestinationBlip();
+            if ( this.destinationBlip != null) {
+                this.destinationBlip.Remove();
+                this.destinationBlip = null;
             }
             
             if ( this.finishCheckpoint != -1) {
@@ -48,30 +53,6 @@ namespace DemagoScript
             }
         }
 
-        /// <summary>
-        /// Create destinationblip
-        /// </summary>
-        public void createDestinationBlip()
-        {
-            destinationBlip = World.CreateBlip( destination );
-            destinationBlip.Sprite = BlipSprite.Crosshair;
-            destinationBlip.Color = BlipColor.Green;
-            destinationBlip.IsFlashing = true;
-            destinationBlip.ShowRoute = true;
-            destinationBlip.Position = destination;
-        }
-
-        /// <summary>
-        /// Remove destinationblip and set the value to null
-        /// </summary>
-        private void removeDestinationBlip()
-        {
-            if (this.destinationBlip != null) {
-                this.destinationBlip.Remove();
-            }
-            this.destinationBlip = null;
-        }
-        
         /// <summary>
         /// Update
         /// </summary>
@@ -85,12 +66,8 @@ namespace DemagoScript
             Ped player = Game.Player.Character;
 
             if ( this.destination.DistanceTo( Game.Player.Character.Position ) < 1.4 ) {
-                this.removeDestinationBlip();
                 this.accomplish();
             } else {
-                if ( this.destinationBlip == null ) {
-                    this.createDestinationBlip();
-                }
                 this.ObjectiveText = "Rejoins l'endroit indiqué par le GPS";
             }
 
