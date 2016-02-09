@@ -36,6 +36,7 @@ namespace DemagoScript.GUI
             }
 
             this.objectiveTextElement.setText(this.objective);
+            this.show();
         }
 
         public void setAdvice(string text)
@@ -53,6 +54,7 @@ namespace DemagoScript.GUI
             }
 
             this.adviceTextElement.setText(this.advice);
+            this.show();
         }
     }
 }

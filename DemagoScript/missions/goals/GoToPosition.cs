@@ -18,38 +18,39 @@ namespace DemagoScript
         public GoToPosition( Vector3 position )
         {
             this.name = "Go to position";
-            destination = position;
+            this.destination = position;
         }
 
+        /// <summary>
+        /// Populate objective elements
+        /// </summary>
         public override void populateDestructibleElements()
         {
-            if (destinationBlip != null)
-            {
-                destinationBlip.Remove();
-            }
-            createDestinationBlip();
+            this.removeDestinationBlip();
+            this.createDestinationBlip();
 
-            finishCheckpoint = Function.Call<int>(Hash.CREATE_CHECKPOINT, 24, destination.X, destination.Y, 0.0f, destination.X, destination.Y, 0.0f, 2f, 254, 207, 12, 200, 40);
-            Function.Call(Hash._SET_CHECKPOINT_ICON_RGBA, finishCheckpoint, 0, 0, 256, 60);
-            Function.Call(Hash.SET_CHECKPOINT_CYLINDER_HEIGHT, finishCheckpoint, Tools.GetGroundedPosition(destination).Z + 30.0f, Tools.GetGroundedPosition(destination).Z + 30.0f, 30.0f);
-
+            this.finishCheckpoint = Function.Call<int>(Hash.CREATE_CHECKPOINT, 24, this.destination.X, this.destination.Y, 0.0f, this.destination.X, this.destination.Y, 0.0f, 2f, 254, 207, 12, 200, 40);
+            Function.Call(Hash._SET_CHECKPOINT_ICON_RGBA, this.finishCheckpoint, 0, 0, 256, 60);
+            Function.Call(Hash.SET_CHECKPOINT_CYLINDER_HEIGHT, this.finishCheckpoint, Tools.GetGroundedPosition( this.destination ).Z + 30.0f, Tools.GetGroundedPosition( this.destination ).Z + 30.0f, 30.0f);
         }
 
         public override void removeDestructibleElements(bool removePhysicalElements = false)
         {
             Tools.trace( "removePhysicalElements=" + removePhysicalElements, System.Reflection.MethodBase.GetCurrentMethod().Name, "GoToPosition" );
 
-            if ( destinationBlip != null && destinationBlip.GetType() == typeof(Blip) && destinationBlip.Exists()) {
-                destinationBlip.Remove();
-                destinationBlip = null;
+            if ( this.destinationBlip != null && this.destinationBlip.GetType() == typeof(Blip) && this.destinationBlip.Exists()) {
+                this.removeDestinationBlip();
             }
             
-            if (finishCheckpoint != -1) {
-                Function.Call( Hash.DELETE_CHECKPOINT, finishCheckpoint );
-                finishCheckpoint = -1;
+            if ( this.finishCheckpoint != -1) {
+                Function.Call( Hash.DELETE_CHECKPOINT, this.finishCheckpoint );
+                this.finishCheckpoint = -1;
             }
         }
 
+        /// <summary>
+        /// Create destinationblip
+        /// </summary>
         public void createDestinationBlip()
         {
             destinationBlip = World.CreateBlip( destination );
@@ -60,6 +61,21 @@ namespace DemagoScript
             destinationBlip.Position = destination;
         }
 
+        /// <summary>
+        /// Remove destinationblip and set the value to null
+        /// </summary>
+        private void removeDestinationBlip()
+        {
+            if (this.destinationBlip != null) {
+                this.destinationBlip.Remove();
+            }
+            this.destinationBlip = null;
+        }
+        
+        /// <summary>
+        /// Update
+        /// </summary>
+        /// <returns></returns>
         public override bool update()
         {
             if ( !base.update() ) {
@@ -68,12 +84,12 @@ namespace DemagoScript
 
             Ped player = Game.Player.Character;
 
-            if ( destination.DistanceTo( Game.Player.Character.Position ) < 1.4 ) {
-                destinationBlip.Remove();
-                accomplish();
+            if ( this.destination.DistanceTo( Game.Player.Character.Position ) < 1.4 ) {
+                this.removeDestinationBlip();
+                this.accomplish();
             } else {
-                if ( destinationBlip == null ) {
-                    createDestinationBlip();
+                if ( this.destinationBlip == null ) {
+                    this.createDestinationBlip();
                 }
                 this.ObjectiveText = "Rejoins l'endroit indiqué par le GPS";
             }

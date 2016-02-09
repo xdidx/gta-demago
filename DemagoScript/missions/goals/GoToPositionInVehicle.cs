@@ -87,25 +87,33 @@ namespace DemagoScript
             if (destinationCheckpoint >= 0)
                 Function.Call(Hash.DELETE_CHECKPOINT, destinationCheckpoint);
 
-            if (destinationBlip != null && destinationBlip.Exists())
-                destinationBlip.Remove();
+            if ( destinationBlip != null && destinationBlip.Exists() ) {
+                this.removeDestinationBlip();
+            }
         }
 
+        /// <summary>
+        /// Return true if the vehicle has been given in the constructor
+        /// </summary>
+        /// <returns>boolean</returns>
         public bool vehicleHasBeenGivenInConstruct()
         {
-            /*
-            If no position is set, the vehicle was given in constructor. If that's, we have to check if vehicle is available
-            */
-            if (vehiclePosition == Vector3.Zero)
-                return true;
-            return false;
+            /// If no position is set, the vehicle was given in constructor. If that's, we have to check if vehicle is available
+            return ( vehiclePosition == Vector3.Zero );
         }
 
+        /// <summary>
+        /// Set vehicle
+        /// </summary>
+        /// <param name="newVehicle"></param>
         public void setVehicle(Vehicle newVehicle)
         {
             this.vehicle = newVehicle;
         }
         
+        /// <summary>
+        /// Create destinationblip
+        /// </summary>
         public void createDestinationBlip()
         {
             destinationBlip = World.CreateBlip( destination );
@@ -114,6 +122,17 @@ namespace DemagoScript
             destinationBlip.IsFlashing = true;
             destinationBlip.ShowRoute = true;
             destinationBlip.Position = destination;
+        }
+
+        /// <summary>
+        /// Remove destinationblip and set the value to null
+        /// </summary>
+        private void removeDestinationBlip()
+        {
+            if ( this.destinationBlip != null ) {
+                this.destinationBlip.Remove();
+            }
+            this.destinationBlip = null;
         }
 
         public void createdDestinationCheckpoint()
@@ -160,8 +179,7 @@ namespace DemagoScript
                     player.Task.LeaveVehicle();
 
                 if ( destinationBlip != null && destinationBlip.Exists() ) {
-                    destinationBlip.Remove();
-                    destinationBlip = null;
+                    this.removeDestinationBlip();
                 }
 
                 if ( !vehicle.CurrentBlip.Exists() ) {

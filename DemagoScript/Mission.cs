@@ -36,9 +36,14 @@ namespace DemagoScript
             base.start();
 
             Game.Player.WantedLevel = 0;
-
-            Tools.log("start first objective");
-            objectives[currentObjectiveIndex].start();
+            
+            var currentObjective = objectives[currentObjectiveIndex];
+            if ( currentObjective != null ) {
+                Tools.trace( "Lancement du premier objectif", System.Reflection.MethodBase.GetCurrentMethod().Name, "Mission" );
+                objectives[currentObjectiveIndex].start();
+            } else {
+                Tools.trace( "Pas d'objectifs dans cette missions", System.Reflection.MethodBase.GetCurrentMethod().Name, "Mission" );
+            }
         }
 
         /// <summary>

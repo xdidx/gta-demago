@@ -144,12 +144,12 @@ namespace DemagoScript
 
                 newMission.OnStarted += (sender) =>
                 {
-                    if (lastMission != null)
+                    if (DemagoScript.lastMission != null)
                     {
                         Tools.log("stop lastMission");
-                        lastMission.stop();
+                        DemagoScript.lastMission.stop();
                     }
-                    lastMission = newMission;
+                    DemagoScript.lastMission = newMission;
                     GTA.UI.Notify(sender.getName());
                 };
 
@@ -189,6 +189,7 @@ namespace DemagoScript
                 newMission.OnEnded += (sender) =>
                 {
                     CameraShotsList.Instance.reset();
+                    DemagoScript.lastMission = null;
                 };
 
                 missions.Add(newMission);

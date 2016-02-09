@@ -136,6 +136,10 @@ namespace DemagoScript
             this.elapsedTime = 0;
 
             this.removeDestructibleElements(removePhysicalElements);
+
+            this.ObjectiveText = "";
+            this.AdviceText = "";
+            GUIManager.Instance.missionUI.hide();
             
             OnEnded?.Invoke(this);
         }
