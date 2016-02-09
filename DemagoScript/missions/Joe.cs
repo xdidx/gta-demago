@@ -114,11 +114,11 @@ namespace DemagoScript
                 cameraShot.lookAt(introPed);
                 cameraShots.Add(cameraShot);
 
-                cameraShot = new CameraShot(time_split, firstShotPosition, secondShotPosition);
+                cameraShot = new CameraTraveling(time_split, firstShotPosition, secondShotPosition);
                 cameraShot.lookAt(introPed);
                 cameraShots.Add(cameraShot);
 
-                cameraShot = new CameraShot(time_split, secondShotPosition, bikePositionAtHome);
+                cameraShot = new CameraTraveling(time_split, secondShotPosition, bikePositionAtHome);
                 cameraShot.lookAt(introPed);
                 cameraShots.Add(cameraShot);
 
@@ -195,7 +195,7 @@ namespace DemagoScript
 
                 List<CameraShot> cameraShots = new List<CameraShot>();
 
-                CameraShot cameraShot = new CameraShot(musicPlaylist.length("musique1") / 4, firstCameraPosition, secondCameraPosition);
+                CameraShot cameraShot = new CameraTraveling(musicPlaylist.length("musique1") / 4, firstCameraPosition, secondCameraPosition);
                 cameraShot.lookAt(Game.Player.Character);
                 cameraShots.Add(cameraShot);
 
@@ -207,7 +207,7 @@ namespace DemagoScript
                 cameraShot.lookAt(Game.Player.Character);
                 cameraShots.Add(cameraShot);
 
-                cameraShot = new CameraShot(musicPlaylist.length("musique1") / 4, fifthCameraPosition, sixthCameraPosition);
+                cameraShot = new CameraTraveling(musicPlaylist.length("musique1") / 4, fifthCameraPosition, sixthCameraPosition);
                 cameraShot.lookAt(Game.Player.Character);
                 cameraShots.Add(cameraShot);
 
@@ -394,15 +394,15 @@ namespace DemagoScript
 
                 List<CameraShot> cameraShots = new List<CameraShot>();
 
-                CameraShot cameraShot = new CameraShot(musicPlaylist.length("musique2") / 3, firstCameraPosition, secondCameraPosition);
+                CameraShot cameraShot = new CameraTraveling(musicPlaylist.length("musique2") / 3, firstCameraPosition, secondCameraPosition);
                 cameraShot.lookAt(Game.Player.Character);
                 cameraShots.Add(cameraShot);
 
-                cameraShot = new CameraShot(musicPlaylist.length("musique2") / 3, secondCameraPosition, thirdCameraPosition);
+                cameraShot = new CameraTraveling(musicPlaylist.length("musique2") / 3, secondCameraPosition, thirdCameraPosition);
                 cameraShot.lookAt(Game.Player.Character);
                 cameraShots.Add(cameraShot);
 
-                cameraShot = new CameraShot(musicPlaylist.length("musique2") / 3, thirdCameraPosition, fourthCameraPosition);
+                cameraShot = new CameraTraveling(musicPlaylist.length("musique2") / 3, thirdCameraPosition, fourthCameraPosition);
                 cameraShot.lookAt(Game.Player.Character);
                 cameraShots.Add(cameraShot);
 
@@ -568,15 +568,15 @@ namespace DemagoScript
 
                 List<CameraShot> cameraShots = new List<CameraShot>();
 
-                CameraShot cameraShot = new CameraShot(musicPlaylist.length("musique3") / 3, firstCameraPosition, secondCameraPosition);
+                CameraShot cameraShot = new CameraTraveling(musicPlaylist.length("musique3") / 3, firstCameraPosition, secondCameraPosition);
                 cameraShot.lookAt(Game.Player.Character);
                 cameraShots.Add(cameraShot);
 
-                cameraShot = new CameraShot(musicPlaylist.length("musique3") / 3, secondCameraPosition, thirdCameraPosition);
+                cameraShot = new CameraTraveling(musicPlaylist.length("musique3") / 3, secondCameraPosition, thirdCameraPosition);
                 cameraShot.lookAt(Game.Player.Character);
                 cameraShots.Add(cameraShot);
 
-                cameraShot = new CameraShot(musicPlaylist.length("musique3") / 3, thirdCameraPosition, fourthCameraPosition);
+                cameraShot = new CameraTraveling(musicPlaylist.length("musique3") / 3, thirdCameraPosition, fourthCameraPosition);
                 cameraShot.lookAt(Game.Player.Character);
                 cameraShots.Add(cameraShot);
 

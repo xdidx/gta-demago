@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="cameras\CameraTraveling.cs" />
     <Compile Include="cameras\CameraShotsList.cs" />
     <Compile Include="cameras\CameraShot.cs" />
     <Compile Include="DemagoScript.cs" />
