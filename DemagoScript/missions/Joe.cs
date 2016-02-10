@@ -84,11 +84,13 @@ namespace DemagoScript
                 Tools.setDemagoModel(DemagoModel.Joe);
 
                 Ped player = Game.Player.Character;
-                player.MaxHealth = 300;
-                player.Armor = 100;
-                player.Health = player.MaxHealth;
-                Function.Call(Hash.SET_PED_MAX_HEALTH, player, player.MaxHealth);
 
+                player.MaxHealth = 300;
+                Function.Call( Hash.SET_PED_MAX_HEALTH, player, player.MaxHealth );
+
+                player.Health = 300;
+                player.Armor = 100;
+                
                 Tools.TeleportPlayer(joeStart, false);
                 introPed = Function.Call<Ped>(Hash.CLONE_PED, Game.Player.Character, Function.Call<int>(Hash.GET_ENTITY_HEADING, Function.Call<int>(Hash.PLAYER_PED_ID)), false, true);
                 Tools.TeleportPlayer(joeHomePosition);
