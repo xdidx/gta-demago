@@ -96,15 +96,18 @@ namespace DemagoScript
             }
         }
 
-        public override void removeDestructibleElements(bool removePhysicalElements = false)
+        public override void depopulateDestructibleElements(bool removePhysicalElements = false)
         {
-            base.removeDestructibleElements(removePhysicalElements);
+            base.depopulateDestructibleElements(removePhysicalElements);
 
             if (bus != null && bus.Exists())
             {
                 bus.MarkAsNoLongerNeeded();
                 if (removePhysicalElements)
+                {
                     bus.Delete();
+                    bus = null;
+                }
             }
 
             foreach (Ped passenger in passengers)
@@ -157,18 +160,22 @@ namespace DemagoScript
             if (policeCar1 != null && policeCar1.Exists())
             {
                 policeCar1.Delete();
+                policeCar1 = null;
             }
             if (policeCar2 != null && policeCar2.Exists())
             {
                 policeCar2.Delete();
+                policeCar2 = null;
             }
             if (policeMan1 != null && policeMan1.Exists())
             {
                 policeMan1.Delete();
+                policeMan1 = null;
             }
             if (policeMan2 != null && policeMan2.Exists())
             {
                 policeMan2.Delete();
+                policeMan2 = null;
             }
 
             Vector3 policePos1 = Tools.GetSafeRoadPos(startPosition - new Vector3(escortDistance, 0, 0));

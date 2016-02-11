@@ -43,9 +43,9 @@ namespace DemagoScript
             addObjective(waitObjective);
         }
 
-        public override void removeDestructibleElements(bool removePhysicalElements = false)
+        public override void depopulateDestructibleElements(bool removePhysicalElements = false)
         {
-            base.removeDestructibleElements(removePhysicalElements);
+            base.depopulateDestructibleElements(removePhysicalElements);
 
             Ped[] peds = World.GetAllPeds();
             for (int i = 0; i < peds.Length; i++)

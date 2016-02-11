@@ -43,11 +43,34 @@ namespace DemagoScript
 
             startTime = DateTime.Now;
 
-            startAnimation();
+            #region Start animation
+            Ped player = Game.Player.Character;
+
+            player.Task.ClearAllImmediately();
+
+            if (instrumentProp == null)
+            {
+                if (instrumentHash == InstrumentHash.Guitar)
+                {
+                    instrumentProp = World.CreateProp("prop_acc_guitar_01", player.Position + player.ForwardVector * 4.0f, true, true);
+                    if (instrumentProp != null)
+                    {
+                        instrumentProp.HasCollision = true;
+                        instrumentProp.HasGravity = true;
+                        instrumentProp.AttachTo(player, player.GetBoneIndex(Bone.SKEL_Pelvis), new Vector3(-0.18f, 0.28f, -0.1f), new Vector3(195f, -24f, 0f));
+                    }
+
+                    player.Task.PlayAnimation("amb@world_human_musician@guitar@male@base", "base", 8f, -1, true, -1f);
+                    Tools.log("play animation PlayInstrument");
+                }
+            }
+            #endregion
         }
 
-        public override void removeDestructibleElements(bool removePhysicalElements = false)
+        public override void depopulateDestructibleElements(bool removePhysicalElements = false)
         {
+            Game.Player.Character.Task.ClearAllImmediately();
+
             if (instrumentProp != null && instrumentProp.Exists())
             {
                 instrumentProp.Delete();
@@ -74,7 +97,6 @@ namespace DemagoScript
             SecondsToPlay -= Game.LastFrameTime;
             if (SecondsToPlay <= 0)
             {
-                Game.Player.Character.Task.ClearAllImmediately();
                 accomplish();
                 return false;
             }
@@ -82,25 +104,6 @@ namespace DemagoScript
                 ObjectiveText = "Attend que les spectateurs aient assez apprécié la musique de Joe. (Back pour passer)";
             return true;
         }
-
-        private void startAnimation()
-        {
-            Ped player = Game.Player.Character;
-
-            player.Task.ClearAllImmediately();
-
-            if ( instrumentProp == null ) {
-                if ( instrumentHash == InstrumentHash.Guitar ) {
-                    instrumentProp = World.CreateProp( "prop_acc_guitar_01", player.Position + player.ForwardVector * 4.0f, true, true );
-                    if ( instrumentProp != null ) {
-                        instrumentProp.HasCollision = true;
-                        instrumentProp.HasGravity = true;
-                        instrumentProp.AttachTo( player, player.GetBoneIndex( Bone.SKEL_Pelvis ), new Vector3( -0.18f, 0.28f, -0.1f ), new Vector3( 195f, -24f, 0f ) );
-                    }
-
-                    player.Task.PlayAnimation( "amb@world_human_musician@guitar@male@base", "base", 8f, -1, true, -1f );
-                }
-            }
-        }
+        
     }
 }

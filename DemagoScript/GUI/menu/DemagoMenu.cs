@@ -62,7 +62,6 @@ namespace DemagoScript
                 {
                     if (item == startItem)
                     {
-                        Tools.log("Start mission");
                         mission.start();
                     }
                 };
@@ -229,6 +228,7 @@ namespace DemagoScript
                 if (lastSpecialVehicle != null && lastSpecialVehicle.Exists())
                 {
                     lastSpecialVehicle.Delete();
+                    lastSpecialVehicle = null;
                 }
 
                 if (item == bikeJoe)
@@ -476,7 +476,6 @@ namespace DemagoScript
             {
                 if (oldModel == null || !oldModel.IsValid)
                 {
-                    Tools.log("resetPlayerModel set Michael");
                     oldModel = new Model(PedHash.Michael);
                 }
 
@@ -485,9 +484,7 @@ namespace DemagoScript
                     Ped replacementPed = Function.Call<Ped>(Hash.CLONE_PED, Game.Player.Character, Function.Call<int>(Hash.GET_ENTITY_HEADING, Function.Call<int>(Hash.PLAYER_PED_ID)), false, true);
                     replacementPed.Kill();
 
-                    Tools.log("BUG Crash with function SET_PLAYER_MODEL, why?");
                     Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
-                    Tools.log("not working :/");
 
                     player = Game.Player.Character;
                     player.Task.StandStill(-1);

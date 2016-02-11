@@ -33,7 +33,7 @@ namespace DemagoScript
             vehicle.CurrentBlip.ShowRoute = true;
         }
 
-        public override void removeDestructibleElements(bool removePhysicalElements = false)
+        public override void depopulateDestructibleElements(bool removePhysicalElements = false)
         {
             if (vehicle != null && vehicle.Exists())
             {
@@ -45,6 +45,7 @@ namespace DemagoScript
                 if (removePhysicalElements)
                 {
                     vehicle.Delete();
+                    vehicle = null;
                 }
             }
         }

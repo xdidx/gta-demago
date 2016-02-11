@@ -63,8 +63,6 @@ namespace DemagoScript
             }
             else if (vehicle == null || !vehicle.Exists())
             {
-                Tools.log("Le véhicule obligatoire n'existe plus", vehicle);
-                Tools.log("Le véhicule static : ", Joe.bike);
                 fail("Le véhicule obligatoire n'existe plus");
             }
 
@@ -73,7 +71,7 @@ namespace DemagoScript
             destination = Tools.GetGroundedPosition(destination);
         }
 
-        public override void removeDestructibleElements(bool removePhysicalElements = false)
+        public override void depopulateDestructibleElements(bool removePhysicalElements = false)
         {
             if (vehicle != null && vehicle.Exists())
             {
@@ -87,9 +85,7 @@ namespace DemagoScript
             if (destinationCheckpoint >= 0)
                 Function.Call(Hash.DELETE_CHECKPOINT, destinationCheckpoint);
 
-            if ( destinationBlip != null && destinationBlip.Exists() ) {
-                this.removeDestinationBlip();
-            }
+            this.removeDestinationBlip();
         }
 
         /// <summary>
@@ -175,8 +171,11 @@ namespace DemagoScript
                     OnFirstTimeOnVehicle?.Invoke( this, vehicle );
                 alreadyMountedOnBike = true;
             } else {
-                if ( player.IsInVehicle() )
+                if (player.IsInVehicle())
+                {
                     player.Task.LeaveVehicle();
+                    //TODO : SONG "je ne montrais pas dans ces engins"
+                }
 
                 if ( destinationBlip != null && destinationBlip.Exists() ) {
                     this.removeDestinationBlip();

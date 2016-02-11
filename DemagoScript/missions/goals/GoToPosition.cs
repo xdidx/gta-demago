@@ -38,10 +38,8 @@ namespace DemagoScript
             Function.Call(Hash.SET_CHECKPOINT_CYLINDER_HEIGHT, this.finishCheckpoint, Tools.GetGroundedPosition( this.destination ).Z + 30.0f, Tools.GetGroundedPosition( this.destination ).Z + 30.0f, 30.0f);
         }
 
-        public override void removeDestructibleElements(bool removePhysicalElements = false)
+        public override void depopulateDestructibleElements(bool removePhysicalElements = false)
         {
-            Tools.trace( "removePhysicalElements=" + removePhysicalElements, System.Reflection.MethodBase.GetCurrentMethod().Name, "GoToPosition" );
-
             if ( this.destinationBlip != null) {
                 this.destinationBlip.Remove();
                 this.destinationBlip = null;

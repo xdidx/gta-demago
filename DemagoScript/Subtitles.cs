@@ -72,6 +72,11 @@ namespace DemagoScript
                         }
                     }
                 }
+
+                if (currentSongName != "" && currentSongSubtitles != null)
+                {
+                    subtitles.Add(currentSongName, currentSongSubtitles);
+                }
             }
         }
 
@@ -81,6 +86,7 @@ namespace DemagoScript
 
             if (subtitles == null)
             {
+                Tools.log("null subtitles");
                 updateSubtitles();
             }
 
@@ -90,12 +96,16 @@ namespace DemagoScript
                 int maximumSeconds = -1;
                 foreach (KeyValuePair<int, string> subtitleAssociation in songSubtitles)
                 {
-                    if (subtitleAssociation.Key > maximumSeconds && subtitleAssociation.Key <= songTime/1000)
+                    if (subtitleAssociation.Key > maximumSeconds && subtitleAssociation.Key <= songTime / 1000)
                     {
                         subtitleToShow = subtitleAssociation.Value;
                         maximumSeconds = subtitleAssociation.Key;
                     }
                 }
+            }
+            else
+            {
+                Tools.log("Son sans sous titre : "+songName);
             }
 
             return subtitleToShow;

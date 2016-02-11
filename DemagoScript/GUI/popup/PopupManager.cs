@@ -37,9 +37,9 @@ namespace DemagoScript.GUI.popup
 
         public void OnKeyDown(object sender, KeyEventArgs e)
         {
-            foreach (Popup popup in this.popups)
+            for (int i = this.popups.Count - 1; i >= 0; i--)
             {
-                popup.OnKeyDown(sender, e);
+                this.popups[i].OnKeyDown(sender, e);
             }
         }
     }

@@ -45,9 +45,9 @@ namespace DemagoScript
             addObjective(new EnterInVehicle(buzzardPosition, VehicleHash.Buzzard));
         }
 
-        public override void removeDestructibleElements(bool removePhysicalElements = false)
+        public override void depopulateDestructibleElements(bool removePhysicalElements = false)
         {
-            base.removeDestructibleElements(removePhysicalElements);
+            base.depopulateDestructibleElements(removePhysicalElements);
             foreach (WeaponHash hash in Enum.GetValues(typeof(WeaponHash)))
             {
                 if (savedWeapons[hash] != null)

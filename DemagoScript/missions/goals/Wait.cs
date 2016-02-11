@@ -38,7 +38,7 @@ namespace DemagoScript
         {
         }
 
-        public override void removeDestructibleElements(bool removePhysicalElements = false)
+        public override void depopulateDestructibleElements(bool removePhysicalElements = false)
         {
         }
     }

@@ -20,12 +20,14 @@ namespace DemagoScript
 
         }
 
-        public override void removeDestructibleElements(bool removePhysicalElements = false)
+        public override void depopulateDestructibleElements(bool removePhysicalElements = false)
         {
             Tools.trace( getName() + " removePhysicalElements = " + removePhysicalElements, System.Reflection.MethodBase.GetCurrentMethod().Name, "Mission" );
 
-            foreach ( AbstractObjective objective in objectives)
-                objective.removeDestructibleElements(removePhysicalElements);
+            foreach (AbstractObjective objective in objectives)
+            {
+                objective.depopulateDestructibleElements(removePhysicalElements);
+            }
 
             if (removePhysicalElements)
                 objectives.Clear();
@@ -50,11 +52,16 @@ namespace DemagoScript
         /// When the mission is stopped, everything has to be removed
         /// </summary>
         /// <param name="removePhysicalElements"></param>
-        public override void stop( bool removePhysicalElements = true )
+        public override void stop( bool removePhysicalElements = false )
         {
             Tools.trace( getName() + " removePhysicalElements = " + removePhysicalElements, System.Reflection.MethodBase.GetCurrentMethod().Name, "Mission" );
-            base.stop(removePhysicalElements);
+            base.stop(true);
             currentObjectiveIndex = 0;
+            foreach(AbstractObjective objective in objectives)
+            {
+                objective.depopulateDestructibleElements(true);
+            }
+            objectives.Clear();
         }
         
         public override void accomplish()
@@ -70,11 +77,9 @@ namespace DemagoScript
         public void addObjective(AbstractObjective objective)
         {
             objective.OnFailed += (sender, reason) => {
-                Tools.log("On failed goal event" + sender.getName());
                 fail(reason);
             };
             objective.OnAccomplished += (sender, elapsedTime) => {
-                Tools.log("On accomplished goal event" + sender.getName());
                 this.next();
             };
             objectives.Add(objective);
@@ -91,12 +96,15 @@ namespace DemagoScript
             {
                 AbstractObjective objective = objectives[currentObjectiveIndex];
                 objective.update();
+
+                GUIManager.Instance.missionUI.setMissionTime(Tools.getTextFromMilliSeconds(this.getElaspedTime()));
+                GUIManager.Instance.missionUI.setObjectiveTime(Tools.getTextFromMilliSeconds(objective.getElaspedTime()));
             }
             else
             {
                 this.accomplish();
             }
-
+            
             return true;
         }
 
@@ -111,7 +119,6 @@ namespace DemagoScript
             else
             {
                 AbstractObjective objective = objectives[currentObjectiveIndex];
-                Tools.log("-----Next objective named " + objective.getName() + "!!!!");
                 objective.start();
             }
         }

@@ -37,7 +37,6 @@ namespace DemagoScript
                 {
                     if (mission.isInProgress())
                     {
-                        Tools.log("stopCurrentMission");
                         mission.stop();
                     }
                 }
@@ -52,7 +51,6 @@ namespace DemagoScript
                 {
                     if (mission.isInProgress())
                     {
-                        Tools.log("fail CurrentMission");
                         mission.fail(reason);
                     }
                 }
@@ -161,7 +159,6 @@ namespace DemagoScript
                 {
                     if (DemagoScript.lastMission != null)
                     {
-                        Tools.log("stop lastMission");
                         DemagoScript.lastMission.stop();
                     }
                     DemagoScript.lastMission = newMission;

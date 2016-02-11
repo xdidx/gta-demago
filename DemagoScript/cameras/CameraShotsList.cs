@@ -32,7 +32,7 @@ namespace DemagoScript
                 return CameraShotsList.instance;
             }
         }
-
+        
         // Init
         public void initialize( List<CameraShot> sequence, float sequence_duration = 0 )
         {
@@ -46,7 +46,6 @@ namespace DemagoScript
             this.sequence = sequence;
             this.sequence_total_duration = sequence_duration;
             this.current_element = this.sequence[this.current_index];
-            Tools.log( "CameraShotsList: initialisation ok." );
         }
 
         // Update
@@ -95,7 +94,6 @@ namespace DemagoScript
         // Element suivant dans la sequence
         public void next()
         {
-            Tools.log( "CameraShotsList: next." );
             this.current_index++;
             this.current_elapsed_time = 0;
         }

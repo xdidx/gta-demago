@@ -44,16 +44,7 @@ namespace DemagoScript
         /// Called when the objective is ended.
         /// </summary>
         public event EndedEvent OnEnded;
-
-        ~AbstractObjective()
-        {
-            if (this.inProgress) {
-                this.inProgress = false;
-                this.elapsedTime = 0;
-                removeDestructibleElements( true );
-            }
-        }
-
+        
         /// <summary>
         /// Populate all elements that will have to be cleaned at the end
         /// </summary>
@@ -62,7 +53,15 @@ namespace DemagoScript
         /// <summary>
         /// Remove all elements that have been created during the objective
         /// </summary>
-        public abstract void removeDestructibleElements(bool removePhysicalElements = false);
+        public virtual void depopulateDestructibleElements(bool removePhysicalElements = false)
+        {
+            if (this.inProgress)
+            {
+                this.inProgress = false;
+                this.elapsedTime = 0;
+                depopulateDestructibleElements(true);
+            }
+        }
 
         /// <summary>
         /// Return the objective's name
@@ -90,8 +89,6 @@ namespace DemagoScript
         /// </summary>
         public virtual void start()
         {
-            Tools.trace(getName(), System.Reflection.MethodBase.GetCurrentMethod().Name, "AbstractObjective");
-
             if (this.inProgress)
             {
                 return;
@@ -130,12 +127,10 @@ namespace DemagoScript
         /// </summary>
         public virtual void stop( bool removePhysicalElements = false )
         {
-            Tools.trace( getName(), System.Reflection.MethodBase.GetCurrentMethod().Name, "AbstractObjective" );
-
             this.inProgress = false;
             this.elapsedTime = 0;
 
-            this.removeDestructibleElements(removePhysicalElements);
+            this.depopulateDestructibleElements(removePhysicalElements);
 
             this.ObjectiveText = "";
             this.AdviceText = "";
@@ -150,8 +145,6 @@ namespace DemagoScript
         /// <param name="reason">Reason of fail</param>
         public virtual void fail(string reason)
         {
-            Tools.trace( getName() + " (" + reason + ") ", System.Reflection.MethodBase.GetCurrentMethod().Name, "AbstractObjective" );
-
             this.stop();
             OnFailed?.Invoke(this, reason);
         }
@@ -161,10 +154,9 @@ namespace DemagoScript
         /// </summary>
         public virtual void accomplish()
         {
-            Tools.trace( getName(), System.Reflection.MethodBase.GetCurrentMethod().Name, "AbstractObjective" );
-
+            var finalElapsedTime = elapsedTime;
             this.stop();
-            OnAccomplished?.Invoke(this, 0);
+            OnAccomplished?.Invoke(this, finalElapsedTime);
         }
     }
 }

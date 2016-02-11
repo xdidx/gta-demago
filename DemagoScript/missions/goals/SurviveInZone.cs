@@ -48,11 +48,12 @@ namespace DemagoScript
             startPositionBlip.ShowRoute = true;
         }
 
-        public override void removeDestructibleElements(bool removePhysicalElements = false)
+        public override void depopulateDestructibleElements(bool removePhysicalElements = false)
         {
             if (startPositionBlip != null && startPositionBlip.Exists())
             {
                 startPositionBlip.Remove();
+                startPositionBlip = null;
             }
 
             if (removePhysicalElements)

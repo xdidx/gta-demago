@@ -62,7 +62,7 @@ namespace DemagoScript
 
             #region Objectives 
 
-            while (Joe.bike == null)
+            while (Joe.bike == null || !Joe.bike.Exists())
             {
                 Joe.bike = World.CreateVehicle(VehicleHash.TriBike, bikePositionAtHome);
             }
@@ -154,7 +154,6 @@ namespace DemagoScript
 
                         ped.Task.PerformSequence(incomingSpectator);
                         spectatorsPeds.Add(ped);
-                        Tools.log("GoTO sequence on spectator ped ");
                     }
                 }
 
@@ -335,7 +334,7 @@ namespace DemagoScript
                 {
                     if (spectator != null && spectator.Exists())
                     {
-                        spectator.Delete();
+                        spectator.MarkAsNoLongerNeeded();
                     }
                 }
 
@@ -500,8 +499,14 @@ namespace DemagoScript
 
             GoToPosition goToThirdSongPosition = new GoToPosition(thirdSongPosition);
 
-            Timer chansonHoo2;
+            Timer chansonHoo2 = null;
             AbstractObjective thirdSongObjectives = new PlayInstrument(InstrumentHash.Guitar, musicPlaylist.length("musique3"), "musique3", musicPlaylist);
+            thirdSongObjectives.OnEnded += (sender) =>
+            {
+                if (chansonHoo2 != null)
+                    chansonHoo2.stop();
+            };
+
             thirdSongObjectives.OnStarted += (sender) =>
             {
                 Ped player = Game.Player.Character;
@@ -524,7 +529,7 @@ namespace DemagoScript
                 {
                     if (spectator != null && spectator.Exists())
                     {
-                        spectator.Delete();
+                        spectator.MarkAsNoLongerNeeded();
                     }
                 }
 
@@ -532,7 +537,7 @@ namespace DemagoScript
                 {
                     if (ped != null && ped.Exists())
                     {
-                        ped.Delete();
+                        ped.MarkAsNoLongerNeeded();
                     }
                 }
 
@@ -585,6 +590,8 @@ namespace DemagoScript
                 CameraShotsList.Instance.initialize(cameraShots, musicPlaylist.length("musique2"));
 
                 World.Weather = Weather.Clouds;
+                player.Task.PlayAnimation("amb@world_human_musician@guitar@male@base", "base", 8f, -1, true, -1f);
+                Tools.log("play animation joe");
             };
 
             GoToPositionInVehicle goToHome = new GoToPositionInVehicle(joeHomePosition);
@@ -645,7 +652,7 @@ namespace DemagoScript
             goToHome.OnAccomplished += (sender, elapsedTime) => {
                 musicPlay("dialogue10");
             };
-
+            
             addObjective(goToFirstSongObjective);
             addObjective(firstSongObjectives);
             addObjective(goToPoliceWithBikeObjective);
@@ -660,19 +667,25 @@ namespace DemagoScript
 
         }
 
-        public override void removeDestructibleElements(bool removePhysicalElements = false)
+        public override void depopulateDestructibleElements(bool removePhysicalElements = false)
         {
-            base.removeDestructibleElements(removePhysicalElements);
+            base.depopulateDestructibleElements(removePhysicalElements);
 
             if (introPed != null && introPed.Exists())
+            {
                 introPed.Delete();
+                introPed = null;
+            }
 
             if (nadineMorano != null && nadineMorano.Exists())
             {
-                if (removePhysicalElements)
-                    nadineMorano.Delete();
-
                 nadineMorano.MarkAsNoLongerNeeded();
+
+                if (removePhysicalElements)
+                {
+                    nadineMorano.Delete();
+                    nadineMorano = null;
+                }
             }
 
             if (musicPlaylist != null)
@@ -683,10 +696,13 @@ namespace DemagoScript
 
             if (Joe.bike != null && Joe.bike.Exists())
             {
-                if (removePhysicalElements)
-                    Joe.bike.Delete();
-
                 Joe.bike.MarkAsNoLongerNeeded();
+
+                if (removePhysicalElements)
+                {
+                    Joe.bike.Delete();
+                    Joe.bike = null;
+                }
             }
 
             foreach (Ped spectator in spectatorsPeds)
@@ -728,6 +744,15 @@ namespace DemagoScript
                 }
 
             spectatorsPeds2.Clear();
+
+            Ped player = Game.Player.Character;
+            player.MaxHealth = 100;
+            Function.Call(Hash.SET_PED_MAX_HEALTH, player, player.MaxHealth);
+
+            World.Weather = Weather.Clear;
+
+            player.Health = 100;
+            player.Armor = 100;
         }
 
         private void loadMusic()
@@ -785,7 +810,6 @@ namespace DemagoScript
                 
         private void musicPlay(string musique)
         {
-            Tools.log("Music play "+musique);
             currentPlay = musique;
             musicPlaylist.playMusic(currentPlay);
         }
@@ -1006,27 +1030,23 @@ namespace DemagoScript
 
                 if (elapsedMilliseconds > musicTimeSplit + 2000 && playerDown)
                 {
-                    Tools.log("+2000");
                     introPed.Task.PlayAnimation("amb@world_human_picnic@male@exit", "exit", 8f, 3000, false, -1f);
                     playerDown = false;
                 }
                 if (elapsedMilliseconds > musicTimeSplit + 5000 && !playerWalked)
                 {
-                    Tools.log("+5000");
                     introPed.Task.ClearAllImmediately();
                     introPed.Task.GoTo(joeHomePosition, true);
                     playerWalked = true;
                 }
                 if (elapsedMilliseconds > musicTimeSplit * 2 && !playerMoved)
                 {
-                    Tools.log("*2");
                     introPed.Task.ClearAllImmediately();
                     introPed.Task.PlayAnimation("gestures@m@standing@casual", "gesture_why", 8f, -1, false, -1f);
                     playerMoved = true;
                 }
                 if (elapsedMilliseconds > musicTime && !introEnded)
                 {
-                    Tools.log("introEnded ");
                     musicPlaylist.pauseMusic("dialogue0");
                     currentPlay = "";
                     
@@ -1037,6 +1057,7 @@ namespace DemagoScript
                     player.Task.ClearAllImmediately();
                     introPed.IsVisible = false;
                     introPed.Delete();
+                    introPed = null;
                     player.IsVisible = true;
 
                     Function.Call(Hash.DISPLAY_HUD, true);

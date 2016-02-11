@@ -12,9 +12,13 @@ namespace DemagoScript.GUI
     {
         private string objective = "";
         private string advice = "";
+        private string missionTime = "";
+        private string objectiveTime = "";
 
         private UITextElement objectiveTextElement = null;
         private UITextElement adviceTextElement = null;
+        private UITextElement missionTimeTextElement = null;
+        private UITextElement objectiveTimeTextElement = null;
 
         public MissionUI()
         {
@@ -41,7 +45,8 @@ namespace DemagoScript.GUI
 
         public void setAdvice(string text)
         {
-            if ( String.IsNullOrWhiteSpace( text ) ) {
+            if (String.IsNullOrWhiteSpace(text))
+            {
                 return;
             }
 
@@ -54,6 +59,44 @@ namespace DemagoScript.GUI
             }
 
             this.adviceTextElement.setText(this.advice);
+            this.show();
+        }
+
+        public void setMissionTime(string text)
+        {
+            if (String.IsNullOrWhiteSpace(text))
+            {
+                return;
+            }
+
+            this.missionTime = text;
+
+            if (this.missionTimeTextElement == null)
+            {
+                this.missionTimeTextElement = new UITextElement(this.advice, 0.1, 0.1, 0.5f, true, GTA.Font.ChaletComprimeCologne, UIColor.WHITE);
+                this.add(this.missionTimeTextElement);
+            }
+
+            this.missionTimeTextElement.setText(this.missionTime);
+            this.show();
+        }
+
+        public void setObjectiveTime(string text)
+        {
+            if (String.IsNullOrWhiteSpace(text))
+            {
+                return;
+            }
+
+            this.objectiveTime = text;
+
+            if (this.objectiveTimeTextElement == null)
+            {
+                this.objectiveTimeTextElement = new UITextElement(this.advice, 0.1, 0.13, 0.5f, true, GTA.Font.ChaletComprimeCologne, UIColor.WHITE);
+                this.add(this.objectiveTimeTextElement);
+            }
+
+            this.objectiveTimeTextElement.setText(this.objectiveTime);
             this.show();
         }
     }
