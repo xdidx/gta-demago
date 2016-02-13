@@ -20,7 +20,7 @@ namespace DemagoScript
 
             try
             {
-                 lines = File.ReadAllLines(@"Music\joe-subtitles.txt");
+                 lines = File.ReadAllLines(@"musics\joeSubtitles.txt");
             }
             catch (Exception e)
             {

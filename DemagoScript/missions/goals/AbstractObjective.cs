@@ -10,10 +10,11 @@ using GTA.Math;
 
 namespace DemagoScript
 {
-    abstract class AbstractObjective
+    abstract class AbstractObjective : Checkpoint
     {
         protected string name = "";
 
+        private bool active = false;
         private bool inProgress = false;
         private float elapsedTime = 0;
         private Vector3 playerPosition = Vector3.Zero;
@@ -47,11 +48,41 @@ namespace DemagoScript
         /// Called when the objective is ended.
         /// </summary>
         public event EndedEvent OnEnded;
-        
+
         /// <summary>
         /// Populate all elements that will have to be cleaned at the end
         /// </summary>
-        public abstract void populateDestructibleElements();
+        public virtual void populateDestructibleElements()
+        {
+            if (WantedLevel != -1)
+                Game.Player.WantedLevel = WantedLevel;
+
+            if (Health != -1)
+                Game.Player.Character.Health = Health;
+
+            if (Armor!= -1)
+                Game.Player.Character.Armor = Armor;
+
+            if (clockHour != -1)
+                Tools.setClockTime(clockHour, Math.Max(clockTransitionTime, 0));
+
+            if (PlayerPosition != Vector3.Zero)
+                Tools.TeleportPlayer(PlayerPosition);
+
+            if (Heading != -1)
+                Game.Player.Character.Heading = Heading;
+
+            if (Weather != Weather.Smog)
+                World.Weather = Weather;
+
+            foreach (KeyValuePair<Entity, Vector3> pair in entitiesCollector)
+            {
+                if (pair.Key != null && pair.Key.Exists())
+                { 
+                    pair.Key.Position = pair.Value;
+                }
+            }
+        }
 
         /// <summary>
         /// Remove all elements that have been created during the objective
@@ -61,6 +92,7 @@ namespace DemagoScript
             if (this.inProgress)
             {
                 this.inProgress = false;
+                this.active = false;
                 this.elapsedTime = 0;
                 depopulateDestructibleElements(true);
             }
@@ -85,6 +117,14 @@ namespace DemagoScript
         public bool isInProgress()
         {
             return inProgress;
+        }
+
+        /// <summary>
+        /// Return if objective isn't in progress but isn't stop yet
+        /// </summary>
+        public bool isWaiting()
+        {
+            return !inProgress && elapsedTime > 0;
         }
 
         /// <summary>
@@ -183,7 +223,7 @@ namespace DemagoScript
         /// <summary>
         /// Accomplish the objective
         /// </summary>
-        public virtual void accomplish()
+        protected virtual void accomplish()
         {
             var finalElapsedTime = elapsedTime;
             this.stop();

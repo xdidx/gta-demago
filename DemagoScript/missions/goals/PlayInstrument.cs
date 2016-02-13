@@ -18,30 +18,25 @@ namespace DemagoScript
 
     class PlayInstrument : AbstractObjective
     {
-        private DateTime startTime;
         private Prop instrumentProp;
         private InstrumentHash instrumentHash;
         private string musicToPlay = "";
-        private Music musiques;
+        private float secondToPlay = 0;
 
-        public float SecondsToPlay { get; set; }
-
-        public PlayInstrument( InstrumentHash instrumentHash, float secondsToPlay, String musicToPlay, Music musics )
+        public PlayInstrument(InstrumentHash instrumentHash, string musicToPlay)
         {
             this.name = "Play instrument";
 
             this.instrumentHash = instrumentHash;
             this.musicToPlay = musicToPlay;
-            SecondsToPlay = secondsToPlay / 1000;
-            musiques = musics;
         }
 
         public override void populateDestructibleElements()
         {
-            musiques.stopAll();
-            musiques.playMusic(musicToPlay);
+            base.populateDestructibleElements();
 
-            startTime = DateTime.Now;
+            AudioManager.Instance.startSound(musicToPlay, "joe/", "joe");
+            this.secondToPlay = AudioManager.Instance.getLength(musicToPlay);
 
             #region Start animation
             Ped player = Game.Player.Character;
@@ -85,25 +80,27 @@ namespace DemagoScript
 
             if(Game.IsKeyPressed(System.Windows.Forms.Keys.Back))
             {
-                CameraShotsList.Instance.reset();
-                musiques.pauseMusic(musicToPlay);
-                Game.Player.Character.Task.ClearAllImmediately();
                 accomplish();
                 return false;
             }
 
-            musiques.playMusic(musicToPlay);
-            
-            SecondsToPlay -= Game.LastFrameTime;
-            if (SecondsToPlay <= 0)
+            secondToPlay -= Game.LastFrameTime;
+            if (secondToPlay <= 0)
             {
                 accomplish();
                 return false;
             }
-            else if (SecondsToPlay >= 0)
+            else if (secondToPlay >= 0)
                 ObjectiveText = "Attend que les spectateurs aient assez apprécié la musique de Joe. (Back pour passer)";
             return true;
         }
-        
+
+        protected override void accomplish()
+        {
+            CameraShotsList.Instance.reset();
+            AudioManager.Instance.stopAll();
+            Game.Player.Character.Task.ClearAllImmediately();
+            base.accomplish();
+        }
     }
 }

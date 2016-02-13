@@ -47,6 +47,8 @@ namespace DemagoScript
 
         public override void populateDestructibleElements()
         {
+            base.populateDestructibleElements();
+
             alreadyMountedOnBike = false;
 
             if (!vehicleHasBeenGivenInConstruct())

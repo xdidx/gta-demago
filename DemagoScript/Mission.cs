@@ -90,7 +90,7 @@ namespace DemagoScript
             objectives.Clear();
         }
         
-        public override void accomplish()
+        protected override void accomplish()
         {
             base.accomplish();
 

@@ -39,6 +39,8 @@ namespace DemagoScript
 
         public override void populateDestructibleElements()
         {
+            base.populateDestructibleElements();
+
             int ballasGroup = World.AddRelationshipGroup("Ballas");
 
             startPositionBlip = World.CreateBlip(startPosition);

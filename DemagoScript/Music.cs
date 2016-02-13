@@ -9,7 +9,7 @@ namespace DemagoScript
     {
         private ISoundEngine engine = new ISoundEngine();
         private Dictionary<string, ISound> musicTable = new Dictionary<string, ISound>();
-        private static string musicLocation = Environment.CurrentDirectory + @"\Music\";
+        private static string musicLocation = Environment.CurrentDirectory + @"\musics\";
         private List<string> listePaused = new List<string>();
 
         public Music(List<string[]> liste)

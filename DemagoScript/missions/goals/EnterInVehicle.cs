@@ -25,6 +25,8 @@ namespace DemagoScript
 
         public override void populateDestructibleElements()
         {
+            base.populateDestructibleElements();
+
             vehicle = World.CreateVehicle(vehicleHash, position);
             vehicle.AddBlip();
             vehicle.CurrentBlip.Sprite = BlipSprite.HelicopterAnimated;

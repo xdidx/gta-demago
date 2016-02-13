@@ -26,6 +26,8 @@ namespace DemagoScript
         /// </summary>
         public override void populateDestructibleElements()
         {
+            base.populateDestructibleElements();
+
             destinationBlip = World.CreateBlip(destination);
             destinationBlip.Sprite = BlipSprite.Crosshair;
             destinationBlip.Color = BlipColor.Green;
