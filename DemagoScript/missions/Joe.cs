@@ -24,10 +24,8 @@ namespace DemagoScript
         #endregion
 
         public static Vehicle bike = null;
-        private Ped introPed, nadineMorano;
-        private List<Ped> spectatorsPeds = new List<Ped>();
-        private List<Ped> copsPeds = new List<Ped>();
-        private List<Ped> spectatorsPeds3 = new List<Ped>();
+        private Ped introPed = null, nadineMorano = null;
+        private List<Ped> spectatorsPeds = new List<Ped>(), copsPeds = new List<Ped>(), spectatorsPeds3 = new List<Ped>();
         
         private Random random = new Random();
 
@@ -48,7 +46,7 @@ namespace DemagoScript
             this.name = "Joe l'anticonformiste";
         }
 
-        public void checkRequiredElements()
+        public override void checkRequiredElements()
         {
             while (Joe.bike == null || !Joe.bike.Exists())
             {
@@ -66,6 +64,8 @@ namespace DemagoScript
             Function.Call(Hash.SET_PED_MAX_HEALTH, player, player.MaxHealth);
 
             CameraShotsList.Instance.reset();
+
+            AudioManager.Instance.FilesSubFolder = @"joe\joe";
         }
 
         public override void populateDestructibleElements()
@@ -93,8 +93,11 @@ namespace DemagoScript
                 playerMoved = false;
                 introEnded = false;
 
+                Tools.TeleportPlayer(joeStart, false);
+
                 Ped player = Game.Player.Character;
                 introPed = Function.Call<Ped>(Hash.CLONE_PED, player, Function.Call<int>(Hash.GET_ENTITY_HEADING, Function.Call<int>(Hash.PLAYER_PED_ID)), false, true);
+
                 Tools.TeleportPlayer(joeHomePosition);
 
                 player.IsVisible = false;
@@ -155,7 +158,7 @@ namespace DemagoScript
                     }
                 }
 
-                AudioManager.Instance.startSound("dialogue0", "joe/", "joe");
+                AudioManager.Instance.startSound("dialogue0");
                 #endregion
             };
 
@@ -257,7 +260,7 @@ namespace DemagoScript
             goToPoliceWithBikeObjective.WantedLevel = 2;
             goToPoliceWithBikeObjective.OnStarted += (sender) =>
             {
-                AudioManager.Instance.startPlaylist(new string[] { "flics1", "dialogue1", "dialogue2", "dialogue3" }, "joe/", "joe");
+                AudioManager.Instance.startPlaylist(new string[] { "flics1", "dialogue1", "dialogue2", "dialogue3" });
             };
 
             GoToPosition goToSecondSongObjective = new GoToPosition(secondSongPosition);
@@ -363,7 +366,7 @@ namespace DemagoScript
             goToTheaterWithBikeObjective.setClockHour(18, 40000);
             goToTheaterWithBikeObjective.OnStarted += (sender) =>
             {
-                AudioManager.Instance.startPlaylist(new string[] { "flics2", "flics3", "flics4", "dialogue4", "dialogue5", "dialogue6" }, "joe/", "joe");
+                AudioManager.Instance.startPlaylist(new string[] { "flics2", "flics3", "flics4", "dialogue4", "dialogue5", "dialogue6" });
 
                 foreach (Ped ped in copsPeds)
                 {
@@ -435,13 +438,13 @@ namespace DemagoScript
 
                 #region Cinematic
                 nadineMorano.Task.FleeFrom(player);
-                AudioManager.Instance.startIndependantSound("nadine", "joe/", "joe");
-                AudioManager.Instance.startIndependantSound("degueulasseHoo", "joe/", "joe");
+                AudioManager.Instance.startIndependantSound("nadine");
+                AudioManager.Instance.startIndependantSound("degueulasseHoo");
 
                 chansonHoo2 = new Timer(AudioManager.Instance.getLength("degueulasse") - 19000);
                 chansonHoo2.OnTimerStop += (timerSender) =>
                 {
-                    AudioManager.Instance.startIndependantSound("degueulasseHoo2", "joe/", "joe");
+                    AudioManager.Instance.startIndependantSound("degueulasseHoo2");
                 };
 
                 foreach (Ped spectator in spectatorsPeds3)
@@ -533,7 +536,7 @@ namespace DemagoScript
             {
                 bikeRegen = true;
 
-                AudioManager.Instance.startPlaylist(new string[] { "flics5", "dialogue8", "dialogue9" }, "joe/", "joe");
+                AudioManager.Instance.startPlaylist(new string[] { "flics5", "dialogue8", "dialogue9" });
 
                 GTA.UI.ShowSubtitle("Spectateurs : C'est nul ! Casse toi ! On a encore appelé les flics ! Tu vas avoir des problèmes !", 3000);
             };
@@ -541,7 +544,7 @@ namespace DemagoScript
                 goToHome.AdviceText = "Evite les routes pour éviter les voitures de police";
             };
             goToHome.OnAccomplished += (sender, elapsedTime) => {
-                AudioManager.Instance.startSound("dialogue10", "joe/", "joe");
+                AudioManager.Instance.startSound("dialogue10");
             };
             
             addObjective(goToFirstSongObjective);
@@ -644,7 +647,6 @@ namespace DemagoScript
             #region Intro gestion
             if (!introEnded)
             {
-
                 if (player.IsVisible)
                 {
                     player.IsVisible = false;

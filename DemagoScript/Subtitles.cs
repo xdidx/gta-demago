@@ -20,7 +20,7 @@ namespace DemagoScript
 
             try
             {
-                 lines = File.ReadAllLines(@"musics\joeSubtitles.txt");
+                 lines = File.ReadAllLines(@"musics\joe\joeSubtitles.txt");
             }
             catch (Exception e)
             {
@@ -46,7 +46,7 @@ namespace DemagoScript
 
                     if (currentSongName == "" && currentLine.Length >= 4 && currentLine.Substring(currentLine.Length - 4) == ".wav")
                     {
-                        currentSongName = currentLine;
+                        currentSongName = currentLine.ToLower();
                         currentSongSubtitles = new Dictionary<int, string>();
                         lineIndex++;
                         currentLine = lines[lineIndex];
@@ -80,13 +80,15 @@ namespace DemagoScript
             }
         }
 
+        private static string without = "";
         public static string getSubtitle(string songName, int songTime)
         {
             string subtitleToShow = "";
 
+            songName = songName.ToLower();
+
             if (subtitles == null)
             {
-                Tools.log("null subtitles");
                 updateSubtitles();
             }
 
@@ -103,8 +105,9 @@ namespace DemagoScript
                     }
                 }
             }
-            else
+            else if(without != songName)
             {
+                without = songName;
                 Tools.log("Son sans sous titre : "+songName);
             }
 

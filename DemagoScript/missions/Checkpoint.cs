@@ -61,5 +61,38 @@ namespace DemagoScript
         {
             entitiesCollector.Add(entity, position);
         }
+
+        public void initialize()
+        {
+            if (WantedLevel != -1)
+                Game.Player.WantedLevel = WantedLevel;
+
+            if (Health != -1)
+                Game.Player.Character.Health = Health;
+
+            if (Armor != -1)
+                Game.Player.Character.Armor = Armor;
+
+            if (clockHour != -1)
+                Tools.setClockTime(clockHour, Math.Max(clockTransitionTime, 0));
+
+            if (PlayerPosition != Vector3.Zero && PlayerPosition.DistanceTo(Game.Player.Character.Position) > 30)
+                Tools.TeleportPlayer(PlayerPosition);
+
+            if (Heading != -1)
+                Game.Player.Character.Heading = Heading;
+
+            if (Weather != Weather.Smog)
+                World.Weather = Weather;
+
+            foreach (KeyValuePair<Entity, Vector3> pair in entitiesCollector)
+            {
+                Entity entity = pair.Key;
+                if (entity != null && entity.Exists() && entity.Position.DistanceTo(pair.Value) > 30)
+                {
+                    entity.Position = pair.Value;
+                }
+            }
+        }
     }
 }

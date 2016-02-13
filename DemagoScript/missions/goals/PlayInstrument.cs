@@ -35,7 +35,7 @@ namespace DemagoScript
         {
             base.populateDestructibleElements();
 
-            AudioManager.Instance.startSound(musicToPlay, "joe/", "joe");
+            AudioManager.Instance.startSound(musicToPlay);
             this.secondToPlay = AudioManager.Instance.getLength(musicToPlay);
 
             #region Start animation
@@ -82,6 +82,12 @@ namespace DemagoScript
             {
                 accomplish();
                 return false;
+            }
+
+            if (!Function.Call<bool>(Hash.IS_HUD_HIDDEN))
+            {
+                Function.Call(Hash.DISPLAY_HUD, true);
+                Function.Call(Hash.DISPLAY_RADAR, true);
             }
 
             secondToPlay -= Game.LastFrameTime;

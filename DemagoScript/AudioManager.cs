@@ -16,9 +16,8 @@ namespace DemagoScript
         private ISoundEngine engine = new ISoundEngine();
         private Dictionary<string, ISound> playlist = new Dictionary<string, ISound>();
         private List<ISound> independantSongs = new List<ISound>();
-        private int currentSoundIndex = 0;
-        private string filesPrefix = MusicsLocation;
         private ISound currentInterruptSound = null;
+        private int currentSoundIndex = 0;
         private Random random = new Random();
 
         private static AudioManager instance;
@@ -35,13 +34,23 @@ namespace DemagoScript
             }
         }
 
-        public static string MusicsLocation
+        public string MusicsLocation
         {
             get
             {
                 return Environment.CurrentDirectory + @"\musics\";
             }
         }
+
+        public string FullPrefix
+        {
+            get
+            {
+                return MusicsLocation + FilesSubFolder;
+            }
+        }
+
+        public string FilesSubFolder { get; set; }
 
         public void update()
         {
@@ -71,41 +80,51 @@ namespace DemagoScript
                 if (Function.Call<Boolean>(Hash.HAS_PED_BEEN_DAMAGED_BY_WEAPON, Game.Player.Character, 0, 2))
                 {
                     int next = random.Next(10) + 1;
-                    fileFullPath = filesPrefix + "balle" + next + ".wav";
+                    fileFullPath = FullPrefix + "balle" + next + ".wav";
                 }
                 else
                 {
                     if (Function.Call<Boolean>(Hash.HAS_ENTITY_BEEN_DAMAGED_BY_ANY_VEHICLE, Game.Player.Character))
                     {
                         int next = random.Next(8) + 1;
-                        fileFullPath = filesPrefix + "voiture" + next;
+                        fileFullPath = FullPrefix + "voiture" + next + ".wav";
                     }
                     else
                     {
                         if (Function.Call<Boolean>(Hash.HAS_ENTITY_BEEN_DAMAGED_BY_ANY_OBJECT, Game.Player.Character))
                         {
                             int next = random.Next(7) + 1;
-                            fileFullPath = filesPrefix + "insulte" + next;
+                            fileFullPath = FullPrefix + "insulte" + next + ".wav";
                         }
                     }
                 }
 
                 if (fileFullPath != "")
                 {
-                    if (currentSoundIndex <= playlist.Count)
+                    if (File.Exists(fileFullPath))
                     {
-                        if (!playlist.ElementAt(currentSoundIndex).Key.StartsWith("flic"))
-                            playlist.ElementAt(currentSoundIndex).Value.Paused = true;
-                    }
+                        if (currentSoundIndex < playlist.Count)
+                        {
+                            if (!playlist.ElementAt(currentSoundIndex).Key.StartsWith("flic"))
+                                playlist.ElementAt(currentSoundIndex).Value.Paused = true;
+                        }
 
-                    currentInterruptSound = engine.Play2D(fileFullPath);
-                    currentInterruptSound.Paused = false;
+                        currentInterruptSound = engine.Play2D(fileFullPath);
+                        if (currentInterruptSound != null)
+                            currentInterruptSound.Paused = false;
+                        else
+                            Tools.log("just created currentInterruptSound is null");
+                    }
+                    else
+                    {
+                        Tools.log("interruption file doesn't exist"+ fileFullPath);
+                    }
                 }
             }
             
             if (currentInterruptSound != null && currentInterruptSound.Finished)
             {
-                if (currentSoundIndex <= playlist.Count)
+                if (currentSoundIndex < playlist.Count)
                 {
                     playlist.ElementAt(currentSoundIndex).Value.Paused = true;
                 }
@@ -121,10 +140,11 @@ namespace DemagoScript
         {
             string subtitle = "";
 
-            if (currentSoundIndex <= playlist.Count)
+            if (currentSoundIndex < playlist.Count)
             {
                 KeyValuePair<string, ISound> currentPair = playlist.ElementAt(currentSoundIndex);
-                string fileName = Path.GetFileName(this.filesPrefix + currentPair.Key + ".wav");
+                string fileName = Path.GetFileName(FullPrefix + currentPair.Key + ".wav");
+
                 subtitle = Subtitles.getSubtitle(fileName, (int)currentPair.Value.PlayPosition);
             }
 
@@ -134,57 +154,53 @@ namespace DemagoScript
             }
         }
 
-        public void startPlaylist(string[] soundsNames, string subfolder = "", string filesPrefix = "")
+        public void startPlaylist(string[] soundsNames)
         {
-            stopPlaylist();
-
-            var directoryPath = MusicsLocation + subfolder;
-            this.filesPrefix = directoryPath + filesPrefix;
-            if (Directory.Exists(directoryPath))
+            stopAll();
+            foreach (string soundName in soundsNames)
             {
-                foreach (string soundName in soundsNames)
+                var fileFullPath = FullPrefix + soundName + ".wav";
+                if (File.Exists(fileFullPath))
                 {
-                    var fileFullPath = Path.Combine(directoryPath, filesPrefix + soundName + ".wav");
-                    if (File.Exists(fileFullPath))
+                    try
                     {
-                        Tools.log("music : " + soundName + " / " +fileFullPath);
-                        try
-                        {
-                            playlist.Add(soundName, engine.Play2D(fileFullPath));
-                            playlist[soundName].Paused = true;
-                        }
-                        catch (Exception ex)
-                        {
-                            Tools.log("Error loading " + fileFullPath + " : " + ex.Message);
-                            playlist.Remove(soundName);
-                        }
+                        playlist.Add(soundName, engine.Play2D(fileFullPath));
+                        playlist[soundName].Paused = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        Tools.log("Error loading " + fileFullPath + " : " + ex.Message);
+                        playlist.Remove(soundName);
                     }
                 }
             }
+            playlist.First().Value.Paused = false;
         }
 
-        public void startSound(string soundName, string subfolder = "", string filesPrefix = "")
+        public void startSound(string soundName)
         {
-            startPlaylist(new string[] { soundName }, subfolder, filesPrefix);
+            startPlaylist(new string[] { soundName });
         }
 
-        public void startIndependantSound(string soundName, string subfolder = "", string filesPrefix = "")
+        public void startIndependantSound(string soundName)
         {
-            var directoryPath = MusicsLocation + subfolder;
-            this.filesPrefix = directoryPath + filesPrefix;
-            if (Directory.Exists(directoryPath))
+            var fileFullPath = FullPrefix + soundName + ".wav";
+            if (File.Exists(fileFullPath))
             {
-                var fileFullPath = Path.Combine(directoryPath, filesPrefix + soundName + ".wav");
-                if (File.Exists(fileFullPath))
-                {
-                    var independantSound = engine.Play2D(fileFullPath);
-                    independantSongs.Add(independantSound);
-                }
+                var independantSound = engine.Play2D(fileFullPath);
+                independantSongs.Add(independantSound);
             }
         }
 
         public void playNext()
         {
+            if (currentSoundIndex < playlist.Count)
+            {
+                ISound currentSound = playlist.ElementAt(currentSoundIndex).Value;
+                currentSound.Paused = true;
+                currentSound.Dispose();
+            }
+
             currentSoundIndex++;
             if (currentSoundIndex < playlist.Count)
             {
@@ -194,18 +210,15 @@ namespace DemagoScript
             }
         }
 
-        public void restartPlaylist()
-        {
-            currentSoundIndex = 0;
-        }
-
         public void stopPlaylist()
         {
             foreach (KeyValuePair<string, ISound> pair in playlist)
             {
+                pair.Value.Paused = true;
                 pair.Value.Dispose();
             }
             playlist.Clear();
+            currentSoundIndex = 0;
         }
 
         public void stopAll()
@@ -218,6 +231,7 @@ namespace DemagoScript
         {
             foreach (ISound sound in independantSongs)
             {
+                sound.Paused = true;
                 sound.Dispose();
             }
             independantSongs.Clear();
@@ -225,14 +239,25 @@ namespace DemagoScript
 
         public int getLength(string soundName)
         {
+            int length = 0;
+
             if (playlist.ContainsKey(soundName))
             {
-                return (int)playlist[soundName].PlayLength;
+                length = (int)playlist[soundName].PlayLength;
+            }
+            else if (File.Exists(FullPrefix + soundName + ".wav"))
+            {
+                ISound sound = engine.Play2D(FullPrefix + soundName + ".wav");
+                length = (int)sound.PlayLength;
+                sound.Paused = true;
+                sound.Dispose();
             }
             else
             {
-                return 0;
+                Tools.log("Try to get length on undefined music file : "+ FullPrefix + soundName + ".wav");
             }
+
+            return length;
         }
     }
 }

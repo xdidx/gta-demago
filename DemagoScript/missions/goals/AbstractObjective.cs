@@ -17,7 +17,6 @@ namespace DemagoScript
         private bool active = false;
         private bool inProgress = false;
         private float elapsedTime = 0;
-        private Vector3 playerPosition = Vector3.Zero;
 
         public string ObjectiveText { get; set; }
         public string AdviceText { get; set; }
@@ -54,34 +53,7 @@ namespace DemagoScript
         /// </summary>
         public virtual void populateDestructibleElements()
         {
-            if (WantedLevel != -1)
-                Game.Player.WantedLevel = WantedLevel;
-
-            if (Health != -1)
-                Game.Player.Character.Health = Health;
-
-            if (Armor!= -1)
-                Game.Player.Character.Armor = Armor;
-
-            if (clockHour != -1)
-                Tools.setClockTime(clockHour, Math.Max(clockTransitionTime, 0));
-
-            if (PlayerPosition != Vector3.Zero)
-                Tools.TeleportPlayer(PlayerPosition);
-
-            if (Heading != -1)
-                Game.Player.Character.Heading = Heading;
-
-            if (Weather != Weather.Smog)
-                World.Weather = Weather;
-
-            foreach (KeyValuePair<Entity, Vector3> pair in entitiesCollector)
-            {
-                if (pair.Key != null && pair.Key.Exists())
-                { 
-                    pair.Key.Position = pair.Value;
-                }
-            }
+            base.initialize();
         }
 
         /// <summary>
@@ -135,17 +107,12 @@ namespace DemagoScript
             this.inProgress = false;
         }
 
-        /// <summary> Useless????
+        /// <summary>
         /// Play the objective
         /// </summary>
         public virtual void play()
         {
             this.inProgress = true;
-        }
-
-        public Vector3 getPlayerPosition()
-        {
-            return this.playerPosition;
         }
 
         /// <summary>
@@ -157,16 +124,14 @@ namespace DemagoScript
             {
                 return;
             }
+            
+            Tools.log("Start "+getName());
 
             elapsedTime = 0;
-
-            playerPosition = Game.Player.Character.Position;
-            Tools.log( "saveCurrentPlayerPosition: " + playerPosition );
-
-            populateDestructibleElements();
-
             this.inProgress = true;
 
+            populateDestructibleElements();
+            
             OnStarted?.Invoke(this);
         }
 
@@ -194,16 +159,16 @@ namespace DemagoScript
         /// </summary>
         public virtual void stop( bool removePhysicalElements = false )
         {
-            Tools.trace( getName() + " removePhysicalElements = " + removePhysicalElements, System.Reflection.MethodBase.GetCurrentMethod().Name, "AbstractObjective" );
+            Tools.log("Stop " + getName());
 
-            this.inProgress = false;
             this.elapsedTime = 0;
 
             this.depopulateDestructibleElements(removePhysicalElements);
 
+            this.inProgress = false;
+
             this.ObjectiveText = "";
             this.AdviceText = "";
-            GUIManager.Instance.missionUI.hide();
             
             OnEnded?.Invoke(this);
         }
@@ -214,8 +179,6 @@ namespace DemagoScript
         /// <param name="reason">Reason of fail</param>
         public virtual void fail(string reason)
         {
-            Tools.trace( getName() + " reason = " + reason, System.Reflection.MethodBase.GetCurrentMethod().Name, "AbstractObjective" );
-
             this.stop();
             OnFailed?.Invoke(this, reason);
         }

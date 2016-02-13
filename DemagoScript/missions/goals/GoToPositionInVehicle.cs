@@ -77,7 +77,7 @@ namespace DemagoScript
         {
             if (vehicle != null && vehicle.Exists())
             {
-                if (removePhysicalElements && vehicleHasBeenGivenInConstruct())
+                if (removePhysicalElements && !vehicleHasBeenGivenInConstruct())
                     vehicle.Delete();
 
                 if (vehicle.CurrentBlip != null)

@@ -20,18 +20,25 @@ namespace DemagoScript
         public virtual void loadLastCheckpoint()
         {
             Tools.log( "loadLastCheckpoint" );
-            Game.Player.WantedLevel = 0;
-            
-            var currentObjective = objectives[currentObjectiveIndex];
-            if ( currentObjective != null ) {
-                Tools.log( "Mise en place du model de la mission" );
-                Function.Call( Hash.SET_PLAYER_MODEL, Game.Player.Handle, missionModel.Hash );
-                Tools.log( "TeleportPlayer to "+currentObjective.getPlayerPosition() );
-                Tools.TeleportPlayer( currentObjective.getPlayerPosition() );
-                Tools.log( "StartObjective " + currentObjective.getName() );
-                currentObjective.start();
+
+            checkRequiredElements();
+
+            this.play();
+
+            if (currentObjectiveIndex < objectives.Count)
+            {
+                var currentObjective = objectives[currentObjectiveIndex];
+                if (currentObjective != null)
+                {
+                    currentObjective.stop(true);
+                    currentObjective.start();
+                }
             }
-            
+        }
+
+        public virtual void checkRequiredElements()
+        {
+
         }
 
         public override void populateDestructibleElements()
@@ -41,8 +48,6 @@ namespace DemagoScript
 
         public override void depopulateDestructibleElements(bool removePhysicalElements = false)
         {
-            Tools.trace( getName() + " removePhysicalElements = " + removePhysicalElements, System.Reflection.MethodBase.GetCurrentMethod().Name, "Mission" );
-
             foreach (AbstractObjective objective in objectives)
             {
                 objective.depopulateDestructibleElements(removePhysicalElements);
@@ -62,7 +67,6 @@ namespace DemagoScript
             
             var currentObjective = objectives[currentObjectiveIndex];
             if ( currentObjective != null ) {
-                Tools.trace( "Lancement du premier objectif", System.Reflection.MethodBase.GetCurrentMethod().Name, "Mission" );
                 currentObjective.start();
             } else {
                 Tools.trace( "Pas d'objectifs dans cette missions", System.Reflection.MethodBase.GetCurrentMethod().Name, "Mission" );
@@ -75,12 +79,9 @@ namespace DemagoScript
         /// <param name="removePhysicalElements"></param>
         public override void stop( bool removePhysicalElements = false )
         {
-            Tools.trace( getName() + " removePhysicalElements = " + removePhysicalElements, System.Reflection.MethodBase.GetCurrentMethod().Name, "Mission" );
-
             base.stop(true);
-            
-            // Reset the player model
-            resetPlayerModel();
+
+            GUIManager.Instance.missionUI.hide();
 
             currentObjectiveIndex = 0;
             foreach(AbstractObjective objective in objectives)
@@ -88,16 +89,19 @@ namespace DemagoScript
                 objective.depopulateDestructibleElements(true);
             }
             objectives.Clear();
-        }
-        
-        protected override void accomplish()
-        {
-            base.accomplish();
+
+            // Reset the player model
+            resetPlayerModel();
 
             Game.Player.WantedLevel = 0;
             Game.Player.Character.Armor = 100;
             Game.Player.Character.MaxHealth = 100;
             Game.Player.Character.Health = Game.Player.Character.MaxHealth;
+        }
+        
+        protected override void accomplish()
+        {
+            base.accomplish();
         }
         
         public void addObjective(AbstractObjective objective)
@@ -117,16 +121,24 @@ namespace DemagoScript
             {
                 return false;
             }
-            
-            this.failIfPlayerIsDeadOrArrested();
+
+            if (Game.Player.IsDead || Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true))
+            {
+                Tools.log("mort ou arreté, la mission est en pause");
+                this.pause();
+                this.resetPlayerModel();
+            }
             
             if (currentObjectiveIndex < objectives.Count)
             {
                 AbstractObjective objective = objectives[currentObjectiveIndex];
                 objective.update();
 
-                GUIManager.Instance.missionUI.setMissionTime(Tools.getTextFromMilliSeconds(this.getElaspedTime()));
-                GUIManager.Instance.missionUI.setObjectiveTime(Tools.getTextFromMilliSeconds(objective.getElaspedTime()));
+                if (!Function.Call<bool>(Hash.IS_HUD_HIDDEN))
+                {
+                    GUIManager.Instance.missionUI.setMissionTime(Tools.getTextFromMilliSeconds(this.getElaspedTime()));
+                    GUIManager.Instance.missionUI.setObjectiveTime(Tools.getTextFromMilliSeconds(objective.getElaspedTime()));
+                }
             }
             else
             {
@@ -166,25 +178,7 @@ namespace DemagoScript
         }
 
         public virtual void fillMenu(ref UIMenu menu) { }
-
-
-        /// <summary>
-        /// Fail if player is dead or arrested
-        /// </summary>
-        private void failIfPlayerIsDeadOrArrested()
-        {
-            if ( Game.Player.IsDead ) {
-                Tools.log( "t'es mort, la mission est en pause" );
-                //this.pause();
-                this.resetPlayerModel();
-                //this.fail( "Vous êtes mort" );
-            }
-
-            if ( Function.Call<bool>( Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true ) ) {
-                this.fail( "Vous vous êtes fait arrêter" );
-            }
-        }
-        
+                
         /// <summary>
         /// Saved old player model
         /// </summary>
@@ -220,6 +214,7 @@ namespace DemagoScript
                     player.IsInvincible = true;
 
                     while ( Game.Player.IsDead ) {
+                        //Security try - don't work...
                         if ( Game.Player.Character.IsDead ) {
                             resetPlayerModel();
                             return;
@@ -264,6 +259,8 @@ namespace DemagoScript
                 } else {
                     Function.Call( Hash.SET_PLAYER_MODEL, Game.Player.Handle, DemagoScript.savedPlayerModel.Hash );
                 }
+
+                player.IsVisible = true;
             }
         }
     }

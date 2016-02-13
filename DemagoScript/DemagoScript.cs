@@ -40,42 +40,20 @@ namespace DemagoScript
         
         public static void loadLastCheckpointOnCurrentMission()
         {
-            Tools.log( "Tu boucle pour lancer la recuperation sur la mission en cours" );
-            if ( missions != null ) {
-                foreach ( Mission mission in missions ) {
-                    if ( mission.isInProgress() ) {
-                        mission.loadLastCheckpoint();
-                    }
-                }
-            }   
+            if (lastMission != null && (lastMission.isInProgress() || lastMission.isWaiting()))
+                lastMission.loadLastCheckpoint(); 
         }
 
         public static void stopCurrentMission()
         {
-            if (missions != null)
-            {
-                foreach (Mission mission in missions)
-                {
-                    if (mission.isInProgress())
-                    {
-                        mission.stop();
-                    }
-                }
-            }
+            if (lastMission != null && (lastMission.isInProgress() || lastMission.isWaiting()))
+                lastMission.stop();
         }
 
         public static void failCurrentMission(string reason = "")
         {
-            if (missions != null)
-            {
-                foreach (Mission mission in missions)
-                {
-                    if (mission.isInProgress())
-                    {
-                        mission.fail(reason);
-                    }
-                }
-            }
+            if (lastMission != null && (lastMission.isInProgress() || lastMission.isWaiting()))
+                lastMission.fail(reason);
         }
 
         private void initialize()
@@ -112,7 +90,8 @@ namespace DemagoScript
             Tools.update();
             Timer.updateAllTimers();
             CameraShotsList.Instance.update();
-            
+            AudioManager.Instance.update();
+
             #region Update sur la mission en cours
             foreach ( Mission mission in missions ) {
                 if ( mission.isInProgress() ) {
