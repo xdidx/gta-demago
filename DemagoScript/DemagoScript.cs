@@ -7,26 +7,47 @@ using System.Collections.Generic;
 using DemagoScript.GUI;
 using DemagoScript.GUI.popup;
 using DemagoScript.GUI.elements;
+using GTA.Native;
 
 namespace DemagoScript
 {
+    // TODO: Améliorer cette classe en mettant une variable contenant la mission en cours
+    // Cela évitera d'avoir des boucles sur toutes les missions
     public class DemagoScript : Script
     {
-        private static List<Mission> missions = null;
+        // TODO: j'ai pas de meilleur endroit où le mettre pour l'instant
+        public static Model savedPlayerModel = null;
 
-        private static float scriptTime = 0;
+        private static float scriptTime = 0;   
+        private static List<Mission> missions = null;
+        private static Mission lastMission = null;
+
         private bool initialized = false;
         private bool isPaused = false;
         private bool isSitting = false;
 
         public DemagoScript()
         {
+            var date = DateTime.Now;
             Tools.log("-------------Initialisation du mod GTA Démago------------");
+            GTA.UI.Notify( "GTA Démago - " + date.Hour + ':' + date.Minute + ':' + date.Second );
 
             createMissions();
 
             Tick += OnTick;
             KeyDown += OnKeyDown;
+        }
+        
+        public static void loadLastCheckpointOnCurrentMission()
+        {
+            Tools.log( "Tu boucle pour lancer la recuperation sur la mission en cours" );
+            if ( missions != null ) {
+                foreach ( Mission mission in missions ) {
+                    if ( mission.isInProgress() ) {
+                        mission.loadLastCheckpoint();
+                    }
+                }
+            }   
         }
 
         public static void stopCurrentMission()
@@ -91,18 +112,18 @@ namespace DemagoScript
             Tools.update();
             Timer.updateAllTimers();
             CameraShotsList.Instance.update();
-
-            foreach (Mission mission in missions)
-            {
-                if (mission.isInProgress())
-                {
+            
+            #region Update sur la mission en cours
+            foreach ( Mission mission in missions ) {
+                if ( mission.isInProgress() ) {
                     mission.update();
                 }
             }
+            #endregion
 
             GUIManager.Instance.update();
 
-        }
+        }    
 
         private void OnKeyDown(object sender, KeyEventArgs e)
         {
@@ -143,8 +164,6 @@ namespace DemagoScript
                 isSitting = true;
             }
         }
-
-        private static Mission lastMission = null;
 
         private void createMissions()
         {

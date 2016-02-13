@@ -6,14 +6,17 @@ using System.Collections.Generic;
 using System.Drawing;
 using DemagoScript.GUI.elements;
 using DemagoScript.GUI;
+using GTA.Math;
 
 namespace DemagoScript
 {
     abstract class AbstractObjective
     {
         protected string name = "";
+
         private bool inProgress = false;
         private float elapsedTime = 0;
+        private Vector3 playerPosition = Vector3.Zero;
 
         public string ObjectiveText { get; set; }
         public string AdviceText { get; set; }
@@ -83,7 +86,28 @@ namespace DemagoScript
         {
             return inProgress;
         }
-        
+
+        /// <summary>
+        /// Pause the objective
+        /// </summary>
+        public virtual void pause()
+        {
+            this.inProgress = false;
+        }
+
+        /// <summary> Useless????
+        /// Play the objective
+        /// </summary>
+        public virtual void play()
+        {
+            this.inProgress = true;
+        }
+
+        public Vector3 getPlayerPosition()
+        {
+            return this.playerPosition;
+        }
+
         /// <summary>
         /// Initialize and start objective
         /// </summary>
@@ -95,6 +119,9 @@ namespace DemagoScript
             }
 
             elapsedTime = 0;
+
+            playerPosition = Game.Player.Character.Position;
+            Tools.log( "saveCurrentPlayerPosition: " + playerPosition );
 
             populateDestructibleElements();
 
@@ -127,6 +154,8 @@ namespace DemagoScript
         /// </summary>
         public virtual void stop( bool removePhysicalElements = false )
         {
+            Tools.trace( getName() + " removePhysicalElements = " + removePhysicalElements, System.Reflection.MethodBase.GetCurrentMethod().Name, "AbstractObjective" );
+
             this.inProgress = false;
             this.elapsedTime = 0;
 
@@ -145,6 +174,8 @@ namespace DemagoScript
         /// <param name="reason">Reason of fail</param>
         public virtual void fail(string reason)
         {
+            Tools.trace( getName() + " reason = " + reason, System.Reflection.MethodBase.GetCurrentMethod().Name, "AbstractObjective" );
+
             this.stop();
             OnFailed?.Invoke(this, reason);
         }

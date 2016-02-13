@@ -29,7 +29,6 @@ namespace DemagoScript
         private bool seeVehicle = false;
         private bool godPlayer = false;
         private bool godVehicle = false;
-        private static Model oldModel = null;
         private Vehicle toChangeVehicle = null;
 
         private UIMenuCheckboxItem godVehicleActiveItem, seeVehicleActiveItem, godPlayerActiveItem, seePlayerActiveItem;
@@ -50,11 +49,6 @@ namespace DemagoScript
             var missionsMenu = menuPool.AddSubMenu(mainMenu, "Missions");
             foreach (Mission mission in missions)
             {
-                mission.OnEnded += (sender) =>
-                {
-                    resetPlayerModel();
-                };
-
                 var missionMenu = menuPool.AddSubMenu(missionsMenu, mission.getName());
                 var startItem = mission.addStartItem(ref missionMenu);
 
@@ -105,18 +99,18 @@ namespace DemagoScript
 
             modelMenu.OnItemSelect += (sender, item, index) =>
             {
-                if (oldModel == null && (Game.Player.Character.Model == PedHash.Michael || Game.Player.Character.Model == PedHash.Franklin || Game.Player.Character.Model == PedHash.Trevor))
+                if (DemagoScript.savedPlayerModel == null && (Game.Player.Character.Model == PedHash.Michael || Game.Player.Character.Model == PedHash.Franklin || Game.Player.Character.Model == PedHash.Trevor))
                 {
-                    oldModel = Game.Player.Character.Model;
+                    DemagoScript.savedPlayerModel = Game.Player.Character.Model;
                 }
 
-                if (oldModel != null && oldModel != Game.Player.Character.Model)
+                if ( DemagoScript.savedPlayerModel != null && DemagoScript.savedPlayerModel != Game.Player.Character.Model)
                 {
                     //Reset to old model
-                    Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
+                    Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, DemagoScript.savedPlayerModel.Hash);
                 }
 
-                if (item == resetModelItem && oldModel == null)
+                if (item == resetModelItem && DemagoScript.savedPlayerModel == null)
                 {
                     UI.Notify("Vous possédez déjà le modèle de base !");
                 }
@@ -261,7 +255,6 @@ namespace DemagoScript
             var gravityActiveItem = new UIMenuCheckboxItem("Zéro gravité", zeroGravity, "Si la case est cochée, il n'y aura plus de gravité sur la map entière");
             var showPositionItem = new UIMenuItem("Afficher la position");
             var showRotationItem = new UIMenuItem("Afficher la rotation");
-
             var showMessageItem = new UIMenuItem("Afficher la popup de test");
 
             var toolsMenu = menuPool.AddSubMenu(mainMenu, "Outils");
@@ -278,7 +271,6 @@ namespace DemagoScript
             toolsMenu.AddItem(godVehicleActiveItem);
             toolsMenu.AddItem(showPositionItem);
             toolsMenu.AddItem(showRotationItem);
-
             toolsMenu.AddItem(showMessageItem);
 
             toolsMenu.OnItemSelect += (sender, item, checked_) =>
@@ -402,27 +394,11 @@ namespace DemagoScript
             };
         }
 
-        private void checkIfPlayerIsDeadOrArrested()
-        {
-            if (Game.Player.IsDead)
-            {
-                DemagoScript.failCurrentMission("Vous êtes mort");
-            }
-
-            if (Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true))
-            {
-                DemagoScript.failCurrentMission("Vous vous êtes fait arrêter");
-            }
-        }
-
         public void process()
         {
             menuPool.ProcessMenus();
 
             Ped player = Game.Player.Character;
-            
-            checkIfPlayerIsDeadOrArrested();
-
             if (playerModelIsValid())
             {
                 if (player.IsInVehicle() && toChangeVehicle == null)
@@ -461,63 +437,7 @@ namespace DemagoScript
         private bool playerModelIsValid()
         {
             Ped player = Game.Player.Character;
-            return (oldModel == null || player.Model == oldModel || (!player.IsDead && !Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true)));
-        }
-
-        //TODO : PUT THIS METHOD IN MISSION.CS
-        private void resetPlayerModel()
-        {
-            StackTrace stackTrace = new StackTrace();
-
-            Tools.log("resetPlayerModel");
-
-            Ped player = Game.Player.Character;
-            if (player.Model != oldModel)
-            {
-                if (oldModel == null || !oldModel.IsValid)
-                {
-                    oldModel = new Model(PedHash.Michael);
-                }
-
-                if (player.IsDead)
-                {
-                    Ped replacementPed = Function.Call<Ped>(Hash.CLONE_PED, Game.Player.Character, Function.Call<int>(Hash.GET_ENTITY_HEADING, Function.Call<int>(Hash.PLAYER_PED_ID)), false, true);
-                    replacementPed.Kill();
-
-                    Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
-
-                    player = Game.Player.Character;
-                    player.Task.StandStill(-1);
-                    player.IsVisible = false;
-                    player.IsInvincible = true;
-
-                    while (Game.Player.IsDead)
-                    {
-                        if (Game.Player.Character.IsDead)
-                        {
-                            resetPlayerModel();
-                            return;
-                        }
-                        else
-                        {
-                            Script.Wait(100);
-                        }
-                    }
-
-                    player.IsVisible = true;
-                    player.IsInvincible = false;
-                }
-                else if (Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true))
-                {
-                    Script.Wait(3000);
-                    Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
-                    Game.Player.Character.IsVisible = false;
-                }
-                else
-                {
-                    Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, oldModel.Hash);
-                }
-            }
+            return ( DemagoScript.savedPlayerModel == null || player.Model == DemagoScript.savedPlayerModel || (!player.IsDead && !Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true)));
         }
 
         public void OnKeyDown(object sender, KeyEventArgs e)
