@@ -19,19 +19,29 @@ namespace DemagoScript
 
         public virtual void loadLastCheckpoint()
         {
-            Tools.log( "loadLastCheckpoint" );
-
             checkRequiredElements();
 
             this.play();
 
-            if (currentObjectiveIndex < objectives.Count)
+            if (currentObjectiveIndex > 0 && currentObjectiveIndex < objectives.Count)
             {
-                var currentObjective = objectives[currentObjectiveIndex];
-                if (currentObjective != null)
+                var objectiveFounded = false;
+                for (int i = currentObjectiveIndex; i > 0; i--)
                 {
-                    currentObjective.stop(true);
-                    currentObjective.start();
+                    var currentObjective = objectives[i];
+                    if (currentObjective != null && currentObjective.Checkpoint != null && currentObjective.Checkpoint.Activable)
+                    {
+                        currentObjective.stop(true);
+                        currentObjective.start();
+                        objectiveFounded = true;
+                        break;
+                    }
+                }
+
+                if (!objectiveFounded)
+                {
+                    this.stop(true);
+                    this.start();
                 }
             }
         }
@@ -124,7 +134,6 @@ namespace DemagoScript
 
             if (Game.Player.IsDead || Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true))
             {
-                Tools.log("mort ou arreté, la mission est en pause");
                 this.pause();
                 this.resetPlayerModel();
             }
@@ -153,7 +162,7 @@ namespace DemagoScript
             currentObjectiveIndex++;
 
             if (currentObjectiveIndex >= objectives.Count)
-            {
+            { 
                 this.accomplish();
             }
             else
@@ -192,8 +201,6 @@ namespace DemagoScript
         /// </summary>
         private void resetPlayerModel()
         {
-            Tools.log( "resetPlayerModel" );
-
             Ped player = Game.Player.Character;
             if ( player.Model != DemagoScript.savedPlayerModel ) {
                 this.missionModel = player.Model;
@@ -214,21 +221,17 @@ namespace DemagoScript
                     player.IsInvincible = true;
 
                     while ( Game.Player.IsDead ) {
-                        //Security try - don't work...
-                        if ( Game.Player.Character.IsDead ) {
-                            resetPlayerModel();
-                            return;
-                        } else {
-                            Script.Wait( 100 );
-                        }
+                        Script.Wait( 100 );
                     }
+                    
+                    Function.Call(Hash.DISPLAY_HUD, true);
+                    Function.Call(Hash.DISPLAY_RADAR, true);
 
-                    Tools.log( "T'es bien mort" );
+                    Game.FadeScreenOut(5000);
+
                     ConfirmationPopup checkpointPopup = new ConfirmationPopup( "Vous êtes mort", "Voulez-vous revenir au dernier checkpoint ?" );
                     checkpointPopup.OnPopupAccept += () => {
-                        Tools.log( "T'accepte la popup" );
                         DemagoScript.loadLastCheckpointOnCurrentMission();
-                        // peut être simplifiable en : this.loadLastCheckpoint();
                     };
                     checkpointPopup.OnPopupRefuse += () => {
                         DemagoScript.stopCurrentMission();

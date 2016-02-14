@@ -75,15 +75,16 @@ namespace DemagoScript
             checkRequiredElements();
 
             #region Objectives 
-
             GoToPosition goToFirstSongObjective = new GoToPosition(firstSongPosition);
-            goToFirstSongObjective.addEntity(Joe.bike, bikePositionAtHome);
-            goToFirstSongObjective.PlayerPosition = joeStart;
-            goToFirstSongObjective.setClockHour(10);
-            goToFirstSongObjective.Health = 300;
-            goToFirstSongObjective.Armor = 100;
-            goToFirstSongObjective.Weather = Weather.ExtraSunny;
-            goToFirstSongObjective.WantedLevel = 0;
+            goToFirstSongObjective.Checkpoint = new Checkpoint();
+            goToFirstSongObjective.Checkpoint.addEntity(Joe.bike, bikePositionAtHome);
+            goToFirstSongObjective.Checkpoint.PlayerPosition = joeStart;
+            goToFirstSongObjective.Checkpoint.setClockHour(10);
+            goToFirstSongObjective.Checkpoint.Health = 300;
+            goToFirstSongObjective.Checkpoint.Armor = 100;
+            goToFirstSongObjective.Checkpoint.Weather = Weather.ExtraSunny;
+            goToFirstSongObjective.Checkpoint.WantedLevel = 0;
+
             goToFirstSongObjective.OnStarted += (sender) =>
             {
                 #region Intro cinematic
@@ -163,10 +164,12 @@ namespace DemagoScript
             };
 
             AbstractObjective firstSongObjectives = new PlayInstrument(InstrumentHash.Guitar, "anticonformiste");
-            firstSongObjectives.addEntity(Joe.bike, bikePositionAtHome);
-            firstSongObjectives.PlayerPosition = firstSongPosition;
-            firstSongObjectives.setClockHour(11);
-            firstSongObjectives.WantedLevel = 0;
+            firstSongObjectives.Checkpoint = new Checkpoint();
+            firstSongObjectives.Checkpoint.Activable = true;
+            firstSongObjectives.Checkpoint.addEntity(Joe.bike, bikePositionAtHome);
+            firstSongObjectives.Checkpoint.PlayerPosition = firstSongPosition;
+            firstSongObjectives.Checkpoint.setClockHour(11);
+            firstSongObjectives.Checkpoint.WantedLevel = 0;
             firstSongObjectives.OnStarted += (sender) =>
             {
                 #region Cinematic
@@ -251,21 +254,23 @@ namespace DemagoScript
 
             GoToPositionInVehicle goToPoliceWithBikeObjective = new GoToPositionInVehicle(roadFaceToPoliceStationPosition);
             goToPoliceWithBikeObjective.setVehicle(Joe.bike);
-            goToPoliceWithBikeObjective.addEntity(Joe.bike, bikePositionAtHome);
-            goToPoliceWithBikeObjective.PlayerPosition = firstSongPosition;
-            goToPoliceWithBikeObjective.setClockHour(14);
-            goToPoliceWithBikeObjective.Health = 300;
-            goToPoliceWithBikeObjective.Armor = 100;
-            goToPoliceWithBikeObjective.Weather = Weather.Clearing;
-            goToPoliceWithBikeObjective.WantedLevel = 2;
+            goToPoliceWithBikeObjective.Checkpoint = new Checkpoint();
+            goToPoliceWithBikeObjective.Checkpoint.addEntity(Joe.bike, bikePositionAtHome);
+            goToPoliceWithBikeObjective.Checkpoint.PlayerPosition = firstSongPosition;
+            goToPoliceWithBikeObjective.Checkpoint.setClockHour(14);
+            goToPoliceWithBikeObjective.Checkpoint.Health = 300;
+            goToPoliceWithBikeObjective.Checkpoint.Armor = 100;
+            goToPoliceWithBikeObjective.Checkpoint.Weather = Weather.Clearing;
+            goToPoliceWithBikeObjective.Checkpoint.WantedLevel = 2;
             goToPoliceWithBikeObjective.OnStarted += (sender) =>
             {
                 AudioManager.Instance.startPlaylist(new string[] { "flics1", "dialogue1", "dialogue2", "dialogue3" });
             };
 
             GoToPosition goToSecondSongObjective = new GoToPosition(secondSongPosition);
-            goToSecondSongObjective.addEntity(Joe.bike, roadFaceToPoliceStationPosition);
-            goToSecondSongObjective.PlayerPosition = roadFaceToPoliceStationPosition;
+            goToSecondSongObjective.Checkpoint = new Checkpoint();
+            goToSecondSongObjective.Checkpoint.addEntity(Joe.bike, roadFaceToPoliceStationPosition);
+            goToSecondSongObjective.Checkpoint.PlayerPosition = roadFaceToPoliceStationPosition;
             goToSecondSongObjective.OnStarted += (sender) =>
             {
                 foreach (Ped spectator in spectatorsPeds)
@@ -289,11 +294,13 @@ namespace DemagoScript
             };
 
             AbstractObjective secondSongObjectives = new PlayInstrument(InstrumentHash.Guitar, "lesFlics");
-            secondSongObjectives.addEntity(Joe.bike, roadFaceToPoliceStationPosition);
-            secondSongObjectives.PlayerPosition = secondSongPosition;
-            secondSongObjectives.setClockHour(16);
-            secondSongObjectives.Weather = Weather.Clouds;
-            secondSongObjectives.WantedLevel = 0;
+            secondSongObjectives.Checkpoint = new Checkpoint();
+            secondSongObjectives.Checkpoint.Activable = true;
+            secondSongObjectives.Checkpoint.addEntity(Joe.bike, roadFaceToPoliceStationPosition);
+            secondSongObjectives.Checkpoint.PlayerPosition = secondSongPosition;
+            secondSongObjectives.Checkpoint.setClockHour(16);
+            secondSongObjectives.Checkpoint.Weather = Weather.Clouds;
+            secondSongObjectives.Checkpoint.WantedLevel = 0;
             secondSongObjectives.OnStarted += (sender) =>
             {
                 #region Cinematic
@@ -357,13 +364,14 @@ namespace DemagoScript
 
             GoToPositionInVehicle goToTheaterWithBikeObjective = new GoToPositionInVehicle(thirdSongBikePosition);
             goToTheaterWithBikeObjective.setVehicle(Joe.bike);
-            goToTheaterWithBikeObjective.addEntity(Joe.bike, roadFaceToPoliceStationPosition);
-            goToTheaterWithBikeObjective.PlayerPosition = secondSongPosition;
-            goToTheaterWithBikeObjective.Health = 300;
-            goToTheaterWithBikeObjective.Armor = 100;
-            goToTheaterWithBikeObjective.WantedLevel = 1;
-            goToTheaterWithBikeObjective.Weather = Weather.Clouds;
-            goToTheaterWithBikeObjective.setClockHour(18, 40000);
+            goToTheaterWithBikeObjective.Checkpoint = new Checkpoint();
+            goToTheaterWithBikeObjective.Checkpoint.addEntity(Joe.bike, roadFaceToPoliceStationPosition);
+            goToTheaterWithBikeObjective.Checkpoint.PlayerPosition = secondSongPosition;
+            goToTheaterWithBikeObjective.Checkpoint.Health = 300;
+            goToTheaterWithBikeObjective.Checkpoint.Armor = 100;
+            goToTheaterWithBikeObjective.Checkpoint.WantedLevel = 1;
+            goToTheaterWithBikeObjective.Checkpoint.Weather = Weather.Clouds;
+            goToTheaterWithBikeObjective.Checkpoint.setClockHour(18, 40000);
             goToTheaterWithBikeObjective.OnStarted += (sender) =>
             {
                 AudioManager.Instance.startPlaylist(new string[] { "flics2", "flics3", "flics4", "dialogue4", "dialogue5", "dialogue6" });
@@ -421,24 +429,30 @@ namespace DemagoScript
             };
 
             GoToPosition goToThirdSongPosition = new GoToPosition(thirdSongPosition);
-            goToThirdSongPosition.addEntity(Joe.bike, thirdSongBikePosition);
-            goToThirdSongPosition.PlayerPosition = thirdSongBikePosition;
+            goToThirdSongPosition.Checkpoint = new Checkpoint();
+            goToThirdSongPosition.Checkpoint.addEntity(Joe.bike, thirdSongBikePosition);
+            goToThirdSongPosition.Checkpoint.PlayerPosition = thirdSongBikePosition;
 
             Timer chansonHoo2 = null;
             AbstractObjective thirdSongObjectives = new PlayInstrument(InstrumentHash.Guitar, "degueulasse");
-            thirdSongObjectives.addEntity(Joe.bike, thirdSongBikePosition);
-            thirdSongObjectives.PlayerPosition = thirdSongPosition;
-            thirdSongObjectives.Weather = Weather.Clouds;
-            thirdSongObjectives.WantedLevel = 0;
-            thirdSongObjectives.setClockHour(20);
+            thirdSongObjectives.Checkpoint = new Checkpoint();
+            thirdSongObjectives.Checkpoint.Activable = true;
+            thirdSongObjectives.Checkpoint.addEntity(Joe.bike, thirdSongBikePosition);
+            thirdSongObjectives.Checkpoint.PlayerPosition = thirdSongPosition;
+            thirdSongObjectives.Checkpoint.Weather = Weather.Clouds;
+            thirdSongObjectives.Checkpoint.WantedLevel = 0;
+            thirdSongObjectives.Checkpoint.setClockHour(20);
             thirdSongObjectives.OnStarted += (sender) =>
             {
                 Ped player = Game.Player.Character;
                 Function.Call(Hash.TASK_TURN_PED_TO_FACE_COORD, player.Handle, 640f, 448f, 100f, -1);
 
                 #region Cinematic
-                nadineMorano.Task.FleeFrom(player);
-                AudioManager.Instance.startIndependantSound("nadine");
+                if (nadineMorano != null)
+                {
+                    nadineMorano.Task.FleeFrom(player);
+                    AudioManager.Instance.startIndependantSound("nadine");
+                }
                 AudioManager.Instance.startIndependantSound("degueulasseHoo");
 
                 chansonHoo2 = new Timer(AudioManager.Instance.getLength("degueulasse") - 19000);
@@ -525,13 +539,14 @@ namespace DemagoScript
 
             GoToPositionInVehicle goToHome = new GoToPositionInVehicle(joeHomePosition);
             goToHome.setVehicle(Joe.bike);
-            goToHome.addEntity(Joe.bike, thirdSongBikePosition);
-            goToHome.PlayerPosition = thirdSongPosition;
-            goToHome.Health = 300;
-            goToHome.Armor = 100;
-            goToHome.WantedLevel = 4;
-            goToHome.Weather = Weather.ThunderStorm;
-            goToHome.setClockHour(23, 60000);
+            goToHome.Checkpoint = new Checkpoint();
+            goToHome.Checkpoint.addEntity(Joe.bike, thirdSongBikePosition);
+            goToHome.Checkpoint.PlayerPosition = thirdSongPosition;
+            goToHome.Checkpoint.Health = 300;
+            goToHome.Checkpoint.Armor = 100;
+            goToHome.Checkpoint.WantedLevel = 4;
+            goToHome.Checkpoint.Weather = Weather.ThunderStorm;
+            goToHome.Checkpoint.setClockHour(23, 60000);
             goToHome.OnStarted += (sender) =>
             {
                 bikeRegen = true;
@@ -546,7 +561,7 @@ namespace DemagoScript
             goToHome.OnAccomplished += (sender, elapsedTime) => {
                 AudioManager.Instance.startSound("dialogue10");
             };
-            
+
             addObjective(goToFirstSongObjective);
             addObjective(firstSongObjectives);
             addObjective(goToPoliceWithBikeObjective);

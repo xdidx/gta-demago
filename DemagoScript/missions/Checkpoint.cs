@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DemagoScript
 {
-    abstract class Checkpoint
+    class Checkpoint
     {
         private int wantedLevel = -1;
         private int health = -1;
@@ -20,6 +20,8 @@ namespace DemagoScript
         public Vector3 PlayerPosition { get; set; } = Vector3.Zero;
         public Weather Weather { get; set; } = Weather.Smog;
         public int Heading { get; set; } = -1;
+
+        public bool Activable { get; set; } = false;
 
         /// <summary>
         /// Health, minimum 0, maximum 5
@@ -77,7 +79,16 @@ namespace DemagoScript
                 Tools.setClockTime(clockHour, Math.Max(clockTransitionTime, 0));
 
             if (PlayerPosition != Vector3.Zero && PlayerPosition.DistanceTo(Game.Player.Character.Position) > 30)
-                Tools.TeleportPlayer(PlayerPosition);
+            {
+                Timer safeThing = new Timer(5000);
+                safeThing.OnTimerUpdate += (elapsedMilliseconds, elapsedPourcent) =>
+                {
+                    if (PlayerPosition.DistanceTo(Game.Player.Character.Position) > 100)
+                    {
+                        Tools.TeleportPlayer(PlayerPosition);
+                    }
+                };
+            }
 
             if (Heading != -1)
                 Game.Player.Character.Heading = Heading;

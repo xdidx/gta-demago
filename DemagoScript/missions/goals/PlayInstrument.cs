@@ -54,9 +54,7 @@ namespace DemagoScript
                         instrumentProp.HasGravity = true;
                         instrumentProp.AttachTo(player, player.GetBoneIndex(Bone.SKEL_Pelvis), new Vector3(-0.18f, 0.28f, -0.1f), new Vector3(195f, -24f, 0f));
                     }
-
                     player.Task.PlayAnimation("amb@world_human_musician@guitar@male@base", "base", 8f, -1, true, -1f);
-                    Tools.log("play animation PlayInstrument");
                 }
             }
             #endregion
@@ -65,11 +63,15 @@ namespace DemagoScript
         public override void depopulateDestructibleElements(bool removePhysicalElements = false)
         {
             Game.Player.Character.Task.ClearAllImmediately();
-
             if (instrumentProp != null && instrumentProp.Exists())
             {
-                instrumentProp.Delete();
-                instrumentProp = null;
+                instrumentProp.Detach();
+                instrumentProp.MarkAsNoLongerNeeded();
+                if (removePhysicalElements)
+                {
+                    instrumentProp.Delete();
+                    instrumentProp = null;
+                }
             }
         }
 

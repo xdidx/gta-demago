@@ -10,7 +10,7 @@ using GTA.Math;
 
 namespace DemagoScript
 {
-    abstract class AbstractObjective : Checkpoint
+    abstract class AbstractObjective
     {
         protected string name = "";
 
@@ -21,12 +21,13 @@ namespace DemagoScript
         public string ObjectiveText { get; set; }
         public string AdviceText { get; set; }
 
-        private List<Entity> entityCollector = new List<Entity>();
+        public Checkpoint Checkpoint { get; set; }
 
         public delegate void AccomplishedEvent(AbstractObjective sender, float elaspedTime);
         public delegate void FailedEvent(AbstractObjective sender, string reason);
         public delegate void StartedEvent(AbstractObjective sender);
         public delegate void EndedEvent(AbstractObjective sender);
+        public delegate void UpdatedEvent(AbstractObjective sender, float elaspedTime);
 
         /// <summary>
         /// Called when user accomplish the objective.
@@ -49,26 +50,25 @@ namespace DemagoScript
         public event EndedEvent OnEnded;
 
         /// <summary>
+        /// Called when the objective is updated.
+        /// </summary>
+        public event UpdatedEvent OnUpdated;
+
+        /// <summary>
         /// Populate all elements that will have to be cleaned at the end
         /// </summary>
         public virtual void populateDestructibleElements()
         {
-            base.initialize();
+            if (Checkpoint != null)
+            {
+                Checkpoint.initialize();
+            }
         }
 
         /// <summary>
         /// Remove all elements that have been created during the objective
         /// </summary>
-        public virtual void depopulateDestructibleElements(bool removePhysicalElements = false)
-        {
-            if (this.inProgress)
-            {
-                this.inProgress = false;
-                this.active = false;
-                this.elapsedTime = 0;
-                depopulateDestructibleElements(true);
-            }
-        }
+        public abstract void depopulateDestructibleElements(bool removePhysicalElements = false);
 
         /// <summary>
         /// Return the objective's name
@@ -120,18 +120,18 @@ namespace DemagoScript
         /// </summary>
         public virtual void start()
         {
+            Tools.log("Start " + getName());
+
             if (this.inProgress)
             {
                 return;
             }
-            
-            Tools.log("Start "+getName());
 
             elapsedTime = 0;
             this.inProgress = true;
 
+
             populateDestructibleElements();
-            
             OnStarted?.Invoke(this);
         }
 
@@ -144,12 +144,13 @@ namespace DemagoScript
                 return false;
             }
 
+            OnUpdated?.Invoke(this, elapsedTime);
+
             if ( !Function.Call<bool>( Hash.IS_HUD_HIDDEN ) ) {
                 GUIManager.Instance.missionUI.setObjective(this.ObjectiveText);
                 GUIManager.Instance.missionUI.setAdvice(this.AdviceText);
             }
 
-            //increment elapsed time timestamp with LastFrameTime
             elapsedTime += Game.LastFrameTime * 1000;
             return true;
         }

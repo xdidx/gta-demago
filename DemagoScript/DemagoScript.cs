@@ -165,7 +165,7 @@ namespace DemagoScript
 
                 newMission.OnAccomplished += (sender, time) =>
                 {
-                    string missionTime = "Une erreur est survenue, merci de nous dire comment :)";
+                    string missionTime = "Temps inconnu";
                     if (Tools.getTextFromMilliSeconds(time) != "")
                     {
                         missionTime = "En " + Tools.getTextFromMilliSeconds(time);
