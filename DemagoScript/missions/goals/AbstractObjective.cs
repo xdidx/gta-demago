@@ -180,6 +180,8 @@ namespace DemagoScript
         /// <param name="reason">Reason of fail</param>
         public virtual void fail(string reason)
         {
+            Tools.log( "Fail " + getName() );
+
             this.stop();
             OnFailed?.Invoke(this, reason);
         }
@@ -189,6 +191,8 @@ namespace DemagoScript
         /// </summary>
         protected virtual void accomplish()
         {
+            Tools.log( "Accomplish " + getName() );
+
             var finalElapsedTime = elapsedTime;
             this.stop();
             OnAccomplished?.Invoke(this, finalElapsedTime);

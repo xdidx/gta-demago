@@ -70,8 +70,10 @@ namespace DemagoScript
 
         public override void populateDestructibleElements()
         {
-            base.populateDestructibleElements();
+            Game.FadeScreenOut( 500 );
 
+            base.populateDestructibleElements();
+            
             checkRequiredElements();
 
             #region Objectives 
@@ -86,7 +88,7 @@ namespace DemagoScript
             goToFirstSongObjective.Checkpoint.WantedLevel = 0;
 
             goToFirstSongObjective.OnStarted += (sender) =>
-            {
+            {   
                 #region Intro cinematic
                 bikeRegen = false;
                 playerDown = true;
@@ -159,6 +161,7 @@ namespace DemagoScript
                     }
                 }
 
+                Game.FadeScreenIn( 500 );
                 AudioManager.Instance.startSound("dialogue0");
                 #endregion
             };

@@ -210,31 +210,58 @@ namespace DemagoScript
             }
         }
 
-        public void stopPlaylist()
+        /// <summary>
+        /// Set audio pause from a boolean
+        ///     pause = true, play = false
+        /// </summary>
+        /// <param name="state"></param>
+        private void setAudioPause( bool state )
         {
-            foreach (KeyValuePair<string, ISound> pair in playlist)
-            {
+            #region pause/play current sound of playlist
+            ISound currentSound = playlist.ElementAt( currentSoundIndex ).Value;
+            currentSound.Paused = state;
+            #endregion
+            #region pause/play independant sounds
+            // TODO: Do something for independant sounds
+            #endregion
+        }
+
+        /// <summary>
+        /// Pause all sounds
+        /// </summary>
+        public void pauseAll()
+        {
+            this.setAudioPause( true );
+        }
+
+        /// <summary>
+        /// Play all sounds
+        /// </summary>
+        public void playAll()
+        {
+            this.setAudioPause( false );
+        }
+
+        /// <summary>
+        /// Stop all sounds
+        /// </summary>
+        public void stopAll()
+        {
+            #region stopSongs
+            foreach ( KeyValuePair<string, ISound> pair in playlist ) {
                 pair.Value.Paused = true;
                 pair.Value.Dispose();
             }
             playlist.Clear();
             currentSoundIndex = 0;
-        }
-
-        public void stopAll()
-        {
-            stopPlaylist();
-            stopIndependantSounds();
-        }
-
-        public void stopIndependantSounds()
-        {
-            foreach (ISound sound in independantSongs)
-            {
+            #endregion
+            #region independantSongs
+            foreach ( ISound sound in independantSongs ) {
                 sound.Paused = true;
                 sound.Dispose();
             }
             independantSongs.Clear();
+            #endregion
         }
 
         public int getLength(string soundName)

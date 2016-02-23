@@ -80,14 +80,7 @@ namespace DemagoScript
 
             if (PlayerPosition != Vector3.Zero && PlayerPosition.DistanceTo(Game.Player.Character.Position) > 30)
             {
-                Timer safeThing = new Timer(5000);
-                safeThing.OnTimerUpdate += (elapsedMilliseconds, elapsedPourcent) =>
-                {
-                    if (PlayerPosition.DistanceTo(Game.Player.Character.Position) > 100)
-                    {
-                        Tools.TeleportPlayer(PlayerPosition);
-                    }
-                };
+                teleportPlayerToCheckpoint();
             }
 
             if (Heading != -1)
@@ -104,6 +97,17 @@ namespace DemagoScript
                     entity.Position = pair.Value;
                 }
             }
+        }
+
+        public void teleportPlayerToCheckpoint()
+        {
+            Timer safeThing = new Timer( 5000 );
+            safeThing.OnTimerUpdate += ( elapsedMilliseconds, elapsedPourcent ) =>
+            {
+                if ( PlayerPosition.DistanceTo( Game.Player.Character.Position ) > 100 ) {
+                    Tools.TeleportPlayer( PlayerPosition );
+                }
+            };
         }
     }
 }

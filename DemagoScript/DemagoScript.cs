@@ -75,11 +75,6 @@ namespace DemagoScript
 
         void OnTick(object sender, EventArgs e)
         {
-            if (isPaused)
-            {
-                togglePause();
-            }
-
             if (!initialized)
             {
                 initialize();
@@ -115,15 +110,19 @@ namespace DemagoScript
             {
                 togglePause();
             }
-
+            
             GUIManager.Instance.OnKeyDown(sender, e);
         }
 
         private void togglePause()
         {
             isPaused = !isPaused;
-
-            //TODO : audio player pause
+            
+            if (isPaused) {
+                AudioManager.Instance.pauseAll();
+            } else {
+                AudioManager.Instance.playAll();
+            }
         }
 
         private void playerSitting()

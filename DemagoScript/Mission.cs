@@ -16,23 +16,40 @@ namespace DemagoScript
 
         // TODO: faire mieux que ça
         private Model missionModel = null;
-
+        
         public virtual void loadLastCheckpoint()
         {
             checkRequiredElements();
 
-            this.play();
+            Tools.log( "loadLastCheckpoint: Mission name: " + this.getName() );
+            
+            var currentObjective = objectives[currentObjectiveIndex];
+            if ( currentObjective != null && currentObjective.Checkpoint != null /*&& currentObjective.Checkpoint.Activable*/) {
+                Tools.log( "loadLastCheckpoint: currentObjective name: " + currentObjective.getName() + " action: teleportPlayerToCheckpoint");
+                currentObjective.Checkpoint.teleportPlayerToCheckpoint();
+                this.play();
+            } else {
+                Tools.log( "loadLastCheckpoint: stop mission" );
+                this.stop( true );
+            }
+            
 
-            if (currentObjectiveIndex > 0 && currentObjectiveIndex < objectives.Count)
+
+            /*if (currentObjectiveIndex > 0 && currentObjectiveIndex < objectives.Count)
             {
+                Tools.log( "currentObjectiveIndex: " + currentObjectiveIndex + " & currentObjectiveName: " + this.objectives[currentObjectiveIndex].getName() );
                 var objectiveFounded = false;
                 for (int i = currentObjectiveIndex; i > 0; i--)
                 {
                     var currentObjective = objectives[i];
                     if (currentObjective != null && currentObjective.Checkpoint != null && currentObjective.Checkpoint.Activable)
                     {
+                        Tools.log( "loadLastCheckpoint: objective founded, stop(true) and start() on currentObjective" );
+                        Tools.log( "currentObjective name: " + currentObjective.getName() );
+                        
                         currentObjective.stop(true);
                         currentObjective.start();
+                        
                         objectiveFounded = true;
                         break;
                     }
@@ -40,10 +57,11 @@ namespace DemagoScript
 
                 if (!objectiveFounded)
                 {
+                    Tools.log( "loadLastCheckpoint: no objective founded, stop(true) and start()" );
                     this.stop(true);
                     this.start();
                 }
-            }
+            }*/
         }
 
         public virtual void checkRequiredElements()
@@ -53,7 +71,6 @@ namespace DemagoScript
 
         public override void populateDestructibleElements()
         {
-
         }
 
         public override void depopulateDestructibleElements(bool removePhysicalElements = false)
@@ -77,6 +94,7 @@ namespace DemagoScript
             
             var currentObjective = objectives[currentObjectiveIndex];
             if ( currentObjective != null ) {
+                Tools.trace( "Start sur le currentObjective", System.Reflection.MethodBase.GetCurrentMethod().Name, "Mission" );
                 currentObjective.start();
             } else {
                 Tools.trace( "Pas d'objectifs dans cette missions", System.Reflection.MethodBase.GetCurrentMethod().Name, "Mission" );
@@ -212,7 +230,7 @@ namespace DemagoScript
                 if ( player.IsDead ) {
                     Ped replacementPed = Function.Call<Ped>( Hash.CLONE_PED, Game.Player.Character, Function.Call<int>( Hash.GET_ENTITY_HEADING, Function.Call<int>( Hash.PLAYER_PED_ID ) ), false, true );
                     replacementPed.Kill();
-
+                    
                     Function.Call( Hash.SET_PLAYER_MODEL, Game.Player.Handle, DemagoScript.savedPlayerModel.Hash );
 
                     player = Game.Player.Character;
@@ -227,7 +245,7 @@ namespace DemagoScript
                     Function.Call(Hash.DISPLAY_HUD, true);
                     Function.Call(Hash.DISPLAY_RADAR, true);
 
-                    Game.FadeScreenOut(5000);
+                    //Game.FadeScreenOut(5000);
 
                     ConfirmationPopup checkpointPopup = new ConfirmationPopup( "Vous êtes mort", "Voulez-vous revenir au dernier checkpoint ?" );
                     checkpointPopup.OnPopupAccept += () => {
@@ -244,6 +262,7 @@ namespace DemagoScript
                     
                 } else if ( Function.Call<bool>( Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true ) ) {
                     Script.Wait( 3000 );
+
                     Function.Call( Hash.SET_PLAYER_MODEL, Game.Player.Handle, DemagoScript.savedPlayerModel.Hash );
                     Game.Player.Character.IsVisible = false;
 
@@ -262,7 +281,7 @@ namespace DemagoScript
                 } else {
                     Function.Call( Hash.SET_PLAYER_MODEL, Game.Player.Handle, DemagoScript.savedPlayerModel.Hash );
                 }
-
+                
                 player.IsVisible = true;
             }
         }
