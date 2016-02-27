@@ -34,6 +34,8 @@ namespace DemagoScript
         public override void populateDestructibleElements()
         {
             base.populateDestructibleElements();
+            
+            Function.Call( Hash.DISPLAY_RADAR, false );
 
             AudioManager.Instance.startSound(musicToPlay);
             this.secondToPlay = AudioManager.Instance.getLength(musicToPlay);
@@ -54,6 +56,7 @@ namespace DemagoScript
                         instrumentProp.HasGravity = true;
                         instrumentProp.AttachTo(player, player.GetBoneIndex(Bone.SKEL_Pelvis), new Vector3(-0.18f, 0.28f, -0.1f), new Vector3(195f, -24f, 0f));
                     }
+                    Tools.log( "PlayInstrument::populateDesctructibleElements - " + player );
                     player.Task.PlayAnimation("amb@world_human_musician@guitar@male@base", "base", 8f, -1, true, -1f);
                 }
             }
@@ -62,6 +65,8 @@ namespace DemagoScript
 
         public override void depopulateDestructibleElements(bool removePhysicalElements = false)
         {
+            Function.Call( Hash.DISPLAY_RADAR, true );
+
             Game.Player.Character.Task.ClearAllImmediately();
             if (instrumentProp != null && instrumentProp.Exists())
             {
@@ -85,13 +90,7 @@ namespace DemagoScript
                 accomplish();
                 return false;
             }
-
-            if (!Function.Call<bool>(Hash.IS_HUD_HIDDEN))
-            {
-                Function.Call(Hash.DISPLAY_HUD, true);
-                Function.Call(Hash.DISPLAY_RADAR, true);
-            }
-
+            
             secondToPlay -= Game.LastFrameTime;
             if (secondToPlay <= 0)
             {

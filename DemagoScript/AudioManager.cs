@@ -217,6 +217,7 @@ namespace DemagoScript
         /// <param name="state"></param>
         private void setAudioPause( bool state )
         {
+            Tools.log( "setAudioPause:" + this.currentSoundIndex + " / " + this.playlist.Count() );
             #region pause/play current sound of playlist
             ISound currentSound = playlist.ElementAt( currentSoundIndex ).Value;
             currentSound.Paused = state;
@@ -262,6 +263,13 @@ namespace DemagoScript
             }
             independantSongs.Clear();
             #endregion
+
+            this.clearSubtitles();
+        }
+
+        public void clearSubtitles()
+        {
+            GTA.UI.ShowSubtitle( "" );
         }
 
         public int getLength(string soundName)

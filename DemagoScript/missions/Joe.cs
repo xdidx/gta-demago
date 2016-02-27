@@ -108,11 +108,7 @@ namespace DemagoScript
                 player.Task.StandStill(-1);
 
                 introPed.Task.PlayAnimation("amb@world_human_picnic@male@base", "base", 8f, -1, true, -1f);
-
-                //Camera gestion
-                Function.Call(Hash.DISPLAY_HUD, false);
-                Function.Call(Hash.DISPLAY_RADAR, false);
-
+                
                 Vector3 largeShotPosition = new Vector3(2213.186f, 2510.148f, 82.73711f);
                 Vector3 firstShotPosition = new Vector3(2361.558f, 2527.512f, 46.66772f);
                 Vector3 secondShotPosition = new Vector3(2351.906f, 2530.494f, 48f);
@@ -160,7 +156,8 @@ namespace DemagoScript
                         spectatorsPeds.Add(ped);
                     }
                 }
-
+                
+                Function.Call( Hash.DISPLAY_RADAR, false );
                 Game.FadeScreenIn( 500 );
                 AudioManager.Instance.startSound("dialogue0");
                 #endregion
@@ -362,7 +359,8 @@ namespace DemagoScript
                 cameraShots.Add(cameraShot);
 
                 CameraShotsList.Instance.initialize(cameraShots, AudioManager.Instance.getLength("lesFlics"));
-#endregion
+
+                #endregion
             };
 
             GoToPositionInVehicle goToTheaterWithBikeObjective = new GoToPositionInVehicle(thirdSongBikePosition);
@@ -678,10 +676,12 @@ namespace DemagoScript
                 if (Game.IsKeyPressed(System.Windows.Forms.Keys.Back))
                 {
                     CameraShotsList.Instance.reset();
+                    AudioManager.Instance.clearSubtitles();
                     elapsedMilliseconds = musicTime + 1;
                     playerDown = false;
                     playerMoved = true;
                     playerWalked = true;
+                    Function.Call( Hash.DISPLAY_RADAR, true );
                 }
 
                 if (elapsedMilliseconds > musicTimeSplit + 2000 && playerDown)
@@ -714,9 +714,8 @@ namespace DemagoScript
                     introPed.Delete();
                     introPed = null;
                     player.IsVisible = true;
-
-                    Function.Call(Hash.DISPLAY_HUD, true);
-                    Function.Call(Hash.DISPLAY_RADAR, true);
+                    
+                    Function.Call( Hash.DISPLAY_RADAR, true );
                     Function.Call(Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1);
 
                     introEnded = true;
