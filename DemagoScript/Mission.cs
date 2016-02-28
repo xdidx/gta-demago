@@ -19,13 +19,11 @@ namespace DemagoScript
         
         public virtual void loadLastCheckpoint()
         {
-            checkRequiredElements();
-
-            Tools.log( "loadLastCheckpoint: Mission name: " + this.getName() );
-            
+            Tools.log( "loadLastCheckpoint: Mission name: " + this.getName() );   
             var currentObjective = objectives[currentObjectiveIndex];
             if ( currentObjective != null && currentObjective.Checkpoint != null ) {
                 Tools.log( "loadLastCheckpoint: currentObjective name: " + currentObjective.getName() + " action: teleportPlayerToCheckpoint");
+                checkRequiredElements();
                 currentObjective.Checkpoint.teleportPlayerToCheckpoint();
                 this.play();
             } else {
@@ -36,7 +34,7 @@ namespace DemagoScript
 
         public virtual void checkRequiredElements()
         {
-
+            Tools.log( "checkRequiredElements" );
         }
 
         public override void populateDestructibleElements()
@@ -218,6 +216,7 @@ namespace DemagoScript
                     
                     ConfirmationPopup checkpointPopup = new ConfirmationPopup( "Vous êtes mort", "Voulez-vous revenir au dernier checkpoint ?" );
                     checkpointPopup.OnPopupAccept += () => {
+                        replacementPed.Delete();
                         DemagoScript.loadLastCheckpointOnCurrentMission();
                     };
                     checkpointPopup.OnPopupRefuse += () => {

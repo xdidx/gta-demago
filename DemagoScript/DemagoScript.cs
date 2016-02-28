@@ -40,8 +40,9 @@ namespace DemagoScript
         
         public static void loadLastCheckpointOnCurrentMission()
         {
+            Tools.log( "DemagoScript::loadLastCheckpointOnCurrentMission" );
             if (lastMission != null && (lastMission.isInProgress() || lastMission.isWaiting()))
-                lastMission.loadLastCheckpoint(); 
+                lastMission.loadLastCheckpoint();
         }
 
         public static void stopCurrentMission()

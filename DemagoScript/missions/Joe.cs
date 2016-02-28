@@ -49,8 +49,20 @@ namespace DemagoScript
 
         public override void checkRequiredElements()
         {
-            while (Joe.bike == null || !Joe.bike.Exists())
-            {
+            base.checkRequiredElements();
+            
+            // Si le velo existe
+            if (Joe.bike != null && Joe.bike.Exists()) {
+                // Et qu'il est loin du joueur
+                if ( Joe.bike.Position.DistanceTo( bikePositionAtHome ) > 5 ) {
+                    // On le replace
+                    Joe.bike.Position = bikePositionAtHome;
+                }
+            }
+
+            // Si le velo n'existe pas
+            while (Joe.bike == null || !Joe.bike.Exists()) {
+                // On le créer à sa position initiale
                 Joe.bike = World.CreateVehicle(VehicleHash.TriBike, bikePositionAtHome);
             }
 
