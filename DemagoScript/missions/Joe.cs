@@ -75,6 +75,7 @@ namespace DemagoScript
             Ped player = Game.Player.Character;
             player.MaxHealth = 300;
             Function.Call(Hash.SET_PED_MAX_HEALTH, player, player.MaxHealth);
+            player.Health = 300;
 
             CameraShotsList.Instance.reset();
 
