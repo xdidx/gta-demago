@@ -412,8 +412,8 @@ namespace DemagoScript
                 while (nadineMorano == null || !nadineMorano.Exists())
                 {
                     nadineMorano = World.CreatePed(PedHash.Business02AFM, thirdSongPosition);
-                    nadineMorano.Task.TurnTo(spectatorsPeds3[0]);
                 }
+                nadineMorano.Task.TurnTo( spectatorsPeds3[0] );
                 Function.Call(Hash.SET_PED_COMPONENT_VARIATION, nadineMorano.Handle, 2, 1, 2, 2);
             };
             goToTheaterWithBikeObjective.OnFirstTimeOnVehicle += (sender, vehicle) => {
