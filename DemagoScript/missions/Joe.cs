@@ -1,4 +1,5 @@
-﻿using GTA;
+﻿using DemagoScript.GUI;
+using GTA;
 using GTA.Math;
 using GTA.Native;
 using System;
@@ -86,7 +87,6 @@ namespace DemagoScript
             goToFirstSongObjective.Checkpoint.Armor = 100;
             goToFirstSongObjective.Checkpoint.Weather = Weather.ExtraSunny;
             goToFirstSongObjective.Checkpoint.WantedLevel = 0;
-
             goToFirstSongObjective.OnStarted += (sender) =>
             {   
                 #region Intro cinematic
@@ -502,10 +502,18 @@ namespace DemagoScript
                 cameraShot.lookAt(Game.Player.Character);
                 cameraShots.Add(cameraShot);
 
-                CameraShotsList.Instance.initialize(cameraShots, AudioManager.Instance.getLength("lesFlics"));
+                CameraShotsList.Instance.initialize(cameraShots, AudioManager.Instance.getLength( "degueulasse" ) );
+
+                // ugly fix
+                TaskSequence joeThirdSongSequence = new TaskSequence();
+                joeThirdSongSequence.AddTask.ClearAllImmediately();
+                joeThirdSongSequence.AddTask.TurnTo( spectatorsPeds3[0], 500 );
+                joeThirdSongSequence.AddTask.PlayAnimation( "amb@world_human_musician@guitar@male@base", "base", 8f, -1, true, -1f );
+                Game.Player.Character.Task.PerformSequence(joeThirdSongSequence);
+                Game.Player.Character.Task.PlayAnimation( "amb@world_human_musician@guitar@male@base", "base", 8f, -1, true, -1f );
                 #endregion
             };
-            thirdSongObjectives.OnEnded += (sender) =>
+            thirdSongObjectives.OnAccomplished += (sender, elapsedTime) =>
             {
                 if (chansonHoo2 != null)
                     chansonHoo2.stop();

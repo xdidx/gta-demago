@@ -56,7 +56,7 @@ namespace DemagoScript
                         instrumentProp.HasGravity = true;
                         instrumentProp.AttachTo(player, player.GetBoneIndex(Bone.SKEL_Pelvis), new Vector3(-0.18f, 0.28f, -0.1f), new Vector3(195f, -24f, 0f));
                     }
-                    Tools.log( "PlayInstrument::populateDesctructibleElements - " + player );
+                    
                     player.Task.PlayAnimation("amb@world_human_musician@guitar@male@base", "base", 8f, -1, true, -1f);
                 }
             }
@@ -82,23 +82,23 @@ namespace DemagoScript
 
         public override bool update()
         {
-            if (!base.update())
+            if (!base.update()) {
                 return false;
+            }
 
-            if(Game.IsKeyPressed(System.Windows.Forms.Keys.Back))
-            {
+            if (Game.IsKeyPressed(System.Windows.Forms.Keys.Back)) {
                 accomplish();
                 return false;
             }
             
             secondToPlay -= Game.LastFrameTime;
-            if (secondToPlay <= 0)
-            {
+            if (secondToPlay <= 0) {
                 accomplish();
                 return false;
-            }
-            else if (secondToPlay >= 0)
+            } else {
                 ObjectiveText = "Attend que les spectateurs aient assez apprécié la musique de Joe. (Back pour passer)";
+            }
+
             return true;
         }
 

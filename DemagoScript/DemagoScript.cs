@@ -81,36 +81,59 @@ namespace DemagoScript
             }
 
             scriptTime += (Game.LastFrameTime * 1000);
-
+            
             Tools.update();
             Timer.updateAllTimers();
             CameraShotsList.Instance.update();
             AudioManager.Instance.update();
-
-            #region Update sur la mission en cours
-            foreach ( Mission mission in missions ) {
-                if ( mission.isInProgress() ) {
-                    mission.update();
-                }
+            
+            if (DemagoScript.lastMission != null) {
+                DemagoScript.lastMission.update();
             }
-            #endregion
-
+            
             GUIManager.Instance.update();
-
         }    
 
         private void OnKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Decimal)
-            {
-                playerSitting();
+            switch ( e.KeyCode ) {
+
+                case Keys.Decimal:
+                    playerSitting();
+                    break;
+
+                case Keys.Escape:
+                    togglePause();
+                    break;
+
+                case Keys.L:
+                    Function.Call( Hash.DISPLAY_RADAR, true );
+                    break;
+
+                case Keys.M:
+                    Function.Call( Hash.DISPLAY_RADAR, false );
+                    break;
+
+                case Keys.O:
+                    Function.Call( Hash.DISPLAY_HUD, true );
+                    break;
+
+                case Keys.P:
+                    Function.Call( Hash.DISPLAY_HUD, false );
+                    break;
+
+                case Keys.I:
+                    Game.Player.Character.Task.PlayAnimation("amb@world_human_musician@guitar@male@base", "base", 8f, -1, true, -1f);
+                    break;
+
+                case Keys.K:
+                    Game.Player.Character.Task.ClearAllImmediately();
+                    break;
+
+                default:
+                    break;
             }
 
-            if (e.KeyCode == Keys.Escape)
-            {
-                togglePause();
-            }
-            
             GUIManager.Instance.OnKeyDown(sender, e);
         }
 
@@ -145,12 +168,14 @@ namespace DemagoScript
 
         private void createMissions()
         {
+            Tools.log( "createMissions()" );
             missions = new List<Mission>();
 
             Type[] missionsClassesList = Assembly.GetExecutingAssembly().GetTypes().Where(type => type.IsSubclassOf(typeof(Mission))).ToArray();
             foreach (Type missionClass in missionsClassesList)
             {
                 Mission newMission = (Mission)Activator.CreateInstance(missionClass);
+                Tools.log( "creating mission " + newMission.getName() );
 
                 newMission.OnStarted += (sender) =>
                 {
