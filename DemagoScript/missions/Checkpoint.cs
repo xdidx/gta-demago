@@ -64,6 +64,11 @@ namespace DemagoScript
             entitiesCollector.Add(entity, position);
         }
 
+        public Vector3 getEntityPosition(Entity entity)
+        {
+            return this.entitiesCollector[entity];
+        }
+
         public void initialize()
         {
             if (WantedLevel != -1)

@@ -53,10 +53,12 @@ namespace DemagoScript
             
             // Si le velo existe
             if (Joe.bike != null && Joe.bike.Exists()) {
+                // On recupere la position du velo pour l'objectif courant
+                Vector3 position = this.objectives[this.currentObjectiveIndex].Checkpoint.getEntityPosition( Joe.bike );
                 // Et qu'il est loin du joueur
-                if ( Joe.bike.Position.DistanceTo( bikePositionAtHome ) > 5 ) {
+                if ( Joe.bike.Position.DistanceTo( position ) > 5 ) {
                     // On le replace
-                    Joe.bike.Position = bikePositionAtHome;
+                    Joe.bike.Position = position;
                 }
             }
 
