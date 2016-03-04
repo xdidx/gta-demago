@@ -242,7 +242,7 @@ namespace DemagoScript
                         DemagoScript.stopCurrentMission();
                     };
                     checkpointPopup.OnPopupClose += () => {
-                        player.IsVisible = true;
+                        Game.Player.Character.IsVisible = true;
                     };
                     checkpointPopup.show();
 
