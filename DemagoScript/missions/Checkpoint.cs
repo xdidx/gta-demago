@@ -114,5 +114,28 @@ namespace DemagoScript
                 }
             };
         }
+
+        public void loadAndApplyLastCheckpointProperties()
+        {
+            if (WantedLevel != -1)
+                Game.Player.WantedLevel = WantedLevel;
+
+            if (Health != -1)
+                Game.Player.Character.Health = Health;
+
+            if (Armor != -1)
+                Game.Player.Character.Armor = Armor;
+
+            if (clockHour != -1)
+                Tools.setClockTime(clockHour, Math.Max(clockTransitionTime, 0));
+
+            if (Heading != -1)
+                Game.Player.Character.Heading = Heading;
+
+            if (Weather != Weather.Smog)
+                World.Weather = Weather;
+
+            teleportPlayerToCheckpoint();
+        }
     }
 }

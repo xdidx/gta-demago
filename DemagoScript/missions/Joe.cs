@@ -39,7 +39,6 @@ namespace DemagoScript
         private bool playerDown = false;
         private bool playerWalked = false;
         private bool playerMoved = false;
-        private bool introEnded = false;
         #endregion
 
         public Joe()
@@ -276,7 +275,7 @@ namespace DemagoScript
             goToPoliceWithBikeObjective.Checkpoint.Health = 300;
             goToPoliceWithBikeObjective.Checkpoint.Armor = 100;
             goToPoliceWithBikeObjective.Checkpoint.Weather = Weather.Clearing;
-            goToPoliceWithBikeObjective.Checkpoint.WantedLevel = 2;
+            goToPoliceWithBikeObjective.Checkpoint.WantedLevel = 1;
             goToPoliceWithBikeObjective.OnStarted += (sender) =>
             {
                 AudioManager.Instance.startPlaylist(new string[] { "flics1", "dialogue1", "dialogue2", "dialogue3" });
@@ -286,6 +285,7 @@ namespace DemagoScript
             goToSecondSongObjective.Checkpoint = new Checkpoint();
             goToSecondSongObjective.Checkpoint.addEntity(Joe.bike, roadFaceToPoliceStationPosition);
             goToSecondSongObjective.Checkpoint.PlayerPosition = roadFaceToPoliceStationPosition;
+            goToSecondSongObjective.Checkpoint.WantedLevel = 1;
             goToSecondSongObjective.OnStarted += (sender) =>
             {
                 foreach (Ped spectator in spectatorsPeds)
@@ -385,7 +385,7 @@ namespace DemagoScript
             goToTheaterWithBikeObjective.Checkpoint.PlayerPosition = secondSongPosition;
             goToTheaterWithBikeObjective.Checkpoint.Health = 300;
             goToTheaterWithBikeObjective.Checkpoint.Armor = 100;
-            goToTheaterWithBikeObjective.Checkpoint.WantedLevel = 1;
+            goToTheaterWithBikeObjective.Checkpoint.WantedLevel = 2;
             goToTheaterWithBikeObjective.Checkpoint.Weather = Weather.Clouds;
             goToTheaterWithBikeObjective.Checkpoint.setClockHour(18, 40000);
             goToTheaterWithBikeObjective.OnStarted += (sender) =>
@@ -448,6 +448,7 @@ namespace DemagoScript
             goToThirdSongPosition.Checkpoint = new Checkpoint();
             goToThirdSongPosition.Checkpoint.addEntity(Joe.bike, thirdSongBikePosition);
             goToThirdSongPosition.Checkpoint.PlayerPosition = thirdSongBikePosition;
+            goToThirdSongPosition.Checkpoint.WantedLevel = 2;
 
             Timer chansonHoo2 = null;
             AbstractObjective thirdSongObjectives = new PlayInstrument(InstrumentHash.Guitar, "degueulasse");

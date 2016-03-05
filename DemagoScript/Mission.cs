@@ -11,24 +11,25 @@ namespace DemagoScript
 {
     abstract class Mission : AbstractObjective
     {
-        private List<AbstractObjective> objectives = new List<AbstractObjective>();
-        private int currentObjectiveIndex = 0;
+        protected List<AbstractObjective> objectives = new List<AbstractObjective>();
+        protected int currentObjectiveIndex = 0;
+        protected bool introEnded = false;
 
         // TODO: faire mieux que ça
         private Model missionModel = null;
         
         public virtual void loadLastCheckpoint()
         {
-            Tools.log( "loadLastCheckpoint: Mission name: " + this.getName() );   
+            Tools.log( "loadLastCheckpoint: Mission name: " + getName() );   
             var currentObjective = objectives[currentObjectiveIndex];
             if ( currentObjective != null && currentObjective.Checkpoint != null ) {
                 Tools.log( "loadLastCheckpoint: currentObjective name: " + currentObjective.getName() + " action: teleportPlayerToCheckpoint");
                 checkRequiredElements();
-                currentObjective.Checkpoint.teleportPlayerToCheckpoint();
-                this.play();
+                currentObjective.Checkpoint.loadAndApplyLastCheckpointProperties();
+                play();
             } else {
                 Tools.log( "loadLastCheckpoint: stop mission" );
-                this.stop( true );
+                stop( true );
             }
         }
 
@@ -128,7 +129,15 @@ namespace DemagoScript
             if (currentObjectiveIndex < objectives.Count)
             {
                 AbstractObjective objective = objectives[currentObjectiveIndex];
-                objective.update();
+
+                if (introEnded)
+                {
+                    objective.update();
+                }
+                else
+                {
+                    objective.ObjectiveText = "";
+                }
 
                 if (!Function.Call<bool>(Hash.IS_HUD_HIDDEN))
                 {

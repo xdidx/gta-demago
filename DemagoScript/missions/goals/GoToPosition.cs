@@ -65,10 +65,10 @@ namespace DemagoScript
 
             Ped player = Game.Player.Character;
 
-            if ( this.destination.DistanceTo( Game.Player.Character.Position ) < 1.4 ) {
-                this.accomplish();
+            if ( destination.DistanceTo( Game.Player.Character.Position ) < 1.4 ) {
+                accomplish();
             } else {
-                this.ObjectiveText = "Rejoins l'endroit indiqué par le GPS";
+                ObjectiveText = "Rejoins l'endroit indiqué par le GPS";
             }
 
             return true;
