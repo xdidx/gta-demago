@@ -285,7 +285,7 @@ namespace DemagoScript
             goToSecondSongObjective.Checkpoint = new Checkpoint();
             goToSecondSongObjective.Checkpoint.addEntity(Joe.bike, roadFaceToPoliceStationPosition);
             goToSecondSongObjective.Checkpoint.PlayerPosition = roadFaceToPoliceStationPosition;
-            goToSecondSongObjective.Checkpoint.WantedLevel = 1;
+            goToSecondSongObjective.Checkpoint.WantedLevel = 0;
             goToSecondSongObjective.OnStarted += (sender) =>
             {
                 foreach (Ped spectator in spectatorsPeds)
@@ -448,7 +448,7 @@ namespace DemagoScript
             goToThirdSongPosition.Checkpoint = new Checkpoint();
             goToThirdSongPosition.Checkpoint.addEntity(Joe.bike, thirdSongBikePosition);
             goToThirdSongPosition.Checkpoint.PlayerPosition = thirdSongBikePosition;
-            goToThirdSongPosition.Checkpoint.WantedLevel = 2;
+            goToThirdSongPosition.Checkpoint.WantedLevel = 0;
 
             Timer chansonHoo2 = null;
             AbstractObjective thirdSongObjectives = new PlayInstrument(InstrumentHash.Guitar, "degueulasse");
@@ -462,7 +462,9 @@ namespace DemagoScript
             thirdSongObjectives.OnStarted += (sender) =>
             {
                 Ped player = Game.Player.Character;
-                Function.Call(Hash.TASK_TURN_PED_TO_FACE_COORD, player.Handle, 640f, 448f, 100f, -1);
+                
+                //Function.Call(Hash.TASK_TURN_PED_TO_FACE_COORD, player.Handle, 640f, 448f, 100f, -1);
+                //Function.Call(Hash.TASK_TURN_PED_TO_FACE_COORD, player.Handle, -500f, -548f, 800f, -1);
 
                 #region Cinematic
                 if (nadineMorano != null)
@@ -471,6 +473,19 @@ namespace DemagoScript
                     AudioManager.Instance.startIndependantSound("nadine");
                 }
                 AudioManager.Instance.startIndependantSound("degueulasseHoo");
+
+
+                // EN TEST
+                foreach (Ped spectator in World.GetNearbyPeds(player, 50))
+                {
+                    if (spectator != null && spectator.Exists() && spectator.Model.ToString() != "0x1FC37DBC")
+                    {
+                        Tools.log("Morano : " + nadineMorano.Model + "spectateur : " + spectator.Model);
+                        //spectator.Task.ClearAllImmediately();
+                        Function.Call(Hash.TASK_TURN_PED_TO_FACE_ENTITY, player.Handle, spectator.Handle);
+                    }
+                }
+                // EN TEST
 
                 chansonHoo2 = new Timer(AudioManager.Instance.getLength("degueulasse") - 19000);
                 chansonHoo2.OnTimerStop += (timerSender) =>
