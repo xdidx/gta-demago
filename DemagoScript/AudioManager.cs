@@ -34,6 +34,14 @@ namespace DemagoScript
             }
         }
 
+        ~AudioManager()
+        {
+            if (engine != null)
+            { 
+                engine.Dispose();
+            }
+        }
+
         public string MusicsLocation
         {
             get
@@ -219,7 +227,7 @@ namespace DemagoScript
         {
             Tools.log( "setAudioPause:" + this.currentSoundIndex + " / " + this.playlist.Count() );
 
-            if ( this.currentSoundIndex <= this.playlist.Count ) {
+            if ( this.currentSoundIndex < this.playlist.Count ) {
                 ISound currentSound = playlist.ElementAt( currentSoundIndex ).Value;
                 currentSound.Paused = state;
             }            

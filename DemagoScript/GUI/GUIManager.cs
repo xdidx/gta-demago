@@ -39,8 +39,8 @@ namespace DemagoScript.GUI
         public void update()
         {
             this.menu.process();
-            this.popupManager.update();
             this.missionUI.draw();
+            this.popupManager.update();
         }
 
         public void OnKeyDown(object sender, KeyEventArgs e)
