@@ -463,9 +463,6 @@ namespace DemagoScript
             {
                 Ped player = Game.Player.Character;
                 
-                //Function.Call(Hash.TASK_TURN_PED_TO_FACE_COORD, player.Handle, 640f, 448f, 100f, -1);
-                //Function.Call(Hash.TASK_TURN_PED_TO_FACE_COORD, player.Handle, -500f, -548f, 800f, -1);
-
                 #region Cinematic
                 if (nadineMorano != null)
                 {
@@ -473,19 +470,6 @@ namespace DemagoScript
                     AudioManager.Instance.startIndependantSound("nadine");
                 }
                 AudioManager.Instance.startIndependantSound("degueulasseHoo");
-
-
-                // EN TEST
-                foreach (Ped spectator in World.GetNearbyPeds(player, 50))
-                {
-                    if (spectator != null && spectator.Exists() && spectator.Model.ToString() != "0x1FC37DBC")
-                    {
-                        Tools.log("Morano : " + nadineMorano.Model + "spectateur : " + spectator.Model);
-                        //spectator.Task.ClearAllImmediately();
-                        Function.Call(Hash.TASK_TURN_PED_TO_FACE_ENTITY, player.Handle, spectator.Handle);
-                    }
-                }
-                // EN TEST
 
                 chansonHoo2 = new Timer(AudioManager.Instance.getLength("degueulasse") - 19000);
                 chansonHoo2.OnTimerStop += (timerSender) =>
@@ -535,13 +519,7 @@ namespace DemagoScript
 
                 CameraShotsList.Instance.initialize(cameraShots, AudioManager.Instance.getLength( "degueulasse" ) );
 
-                // ugly fix
-                TaskSequence joeThirdSongSequence = new TaskSequence();
-                joeThirdSongSequence.AddTask.ClearAllImmediately();
-                joeThirdSongSequence.AddTask.TurnTo( spectatorsPeds3[0], 500 );
-                joeThirdSongSequence.AddTask.PlayAnimation( "amb@world_human_musician@guitar@male@base", "base", 8f, -1, true, -1f );
-                Game.Player.Character.Task.PerformSequence(joeThirdSongSequence);
-                Game.Player.Character.Task.PlayAnimation( "amb@world_human_musician@guitar@male@base", "base", 8f, -1, true, -1f );
+                Game.Player.Character.Heading = 180;
                 #endregion
             };
             thirdSongObjectives.OnAccomplished += (sender, elapsedTime) =>
