@@ -199,17 +199,17 @@ namespace DemagoScript
             {
                 this.missionModel = player.Model;
 
+                Ped replacementPed = Function.Call<Ped>( Hash.CLONE_PED, Game.Player.Character, Function.Call<int>( Hash.GET_ENTITY_HEADING, Function.Call<int>( Hash.PLAYER_PED_ID ) ), false, true );
+
                 if (player.IsDead)
                 {
                     playerWasDead = true;
-                    Ped replacementPed = Function.Call<Ped>(Hash.CLONE_PED, Game.Player.Character, Function.Call<int>(Hash.GET_ENTITY_HEADING, Function.Call<int>(Hash.PLAYER_PED_ID)), false, true);
                     replacementPed.Kill();
                     replacementPed.MarkAsNoLongerNeeded();
                 }
                 else if (Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, false))
                 {
-                    playerWasArrested = true;
-                    Ped replacementPed = Function.Call<Ped>(Hash.CLONE_PED, Game.Player.Character, Function.Call<int>(Hash.GET_ENTITY_HEADING, Function.Call<int>(Hash.PLAYER_PED_ID)), false, true);
+                    playerWasArrested = true;    
                     replacementPed.Task.HandsUp(10000);
                     replacementPed.MarkAsNoLongerNeeded();
                 }
@@ -240,30 +240,20 @@ namespace DemagoScript
 
                 Script.Wait(3000);
 
-                if (playerWasDead) {
-                    Function.Call(Hash.DISPLAY_HUD, true);
-                    Function.Call(Hash.DISPLAY_RADAR, true);
+                Function.Call( Hash.DISPLAY_HUD, true );
+                Function.Call( Hash.DISPLAY_RADAR, true );
 
-                    ConfirmationPopup checkpointPopup = new ConfirmationPopup("Vous êtes mort", "Voulez-vous revenir au dernier checkpoint ?");
-                    checkpointPopup.OnPopupAccept += () => {
-                        DemagoScript.loadLastCheckpointOnCurrentMission();
-                    };
-                    checkpointPopup.OnPopupRefuse += () => {
-                        DemagoScript.stopCurrentMission();
-                    };
-                    checkpointPopup.show();
+                var title = ( playerWasDead ) ? "Vous êtes mort" : "Vous vous êtes fait arrêter";
+                var subtitle = "Voulez-vous revenir au dernier checkpoint ?";
 
-                } else if (playerWasArrested) {
-                    ConfirmationPopup checkpointPopup = new ConfirmationPopup("Vous vous êtes fait arrêter", "Voulez-vous revenir au dernier checkpoint ?");
-
-                    checkpointPopup.OnPopupAccept += () => {
-                        DemagoScript.loadLastCheckpointOnCurrentMission();
-                    };
-                    checkpointPopup.OnPopupRefuse += () => {
-                        DemagoScript.stopCurrentMission();
-                    };
-                    checkpointPopup.show();
-                }
+                ConfirmationPopup checkpointPopup = new ConfirmationPopup( title, subtitle );
+                checkpointPopup.OnPopupAccept += () => {
+                    DemagoScript.loadLastCheckpointOnCurrentMission();
+                };
+                checkpointPopup.OnPopupRefuse += () => {
+                    DemagoScript.stopCurrentMission();
+                };
+                checkpointPopup.show();
             }
 
             Tools.log("changeplayerModel end");
