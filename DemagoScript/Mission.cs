@@ -27,6 +27,7 @@ namespace DemagoScript
                 checkRequiredElements();
                 currentObjective.Checkpoint.loadAndApplyLastCheckpointProperties();
                 play();
+                AudioManager.Instance.playAll();
             } else {
                 Tools.log("loadLastCheckpoint: stop mission");
                 stop(true);
@@ -124,6 +125,7 @@ namespace DemagoScript
             if (Game.Player.IsDead || Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, false))
             {
                 this.pause();
+                AudioManager.Instance.pauseAll();
                 this.resetPlayerModel();
             }
 
@@ -248,10 +250,10 @@ namespace DemagoScript
 
                 ConfirmationPopup checkpointPopup = new ConfirmationPopup( title, subtitle );
                 checkpointPopup.OnPopupAccept += () => {
-                    DemagoScript.loadLastCheckpointOnCurrentMission();
+                    this.loadLastCheckpoint();
                 };
                 checkpointPopup.OnPopupRefuse += () => {
-                    DemagoScript.stopCurrentMission();
+                    this.stop( true );
                 };
                 checkpointPopup.show();
             }
