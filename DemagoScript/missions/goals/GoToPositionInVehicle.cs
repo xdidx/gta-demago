@@ -75,9 +75,9 @@ namespace DemagoScript
 
         public override void depopulateDestructibleElements(bool removePhysicalElements = false)
         {
-            if (vehicle != null && vehicle.Exists())
+            if (vehicle != null)
             {
-                if (removePhysicalElements && !vehicleHasBeenGivenInConstruct())
+                if (vehicle.Exists() && removePhysicalElements && !vehicleHasBeenGivenInConstruct())
                     vehicle.Delete();
 
                 if (vehicle.CurrentBlip != null)

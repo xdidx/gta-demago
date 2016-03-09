@@ -99,21 +99,22 @@ namespace DemagoScript
 
             modelMenu.OnItemSelect += (sender, item, index) =>
             {
-                if (DemagoScript.savedPlayerModel == null && (Game.Player.Character.Model == PedHash.Michael || Game.Player.Character.Model == PedHash.Franklin || Game.Player.Character.Model == PedHash.Trevor))
+                if ((PedHash)Game.Player.Character.Model.Hash == PedHash.Michael || (PedHash)Game.Player.Character.Model.Hash == PedHash.Franklin || (PedHash)Game.Player.Character.Model.Hash == PedHash.Trevor)
                 {
-                    DemagoScript.savedPlayerModel = Game.Player.Character.Model;
+                    DemagoScript.savedPlayerModelHash = (PedHash)Game.Player.Character.Model.Hash;
                 }
 
-                if ( DemagoScript.savedPlayerModel != null && DemagoScript.savedPlayerModel != Game.Player.Character.Model)
-                {
-                    //Reset to old model
-                    Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, DemagoScript.savedPlayerModel.Hash);
-                }
-
-                if (item == resetModelItem && DemagoScript.savedPlayerModel == null)
+                if (item == resetModelItem && DemagoScript.savedPlayerModelHash == (PedHash)Game.Player.Character.Model.Hash)
                 {
                     UI.Notify("Vous possédez déjà le modèle de base !");
                 }
+
+                if ( DemagoScript.savedPlayerModelHash != (PedHash)Game.Player.Character.Model.Hash)
+                {
+                    //Reset to old model
+                    Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, (int)DemagoScript.savedPlayerModelHash);
+                }
+
 
 
                 if (item == dissociateModelItem)
@@ -437,7 +438,7 @@ namespace DemagoScript
         private bool playerModelIsValid()
         {
             Ped player = Game.Player.Character;
-            return ( DemagoScript.savedPlayerModel == null || player.Model == DemagoScript.savedPlayerModel || (!player.IsDead && !Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, true)));
+            return ( (PedHash)player.Model.Hash == DemagoScript.savedPlayerModelHash || (!player.IsDead && !Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, false)));
         }
 
         public void OnKeyDown(object sender, KeyEventArgs e)

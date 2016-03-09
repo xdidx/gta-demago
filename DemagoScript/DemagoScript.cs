@@ -15,8 +15,7 @@ namespace DemagoScript
     // Cela évitera d'avoir des boucles sur toutes les missions
     public class DemagoScript : Script
     {
-        // TODO: j'ai pas de meilleur endroit où le mettre pour l'instant
-        public static Model savedPlayerModel = null;
+        public static PedHash savedPlayerModelHash = PedHash.Michael;
 
         private static float scriptTime = 0;   
         private static List<Mission> missions = null;
