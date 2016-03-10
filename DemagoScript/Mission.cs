@@ -92,9 +92,7 @@ namespace DemagoScript
             Tools.log("call reset player model");
             // Reset the player model
             resetPlayerModel();
-
-            AudioManager.Instance.stopAll();
-
+            
             World.Weather = Weather.Clear;
 
             Ped player = Game.Player.Character;
@@ -104,6 +102,9 @@ namespace DemagoScript
             player.Armor = 100;
 
             Game.Player.WantedLevel = 0;
+            
+            CameraShotsList.Instance.reset();
+            AudioManager.Instance.stopAll();
         }
 
         protected override void accomplish()

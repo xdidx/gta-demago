@@ -222,7 +222,6 @@ namespace DemagoScript
 
                 newMission.OnEnded += (sender) =>
                 {
-                    CameraShotsList.Instance.reset();
                     DemagoScript.lastMission = null;
                 };
 
