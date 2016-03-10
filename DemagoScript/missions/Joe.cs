@@ -274,8 +274,8 @@ namespace DemagoScript
             goToPoliceWithBikeObjective.Checkpoint.setClockHour(14);
             goToPoliceWithBikeObjective.Checkpoint.Health = 300;
             goToPoliceWithBikeObjective.Checkpoint.Armor = 100;
-            goToPoliceWithBikeObjective.Checkpoint.Weather = Weather.Clearing;
-            goToPoliceWithBikeObjective.Checkpoint.WantedLevel = 1;
+            goToPoliceWithBikeObjective.Checkpoint.Weather = Weather.Clouds;
+            goToPoliceWithBikeObjective.Checkpoint.WantedLevel = 2;
             goToPoliceWithBikeObjective.OnStarted += (sender) =>
             {
                 AudioManager.Instance.startPlaylist(new string[] { "flics1", "dialogue1", "dialogue2", "dialogue3" });
@@ -385,8 +385,8 @@ namespace DemagoScript
             goToTheaterWithBikeObjective.Checkpoint.PlayerPosition = secondSongPosition;
             goToTheaterWithBikeObjective.Checkpoint.Health = 300;
             goToTheaterWithBikeObjective.Checkpoint.Armor = 100;
-            goToTheaterWithBikeObjective.Checkpoint.WantedLevel = 2;
-            goToTheaterWithBikeObjective.Checkpoint.Weather = Weather.Clouds;
+            goToTheaterWithBikeObjective.Checkpoint.WantedLevel = 1;
+            goToTheaterWithBikeObjective.Checkpoint.Weather = Weather.Clearing;
             goToTheaterWithBikeObjective.Checkpoint.setClockHour(18, 40000);
             goToTheaterWithBikeObjective.OnStarted += (sender) =>
             {
@@ -396,8 +396,9 @@ namespace DemagoScript
                 {
                     if (ped != null && ped.Exists())
                     {
+                        ped.Task.ClearAllImmediately();
+                        ped.Task.FightAgainst(Game.Player.Character);
                         ped.Weapons.Give(WeaponHash.Pistol, 1, true, true);
-                        Function.Call(Hash.SET_PED_AS_COP, ped, true);
                         ped.MarkAsNoLongerNeeded();
                     }
                 }
@@ -456,7 +457,7 @@ namespace DemagoScript
             thirdSongObjectives.Checkpoint.Activable = true;
             thirdSongObjectives.Checkpoint.addEntity(Joe.bike, thirdSongBikePosition);
             thirdSongObjectives.Checkpoint.PlayerPosition = thirdSongPosition;
-            thirdSongObjectives.Checkpoint.Weather = Weather.Clouds;
+            thirdSongObjectives.Checkpoint.Weather = Weather.Raining;
             thirdSongObjectives.Checkpoint.WantedLevel = 0;
             thirdSongObjectives.Checkpoint.setClockHour(20);
             thirdSongObjectives.Checkpoint.Heading = 180;
@@ -465,7 +466,7 @@ namespace DemagoScript
                 Ped player = Game.Player.Character;
                 
                 #region Cinematic
-                if (nadineMorano != null && nadineMorano.Position.DistanceTo(player.Position) > 10)
+                if (nadineMorano != null && nadineMorano.Position.DistanceTo(player.Position) < 10)
                 {
                     nadineMorano.Task.FleeFrom(player);
                     AudioManager.Instance.startIndependantSound("nadine");
@@ -576,9 +577,12 @@ namespace DemagoScript
             goToHome.OnFirstTimeOnVehicle += (sender, vehicle) => {
                 goToHome.AdviceText = "Evite les routes pour éviter les voitures de police";
             };
+            /*
+            //TODO : Necessaire ?
             goToHome.OnAccomplished += (sender, elapsedTime) => {
                 AudioManager.Instance.startSound("dialogue10");
             };
+            */
 
             addObjective(goToFirstSongObjective);
             addObjective(firstSongObjectives);
@@ -614,9 +618,7 @@ namespace DemagoScript
                     nadineMorano = null;
                 }
             }
-
-            AudioManager.Instance.stopAll();
-
+            
             if (Joe.bike != null && Joe.bike.Exists())
             {
                 Joe.bike.MarkAsNoLongerNeeded();
@@ -657,15 +659,6 @@ namespace DemagoScript
                 }
 
             spectatorsPeds3.Clear();
-
-            Ped player = Game.Player.Character;
-            player.MaxHealth = 100;
-            Function.Call(Hash.SET_PED_MAX_HEALTH, player, player.MaxHealth);
-
-            World.Weather = Weather.Clear;
-
-            player.Health = 100;
-            player.Armor = 100;
         }
         
         public override bool update()

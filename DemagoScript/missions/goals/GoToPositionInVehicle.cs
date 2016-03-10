@@ -88,6 +88,8 @@ namespace DemagoScript
                 Function.Call(Hash.DELETE_CHECKPOINT, destinationCheckpoint);
 
             this.removeDestinationBlip();
+
+            alreadyMountedOnBike = false;
         }
 
         /// <summary>

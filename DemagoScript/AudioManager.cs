@@ -82,7 +82,7 @@ namespace DemagoScript
 
         private void updateInterruptSounds()
         {
-            if (currentInterruptSound == null)
+            if (currentInterruptSound == null && FilesSubFolder != "")
             {
                 string fileFullPath = "";
                 if (Function.Call<Boolean>(Hash.HAS_PED_BEEN_DAMAGED_BY_WEAPON, Game.Player.Character, 0, 2))
@@ -254,7 +254,7 @@ namespace DemagoScript
         /// </summary>
         public void stopAll()
         {
-            #region stopSongs
+            #region Stop playlist
             foreach ( KeyValuePair<string, ISound> pair in playlist ) {
                 pair.Value.Paused = true;
                 pair.Value.Dispose();
@@ -262,13 +262,16 @@ namespace DemagoScript
             playlist.Clear();
             currentSoundIndex = 0;
             #endregion
-            #region independantSongs
+
+            #region Stop independant songs
             foreach ( ISound sound in independantSongs ) {
                 sound.Paused = true;
                 sound.Dispose();
             }
             independantSongs.Clear();
             #endregion
+
+            FilesSubFolder = "";
 
             this.clearSubtitles();
         }

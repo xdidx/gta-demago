@@ -15,9 +15,6 @@ namespace DemagoScript
         protected int currentObjectiveIndex = 0;
         protected bool introEnded = false;
 
-        // TODO: faire mieux que ça
-        private Model missionModel = null;
-
         public virtual void loadLastCheckpoint()
         {
             Tools.log("loadLastCheckpoint: Mission name: " + getName());
@@ -57,7 +54,10 @@ namespace DemagoScript
 
         public override void start()
         {
-            DemagoScript.savedPlayerModelHash = (PedHash)Game.Player.Character.Model.Hash;
+            if ((PedHash)Game.Player.Character.Model.Hash == PedHash.Michael || (PedHash)Game.Player.Character.Model.Hash == PedHash.Franklin || (PedHash)Game.Player.Character.Model.Hash == PedHash.Trevor)
+            {
+                DemagoScript.savedPlayerModelHash = (PedHash)Game.Player.Character.Model.Hash;
+            }
 
             base.start();
 
@@ -89,14 +89,21 @@ namespace DemagoScript
             }
             objectives.Clear();
 
+            Tools.log("call reset player model");
             // Reset the player model
             resetPlayerModel();
 
+            AudioManager.Instance.stopAll();
+
+            World.Weather = Weather.Clear;
+
+            Ped player = Game.Player.Character;
+            Function.Call(Hash.SET_PED_MAX_HEALTH, player, 100);
+            player.MaxHealth = 100;
+            player.Health = 100;
+            player.Armor = 100;
+
             Game.Player.WantedLevel = 0;
-            Game.Player.Character.Armor = 100;
-            Game.Player.Character.MaxHealth = 300;
-            Function.Call(Hash.SET_PED_MAX_HEALTH, Game.Player.Character, Game.Player.Character.MaxHealth);
-            Game.Player.Character.Health = 300;
         }
 
         protected override void accomplish()
@@ -197,23 +204,33 @@ namespace DemagoScript
             Ped player = Game.Player.Character;
             if ((PedHash)player.Model.Hash != DemagoScript.savedPlayerModelHash)
             {
-                this.missionModel = player.Model;
-
-                Ped replacementPed = Function.Call<Ped>( Hash.CLONE_PED, Game.Player.Character, Function.Call<int>( Hash.GET_ENTITY_HEADING, Function.Call<int>( Hash.PLAYER_PED_ID ) ), false, true );
-
-                if (player.IsDead)
+                Vehicle currentVehicle = null;
+                if (player.IsInVehicle())
                 {
-                    playerWasDead = true;
-                    replacementPed.Kill();
-                    replacementPed.MarkAsNoLongerNeeded();
-                }
-                else if (Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, false))
-                {
-                    playerWasArrested = true;    
-                    replacementPed.Task.HandsUp(10000);
-                    replacementPed.MarkAsNoLongerNeeded();
+                    currentVehicle = player.CurrentVehicle;
                 }
 
+                if (player.IsDead || Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, false))
+                {
+                    #region Create remplacement ped
+                    Ped replacementPed = Function.Call<Ped>(Hash.CLONE_PED, Game.Player.Character, Function.Call<int>(Hash.GET_ENTITY_HEADING, Function.Call<int>(Hash.PLAYER_PED_ID)), false, true);
+
+                    if (player.IsDead)
+                    {
+                        playerWasDead = true;
+                        replacementPed.Kill();
+                    }
+                    else
+                    {
+                        playerWasArrested = true;
+                        replacementPed.Task.HandsUp(10000);
+                    }
+
+                    replacementPed.MarkAsNoLongerNeeded();
+                    #endregion
+                }
+
+                #region Change player model with saved PedHash
                 var characterModel = new Model(DemagoScript.savedPlayerModelHash);
                 characterModel.Request(500);
 
@@ -226,28 +243,37 @@ namespace DemagoScript
                 }
 
                 characterModel.MarkAsNoLongerNeeded();
+                #endregion
 
                 player = Game.Player.Character;
-                player.Task.StandStill(-1);
-                player.IsVisible = false;
-                player.IsInvincible = true;
-
-                //Tant qu'on charge le jeu, on fait attendre le script GTA Démago
-                while (!Function.Call<bool>(Hash.IS_PLAYER_PLAYING, Game.Player))
+                if (currentVehicle != null)
                 {
-                    Script.Wait(100);
+                    player.SetIntoVehicle(currentVehicle, VehicleSeat.Driver);
                 }
-
-                player.IsVisible = true;
-                player.IsInvincible = false;
-
-                Script.Wait(5000);
-
-                Function.Call( Hash.DISPLAY_HUD, true );
-                Function.Call( Hash.DISPLAY_RADAR, true );
 
                 if (playerWasDead || playerWasArrested)
                 {
+                    #region Hide real player and wait for game recovery
+                    player.IsVisible = false;
+                    player.IsInvincible = true;
+                    player.Task.StandStill(-1);
+
+                    //Tant qu'on charge le jeu, on fait attendre le script GTA Démago
+                    while (!Function.Call<bool>(Hash.IS_PLAYER_PLAYING, Game.Player))
+                    {
+                        Script.Wait(100);
+                    }
+
+                    player.IsVisible = true;
+                    player.IsInvincible = false;
+                    #endregion
+                }
+
+                #region Show death or arrested popups
+                if (playerWasDead || playerWasArrested)
+                {
+                    Script.Wait(10000);
+
                     var title = (playerWasDead) ? "Vous êtes mort" : "Vous vous êtes fait arrêter";
                     var subtitle = "Voulez-vous revenir au dernier checkpoint ?";
 
@@ -262,6 +288,7 @@ namespace DemagoScript
                     };
                     checkpointPopup.show();
                 }
+                #endregion
             }
         }
     }
