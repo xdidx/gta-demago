@@ -82,7 +82,7 @@ namespace DemagoScript
 
         private void updateInterruptSounds()
         {
-            if (currentInterruptSound == null && FilesSubFolder != "")
+            if (currentInterruptSound == null && DemagoScript.isThereACurrentMission())
             {
                 string fileFullPath = "";
                 if (Function.Call<Boolean>(Hash.HAS_PED_BEEN_DAMAGED_BY_WEAPON, Game.Player.Character, 0, 2))
@@ -270,8 +270,6 @@ namespace DemagoScript
             }
             independantSongs.Clear();
             #endregion
-
-            FilesSubFolder = "";
 
             this.clearSubtitles();
         }

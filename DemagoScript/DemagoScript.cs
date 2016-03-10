@@ -19,7 +19,7 @@ namespace DemagoScript
 
         private static float scriptTime = 0;   
         private static List<Mission> missions = null;
-        private static Mission lastMission = null;
+        private static Mission currentMission = null;
 
         private bool initialized = false;
         private bool isPaused = false;
@@ -36,24 +36,19 @@ namespace DemagoScript
             Tick += OnTick;
             KeyDown += OnKeyDown;
         }
-        
-        public static void loadLastCheckpointOnCurrentMission()
+
+        public static bool isThereACurrentMission()
         {
-            Tools.log( "DemagoScript::loadLastCheckpointOnCurrentMission" );
-            if (lastMission != null && (lastMission.isInProgress() || lastMission.isWaiting()))
-                lastMission.loadLastCheckpoint();
+            if (currentMission != null && (currentMission.isInProgress() || currentMission.isWaiting()))
+                return true;
+            else
+                return false;
         }
 
         public static void stopCurrentMission()
         {
-            if (lastMission != null && (lastMission.isInProgress() || lastMission.isWaiting()))
-                lastMission.stop();
-        }
-
-        public static void failCurrentMission(string reason = "")
-        {
-            if (lastMission != null && (lastMission.isInProgress() || lastMission.isWaiting()))
-                lastMission.fail(reason);
+            if (currentMission != null && (currentMission.isInProgress() || currentMission.isWaiting()))
+                currentMission.stop();
         }
 
         private void initialize()
@@ -87,8 +82,8 @@ namespace DemagoScript
             CameraShotsList.Instance.update();
             AudioManager.Instance.update();
             
-            if (DemagoScript.lastMission != null) {
-                DemagoScript.lastMission.update();
+            if (DemagoScript.currentMission != null) {
+                DemagoScript.currentMission.update();
             }
             
             GUIManager.Instance.update();
@@ -179,11 +174,11 @@ namespace DemagoScript
 
                 newMission.OnStarted += (sender) =>
                 {
-                    if (DemagoScript.lastMission != null)
+                    if (DemagoScript.currentMission != null)
                     {
-                        DemagoScript.lastMission.stop();
+                        DemagoScript.currentMission.stop();
                     }
-                    DemagoScript.lastMission = newMission;
+                    DemagoScript.currentMission = newMission;
                     GTA.UI.Notify(sender.getName());
                 };
 
@@ -222,7 +217,7 @@ namespace DemagoScript
 
                 newMission.OnEnded += (sender) =>
                 {
-                    DemagoScript.lastMission = null;
+                    DemagoScript.currentMission = null;
                 };
 
                 missions.Add(newMission);
