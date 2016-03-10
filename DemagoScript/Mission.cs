@@ -192,8 +192,6 @@ namespace DemagoScript
         /// </summary>
         private void resetPlayerModel()
         {
-            Tools.log("changeplayerModel start");
-
             bool playerWasDead = false;
             bool playerWasArrested = false;
             Ped player = Game.Player.Character;
@@ -240,28 +238,31 @@ namespace DemagoScript
                     Script.Wait(100);
                 }
 
-                Script.Wait(3000);
+                player.IsVisible = true;
+                player.IsInvincible = false;
+
+                Script.Wait(5000);
 
                 Function.Call( Hash.DISPLAY_HUD, true );
                 Function.Call( Hash.DISPLAY_RADAR, true );
 
-                var title = ( playerWasDead ) ? "Vous êtes mort" : "Vous vous êtes fait arrêter";
-                var subtitle = "Voulez-vous revenir au dernier checkpoint ?";
+                if (playerWasDead || playerWasArrested)
+                {
+                    var title = (playerWasDead) ? "Vous êtes mort" : "Vous vous êtes fait arrêter";
+                    var subtitle = "Voulez-vous revenir au dernier checkpoint ?";
 
-                ConfirmationPopup checkpointPopup = new ConfirmationPopup( title, subtitle );
-                checkpointPopup.OnPopupAccept += () => {
-                    this.loadLastCheckpoint();
-                };
-                checkpointPopup.OnPopupRefuse += () => {
-                    this.stop( true );
-                };
-                checkpointPopup.show();
+                    ConfirmationPopup checkpointPopup = new ConfirmationPopup(title, subtitle);
+                    checkpointPopup.OnPopupAccept += () =>
+                    {
+                        this.loadLastCheckpoint();
+                    };
+                    checkpointPopup.OnPopupRefuse += () =>
+                    {
+                        this.stop(true);
+                    };
+                    checkpointPopup.show();
+                }
             }
-
-            Tools.log("changeplayerModel end");
-
-            Game.Player.Character.IsVisible = true;
-            Game.Player.Character.IsInvincible = false;
         }
     }
 }

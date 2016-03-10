@@ -459,6 +459,7 @@ namespace DemagoScript
             thirdSongObjectives.Checkpoint.Weather = Weather.Clouds;
             thirdSongObjectives.Checkpoint.WantedLevel = 0;
             thirdSongObjectives.Checkpoint.setClockHour(20);
+            thirdSongObjectives.Checkpoint.Heading = 180;
             thirdSongObjectives.OnStarted += (sender) =>
             {
                 Ped player = Game.Player.Character;
@@ -519,7 +520,6 @@ namespace DemagoScript
 
                 CameraShotsList.Instance.initialize(cameraShots, AudioManager.Instance.getLength( "degueulasse" ) );
 
-                Game.Player.Character.Heading = 180;
                 #endregion
             };
             thirdSongObjectives.OnAccomplished += (sender, elapsedTime) =>
