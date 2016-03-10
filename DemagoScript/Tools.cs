@@ -11,7 +11,7 @@ namespace DemagoScript
     enum DemagoModel
     {
         Joe,
-        Fourras,
+        Fouras,
         Gastrow
     }
 
@@ -108,7 +108,7 @@ namespace DemagoScript
                 }
             }
 
-            if (newModel == DemagoModel.Fourras)
+            if (newModel == DemagoModel.Fouras)
             {
                 Model fourasModel = new Model(PedHash.PriestCutscene);
                 fourasModel.Request(500);

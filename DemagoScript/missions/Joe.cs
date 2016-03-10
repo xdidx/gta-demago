@@ -269,7 +269,7 @@ namespace DemagoScript
             GoToPositionInVehicle goToPoliceWithBikeObjective = new GoToPositionInVehicle(roadFaceToPoliceStationPosition);
             goToPoliceWithBikeObjective.setVehicle(Joe.bike);
             goToPoliceWithBikeObjective.Checkpoint = new Checkpoint();
-            goToPoliceWithBikeObjective.Checkpoint.addEntity(Joe.bike, bikePositionAtHome);
+            goToPoliceWithBikeObjective.Checkpoint.addEntity(Joe.bike, bikePositionAtHome, 0);
             goToPoliceWithBikeObjective.Checkpoint.PlayerPosition = firstSongPosition;
             goToPoliceWithBikeObjective.Checkpoint.setClockHour(14);
             goToPoliceWithBikeObjective.Checkpoint.Health = 300;
@@ -465,7 +465,7 @@ namespace DemagoScript
                 Ped player = Game.Player.Character;
                 
                 #region Cinematic
-                if (nadineMorano != null)
+                if (nadineMorano != null && nadineMorano.Position.DistanceTo(player.Position) > 10)
                 {
                     nadineMorano.Task.FleeFrom(player);
                     AudioManager.Instance.startIndependantSound("nadine");

@@ -84,7 +84,7 @@ namespace DemagoScript
 
             //Modèles
             var joeModelItem = new UIMenuItem("Joe l'anticonformiste");
-            var fourasModelItem = new UIMenuItem("Père Fourras", "La fonctionnalité est en cours de développement");
+            var fourasModelItem = new UIMenuItem("Père Fouras", "La fonctionnalité est en cours de développement");
             var gastrowModelItem = new UIMenuItem("Gastrow Nomie", "La fonctionnalité est en cours de développement");
             var dissociateModelItem = new UIMenuItem("Dissocier", "Dissocier son corps avec le personnage le plus proche");
             var resetModelItem = new UIMenuItem("Récupérer le modèle de base");
@@ -148,7 +148,7 @@ namespace DemagoScript
 
                 if (item == fourasModelItem)
                 {
-                    Tools.setDemagoModel(DemagoModel.Fourras);
+                    Tools.setDemagoModel(DemagoModel.Fouras);
                 }
 
                 if (item == gastrowModelItem)

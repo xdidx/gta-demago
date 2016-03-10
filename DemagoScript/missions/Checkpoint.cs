@@ -15,7 +15,8 @@ namespace DemagoScript
         private int armor = -1;
         protected int clockHour = -1;
         protected float clockTransitionTime = -1;
-        protected Dictionary<Entity, Vector3> entitiesCollector = new Dictionary<Entity, Vector3>();
+        protected Dictionary<Entity, Vector3> entitiesCollectorPositions = new Dictionary<Entity, Vector3>();
+        protected Dictionary<Entity, int> entitiesCollectorHeadings = new Dictionary<Entity, int>();
 
         public Vector3 PlayerPosition { get; set; } = Vector3.Zero;
         public Weather Weather { get; set; } = Weather.Smog;
@@ -59,14 +60,20 @@ namespace DemagoScript
             clockTransitionTime = Math.Max(transitionTime, 0);
         }
 
-        public void addEntity(Entity entity, Vector3 position)
+        public void addEntity(Entity entity, Vector3 position, int heading = -1)
         {
-            entitiesCollector.Add(entity, position);
+            entitiesCollectorPositions.Add(entity, position);
+            entitiesCollectorHeadings.Add(entity, heading);
         }
 
         public Vector3 getEntityPosition(Entity entity)
         {
-            return this.entitiesCollector[entity];
+            return this.entitiesCollectorPositions[entity];
+        }
+
+        public int getEntityHeading(Entity entity)
+        {
+            return this.entitiesCollectorHeadings[entity];
         }
 
         public void initialize()
@@ -94,12 +101,16 @@ namespace DemagoScript
             if (Weather != Weather.Smog)
                 World.Weather = Weather;
 
-            foreach (KeyValuePair<Entity, Vector3> pair in entitiesCollector)
+            foreach (KeyValuePair<Entity, Vector3> pair in entitiesCollectorPositions)
             {
                 Entity entity = pair.Key;
                 if (entity != null && entity.Exists() && entity.Position.DistanceTo(pair.Value) > 30)
                 {
                     entity.Position = pair.Value;
+                    if (entitiesCollectorHeadings[entity] != -1)
+                    {
+                        entity.Heading = entitiesCollectorHeadings[entity];
+                    }
                 }
             }
         }
