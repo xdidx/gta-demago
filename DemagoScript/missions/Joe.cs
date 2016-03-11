@@ -58,6 +58,8 @@ namespace DemagoScript
                 if ( Joe.bike.Position.DistanceTo( position ) > 5 ) {
                     // On le replace
                     Joe.bike.Position = position;
+                    Joe.bike.Rotation = new Vector3(0, 0, 0);
+                    ;
                 }
             }
 
