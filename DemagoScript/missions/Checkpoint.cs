@@ -126,7 +126,7 @@ namespace DemagoScript
             };
         }
 
-        public void loadAndApplyLastCheckpointProperties()
+        public void load()
         {
             if (WantedLevel != -1)
                 Game.Player.WantedLevel = WantedLevel;

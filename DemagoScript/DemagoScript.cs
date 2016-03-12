@@ -45,12 +45,24 @@ namespace DemagoScript
                 return false;
         }
 
-        public static void stopCurrentMission()
+        public static void loadLastCheckpointOnCurrentMission()
         {
             if (currentMission != null && (currentMission.isInProgress() || currentMission.isWaiting()))
-                currentMission.stop();
+                currentMission.loadLastCheckpoint();
         }
 
+        public static void stopCurrentMission(bool removePhysicalElements = false)
+        {
+            if (currentMission != null && (currentMission.isInProgress() || currentMission.isWaiting()))
+                currentMission.stop(removePhysicalElements);
+        }
+
+        public static void pauseCurrentMission()
+        {
+            if (currentMission != null && (currentMission.isInProgress() || currentMission.isWaiting()))
+                currentMission.pause();
+        }
+        
         private void initialize()
         {
             if (initialized)

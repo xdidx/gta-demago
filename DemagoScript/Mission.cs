@@ -22,7 +22,7 @@ namespace DemagoScript
             if (currentObjective != null && currentObjective.Checkpoint != null) {
                 Tools.log("loadLastCheckpoint: currentObjective name: " + currentObjective.getName() + " action: teleportPlayerToCheckpoint");
                 checkRequiredElements();
-                currentObjective.Checkpoint.loadAndApplyLastCheckpointProperties();
+                currentObjective.Checkpoint.load();
                 play();
                 AudioManager.Instance.playAll();
             } else {
