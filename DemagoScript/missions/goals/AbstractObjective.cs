@@ -130,7 +130,6 @@ namespace DemagoScript
             elapsedTime = 0;
             this.inProgress = true;
 
-
             populateDestructibleElements();
             OnStarted?.Invoke(this);
         }
