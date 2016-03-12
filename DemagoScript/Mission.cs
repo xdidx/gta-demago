@@ -17,28 +17,54 @@ namespace DemagoScript
 
         public virtual void loadLastCheckpoint()
         {
-            Tools.log("loadLastCheckpoint: Mission name: " + getName());
-            var currentObjective = objectives[currentObjectiveIndex];
-            if (currentObjective != null && currentObjective.Checkpoint != null) {
-                Tools.log("loadLastCheckpoint: currentObjective name: " + currentObjective.getName() + " action: teleportPlayerToCheckpoint");
-                checkRequiredElements();
-                currentObjective.Checkpoint.load();
-                play();
-                AudioManager.Instance.playAll();
-            } else {
-                Tools.log("loadLastCheckpoint: stop mission");
-                stop(true);
+            Game.FadeScreenOut(500);
+            Script.Wait(500);
+            
+            int lastActivableCheckpointIndex = 0;
+
+            if (this.currentObjectiveIndex >= objectives.Count)
+            {
+                this.currentObjectiveIndex = objectives.Count - 1;
             }
-        }
 
-        public virtual void checkRequiredElements()
-        {
-            Tools.log("checkRequiredElements");
-        }
+            for (int objectiveIndex = this.currentObjectiveIndex; objectiveIndex >= 0 && lastActivableCheckpointIndex == 0; objectiveIndex--)
+            {
+                var currentObjective = objectives[objectiveIndex];
+                if (currentObjective != null) 
+                {
+                    if (currentObjective.Checkpoint != null && currentObjective.Checkpoint.Activable)
+                    {
+                        Tools.log("checkpoint activable ! : " + currentObjective.getName() + " index : "+ objectiveIndex);
+                        lastActivableCheckpointIndex = objectiveIndex;
+                    }
+                    else
+                    {
+                        Tools.log("loadlast not checkpoint activable : "+currentObjective.getName() + " index : " + objectiveIndex);
+                    }
+                }
+            }
 
-        public override void populateDestructibleElements()
-        {
-            Tools.log("Mission::populateDesctructibleElements");
+            this.stop(true);
+
+
+            if (lastActivableCheckpointIndex == 0)
+            {
+                this.stop(true);
+                this.start();
+            }
+            else
+            {
+                this.play();
+
+                this.currentObjectiveIndex = 0;
+                objectives[this.currentObjectiveIndex].start();
+                while (this.currentObjectiveIndex < lastActivableCheckpointIndex)
+                {
+                    objectives[this.currentObjectiveIndex].accomplish();
+                }
+            }
+
+            Game.FadeScreenIn(500);
         }
 
         public override void depopulateDestructibleElements(bool removePhysicalElements = false)
@@ -49,7 +75,16 @@ namespace DemagoScript
             }
 
             if (removePhysicalElements)
+            {
+                currentObjectiveIndex = 0;
                 objectives.Clear();
+            }
+        }
+
+        public override void play()
+        {
+            base.play();
+            GUIManager.Instance.missionUI.show();
         }
 
         public override void start()
@@ -59,17 +94,17 @@ namespace DemagoScript
                 DemagoScript.savedPlayerModelHash = (PedHash)Game.Player.Character.Model.Hash;
             }
 
+            Game.FadeScreenOut(500);
+            Script.Wait(500);
+
             base.start();
 
-            Game.Player.WantedLevel = 0;
-
-            var currentObjective = objectives[currentObjectiveIndex];
-            if (currentObjective != null) {
-                Tools.trace("Start sur le currentObjective", System.Reflection.MethodBase.GetCurrentMethod().Name, "Mission");
-                currentObjective.start();
-            } else {
-                Tools.trace("Pas d'objectifs dans cette missions", System.Reflection.MethodBase.GetCurrentMethod().Name, "Mission");
+            if (this.currentObjectiveIndex == 0 && objectives.Count > 0)
+            {
+                objectives[0].start();
             }
+
+            Game.FadeScreenIn(500);
         }
 
         /// <summary>
@@ -80,34 +115,35 @@ namespace DemagoScript
         {
             base.stop(true);
 
-            GUIManager.Instance.missionUI.hide();
+            this.reset();
+        }
 
-            currentObjectiveIndex = 0;
+        public void reset()
+        {
+            #region Depopulate objectives
             foreach (AbstractObjective objective in objectives)
             {
                 objective.depopulateDestructibleElements(true);
             }
-            objectives.Clear();
+            #endregion
 
-            Tools.log("call reset player model");
-            // Reset the player model
-            resetPlayerModel();
-            
-            World.Weather = Weather.Clear;
-
+            #region Player health
             Ped player = Game.Player.Character;
             Function.Call(Hash.SET_PED_MAX_HEALTH, player, 100);
             player.MaxHealth = 100;
             player.Health = 100;
             player.Armor = 100;
+            #endregion
 
+            World.Weather = Weather.Clear;
             Game.Player.WantedLevel = 0;
-            
+
+            GUIManager.Instance.missionUI.hide();
             CameraShotsList.Instance.reset();
             AudioManager.Instance.stopAll();
         }
 
-        protected override void accomplish()
+        public override void accomplish()
         {
             base.accomplish();
         }

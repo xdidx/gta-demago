@@ -50,25 +50,10 @@ namespace DemagoScript
         {
             base.checkRequiredElements();
             
-            // Si le velo existe
-            if (Joe.bike != null && Joe.bike.Exists()) {
-                // On recupere la position du velo pour l'objectif courant
-                Vector3 position = this.objectives[this.currentObjectiveIndex].Checkpoint.getEntityPosition( Joe.bike );
-                // Et qu'il est loin du joueur
-                if ( Joe.bike.Position.DistanceTo( position ) > 5 ) {
-                    // On le replace
-                    Joe.bike.Position = position;
-                    Joe.bike.Rotation = new Vector3(0, 0, 0);
-                    ;
-                }
-            }
-
-            // Si le velo n'existe pas
             while (Joe.bike == null || !Joe.bike.Exists()) {
-                // On le créer à sa position initiale
                 Joe.bike = World.CreateVehicle(VehicleHash.TriBike, bikePositionAtHome);
             }
-
+            
             Joe.bike.EnginePowerMultiplier = 100;
             Joe.bike.IsInvincible = true;
             Joe.bike.CanTiresBurst = false;
@@ -89,8 +74,6 @@ namespace DemagoScript
         {
             base.populateDestructibleElements();
             
-            checkRequiredElements();
-
             #region Objectives 
             GoToPosition goToFirstSongObjective = new GoToPosition(firstSongPosition);
             goToFirstSongObjective.Checkpoint = new Checkpoint();
@@ -172,7 +155,6 @@ namespace DemagoScript
                 }
                 
                 Function.Call( Hash.DISPLAY_RADAR, false );
-                Game.FadeScreenIn( 500 );
                 AudioManager.Instance.startSound("dialogue0");
                 #endregion
             };
@@ -673,62 +655,69 @@ namespace DemagoScript
             #region Intro gestion
             if (!introEnded)
             {
-                if (player.IsVisible)
+                if (introPed != null && introPed.Exists())
                 {
-                    player.IsVisible = false;
+                    if (player.IsVisible)
+                    {
+                        player.IsVisible = false;
+                    }
+
+                    float elapsedMilliseconds = this.getElaspedTime();
+
+                    float musicTime = AudioManager.Instance.getLength("dialogue0");
+                    float musicTimeSplit = musicTime / 3;
+
+                    if (Game.IsKeyPressed(System.Windows.Forms.Keys.Back))
+                    {
+                        CameraShotsList.Instance.reset();
+                        AudioManager.Instance.clearSubtitles();
+                        elapsedMilliseconds = musicTime + 1;
+                        playerDown = false;
+                        playerMoved = true;
+                        playerWalked = true;
+                        Function.Call(Hash.DISPLAY_RADAR, true);
+                    }
+
+                    if (elapsedMilliseconds > musicTimeSplit + 2000 && playerDown)
+                    {
+                        introPed.Task.PlayAnimation("amb@world_human_picnic@male@exit", "exit", 8f, 3000, false, -1f);
+                        playerDown = false;
+                    }
+                    if (elapsedMilliseconds > musicTimeSplit + 5000 && !playerWalked)
+                    {
+                        introPed.Task.ClearAllImmediately();
+                        introPed.Task.GoTo(joeHomePosition, true);
+                        playerWalked = true;
+                    }
+                    if (elapsedMilliseconds > musicTimeSplit * 2 && !playerMoved)
+                    {
+                        introPed.Task.ClearAllImmediately();
+                        introPed.Task.PlayAnimation("gestures@m@standing@casual", "gesture_why", 8f, -1, false, -1f);
+                        playerMoved = true;
+                    }
+                    if (elapsedMilliseconds > musicTime && !introEnded)
+                    {
+                        AudioManager.Instance.stopAll();
+
+                        foreach (Ped spectator in spectatorsPeds)
+                            if (spectator.Position.DistanceTo(firstSongPosition) > 10)
+                                spectator.Position = firstSongPosition.Around(7).Around(2);
+
+                        player.Task.ClearAllImmediately();
+                        introPed.IsVisible = false;
+                        introPed.Delete();
+                        introPed = null;
+                        player.IsVisible = true;
+
+                        Function.Call(Hash.DISPLAY_RADAR, true);
+                        Function.Call(Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1);
+
+                        introEnded = true;
+                    }
                 }
-
-                float elapsedMilliseconds = this.getElaspedTime();
-
-                float musicTime = AudioManager.Instance.getLength("dialogue0");
-                float musicTimeSplit = musicTime / 3;
-
-                if (Game.IsKeyPressed(System.Windows.Forms.Keys.Back))
+                else
                 {
-                    CameraShotsList.Instance.reset();
-                    AudioManager.Instance.clearSubtitles();
-                    elapsedMilliseconds = musicTime + 1;
-                    playerDown = false;
-                    playerMoved = true;
-                    playerWalked = true;
-                    Function.Call( Hash.DISPLAY_RADAR, true );
-                }
-
-                if (elapsedMilliseconds > musicTimeSplit + 2000 && playerDown)
-                {
-                    introPed.Task.PlayAnimation("amb@world_human_picnic@male@exit", "exit", 8f, 3000, false, -1f);
-                    playerDown = false;
-                }
-                if (elapsedMilliseconds > musicTimeSplit + 5000 && !playerWalked)
-                {
-                    introPed.Task.ClearAllImmediately();
-                    introPed.Task.GoTo(joeHomePosition, true);
-                    playerWalked = true;
-                }
-                if (elapsedMilliseconds > musicTimeSplit * 2 && !playerMoved)
-                {
-                    introPed.Task.ClearAllImmediately();
-                    introPed.Task.PlayAnimation("gestures@m@standing@casual", "gesture_why", 8f, -1, false, -1f);
-                    playerMoved = true;
-                }
-                if (elapsedMilliseconds > musicTime && !introEnded)
-                {
-                    AudioManager.Instance.stopAll();
-
-                    foreach (Ped spectator in spectatorsPeds)
-                        if (spectator.Position.DistanceTo(firstSongPosition) > 10)
-                            spectator.Position = firstSongPosition.Around(7).Around(2);
-
-                    player.Task.ClearAllImmediately();
-                    introPed.IsVisible = false;
-                    introPed.Delete();
-                    introPed = null;
-                    player.IsVisible = true;
-                    
-                    Function.Call( Hash.DISPLAY_RADAR, true );
-                    Function.Call(Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1);
-
-                    introEnded = true;
+                    Tools.log("Intro ped n'existe pas");
                 }
             }
             #endregion

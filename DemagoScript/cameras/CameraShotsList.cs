@@ -107,7 +107,6 @@ namespace DemagoScript
             this.current_index = 0;
             this.current_elapsed_time = 0;
             this.current_element = null;
-            Tools.log("Log for camera bug : Reset cameraShotList");
             Function.Call( Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1 );
         }
     }

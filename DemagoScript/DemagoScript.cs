@@ -153,6 +153,16 @@ namespace DemagoScript
             } else {
                 AudioManager.Instance.playAll();
             }
+
+            Timer pauseTimer = new Timer(500);
+            pauseTimer.OnTimerStop += (timerSender) =>
+            {
+                if (this.isPaused)
+                {
+                    togglePause();
+                }
+            };
+
         }
 
         private void playerSitting()

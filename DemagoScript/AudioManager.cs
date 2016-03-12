@@ -225,8 +225,6 @@ namespace DemagoScript
         /// <param name="state"></param>
         private void setAudioPause( bool state )
         {
-            Tools.log( "setAudioPause:" + this.currentSoundIndex + " / " + this.playlist.Count() );
-
             if ( this.currentSoundIndex < this.playlist.Count ) {
                 ISound currentSound = playlist.ElementAt( currentSoundIndex ).Value;
                 currentSound.Paused = state;

@@ -59,11 +59,18 @@ namespace DemagoScript
         /// </summary>
         public virtual void populateDestructibleElements()
         {
+            this.checkRequiredElements();
+
             if (Checkpoint != null)
             {
                 Checkpoint.initialize();
             }
         }
+
+        /// <summary>
+        /// Check all requiered elements for all the objective duration
+        /// </summary>
+        public virtual void checkRequiredElements() { }
 
         /// <summary>
         /// Remove all elements that have been created during the objective
@@ -112,6 +119,8 @@ namespace DemagoScript
         /// </summary>
         public virtual void play()
         {
+            this.depopulateDestructibleElements();
+            this.populateDestructibleElements();
             this.inProgress = true;
         }
 
@@ -126,11 +135,10 @@ namespace DemagoScript
             {
                 return;
             }
-
             elapsedTime = 0;
-            this.inProgress = true;
 
-            populateDestructibleElements();
+            this.play();
+
             OnStarted?.Invoke(this);
         }
 
@@ -188,7 +196,7 @@ namespace DemagoScript
         /// <summary>
         /// Accomplish the objective
         /// </summary>
-        protected virtual void accomplish()
+        public virtual void accomplish()
         {
             Tools.log( "Accomplish " + getName() );
 

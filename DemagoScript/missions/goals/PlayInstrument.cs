@@ -102,7 +102,7 @@ namespace DemagoScript
             return true;
         }
 
-        protected override void accomplish()
+        public override void accomplish()
         {
             CameraShotsList.Instance.reset();
             AudioManager.Instance.stopAll();
