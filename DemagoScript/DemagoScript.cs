@@ -93,7 +93,8 @@ namespace DemagoScript
             Timer.updateAllTimers();
             CameraShotsList.Instance.update();
             AudioManager.Instance.update();
-            
+            ModelManager.Instance.update();
+
             if (DemagoScript.currentMission != null) {
                 DemagoScript.currentMission.update();
             }
