@@ -1,4 +1,5 @@
-﻿using GTA;
+﻿using DemagoScript.GUI;
+using GTA;
 using GTA.Math;
 using GTA.Native;
 using NativeUI;
@@ -42,7 +43,11 @@ namespace DemagoScript
                 Tools.log( "CameraShotsList: sequence list cannot be empty or null." );
                 return;
             }
-            
+
+            Function.Call(Hash.DISPLAY_RADAR, false);
+            Function.Call(Hash.DISPLAY_HUD, false);
+            GUIManager.Instance.missionUI.hide();
+
             this.sequence = sequence;
             this.sequence_total_duration = sequence_duration;
             this.current_element = this.sequence[this.current_index];
@@ -101,13 +106,17 @@ namespace DemagoScript
         // On reset la sequence
         public void reset()
         {
+            Function.Call(Hash.DISPLAY_RADAR, true);
+            Function.Call(Hash.DISPLAY_HUD, true);
+            GUIManager.Instance.missionUI.show();
+            
             this.sequence = null;
             this.sequence_elapsed_time = 0;
             this.sequence_total_duration = 0;
             this.current_index = 0;
             this.current_elapsed_time = 0;
             this.current_element = null;
-            Function.Call( Hash.RENDER_SCRIPT_CAMS, 0, 1, 0, 1, 1 );
+            World.RenderingCamera = null;
         }
     }
 }

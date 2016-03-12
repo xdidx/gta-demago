@@ -34,8 +34,6 @@ namespace DemagoScript
         public override void populateDestructibleElements()
         {
             base.populateDestructibleElements();
-            
-            Function.Call( Hash.DISPLAY_RADAR, false );
 
             AudioManager.Instance.startSound(musicToPlay);
             this.secondToPlay = AudioManager.Instance.getLength(musicToPlay);
@@ -65,8 +63,6 @@ namespace DemagoScript
 
         public override void depopulateDestructibleElements(bool removePhysicalElements = false)
         {
-            Function.Call( Hash.DISPLAY_RADAR, true );
-
             Game.Player.Character.Task.ClearAllImmediately();
             if (instrumentProp != null && instrumentProp.Exists())
             {

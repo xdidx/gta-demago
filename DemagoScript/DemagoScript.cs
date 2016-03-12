@@ -112,23 +112,7 @@ namespace DemagoScript
                 case Keys.Escape:
                     togglePause();
                     break;
-
-                case Keys.L:
-                    Function.Call( Hash.DISPLAY_RADAR, true );
-                    break;
-
-                case Keys.M:
-                    Function.Call( Hash.DISPLAY_RADAR, false );
-                    break;
-
-                case Keys.O:
-                    Function.Call( Hash.DISPLAY_HUD, true );
-                    break;
-
-                case Keys.P:
-                    Function.Call( Hash.DISPLAY_HUD, false );
-                    break;
-
+                    
                 case Keys.I:
                     Game.Player.Character.Task.PlayAnimation("amb@world_human_musician@guitar@male@base", "base", 8f, -1, true, -1f);
                     break;

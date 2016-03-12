@@ -51,7 +51,6 @@ namespace DemagoScript
         
         public void activateCamera()
         {
-            Function.Call( Hash.RENDER_SCRIPT_CAMS, 1, 0, this.camera.Handle, 0, 0 );
             World.RenderingCamera = this.camera;
         }
         

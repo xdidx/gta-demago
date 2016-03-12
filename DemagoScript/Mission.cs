@@ -44,9 +44,8 @@ namespace DemagoScript
                 }
             }
 
-            this.stop(true);
-
-
+            this.reset();
+            
             if (lastActivableCheckpointIndex == 0)
             {
                 this.stop(true);
@@ -116,6 +115,9 @@ namespace DemagoScript
             base.stop(true);
 
             this.reset();
+
+            this.currentObjectiveIndex = 0;
+            objectives.Clear();
         }
 
         public void reset()

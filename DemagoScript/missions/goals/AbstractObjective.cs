@@ -83,7 +83,7 @@ namespace DemagoScript
         public string getName() { return this.name; }
 
         /// <summary>
-        /// Return elapsed time until start of current objective
+        /// Return elapsed time until start of current objective in millisecond
         /// </summary>
         public float getElaspedTime()
         {
