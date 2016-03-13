@@ -263,6 +263,7 @@ namespace DemagoScript
             goToPoliceWithBikeObjective.Checkpoint.WantedLevel = 2;
             goToPoliceWithBikeObjective.OnStarted += (sender) =>
             {
+                goToPoliceWithBikeObjective.Checkpoint.SongsNames = new string[] { "flics1", "dialogue1", "dialogue2", "dialogue3" };
                 AudioManager.Instance.startPlaylist(new string[] { "flics1", "dialogue1", "dialogue2", "dialogue3" });
             };
 
@@ -375,18 +376,8 @@ namespace DemagoScript
             goToTheaterWithBikeObjective.Checkpoint.setClockHour(18, 40000);
             goToTheaterWithBikeObjective.OnStarted += (sender) =>
             {
+                goToTheaterWithBikeObjective.Checkpoint.SongsNames = new string[] { "flics2", "flics3", "flics4", "dialogue4", "dialogue5", "dialogue6" };
                 AudioManager.Instance.startPlaylist(new string[] { "flics2", "flics3", "flics4", "dialogue4", "dialogue5", "dialogue6" });
-
-                foreach (Ped ped in copsPeds)
-                {
-                    if (ped != null && ped.Exists())
-                    {
-                        ped.Task.ClearAllImmediately();
-                        ped.Task.FightAgainst(Game.Player.Character);
-                        ped.Weapons.Give(WeaponHash.Pistol, 1, true, true);
-                        ped.MarkAsNoLongerNeeded();
-                    }
-                }
 
                 List<PedHash> spectatorsHashesThirdSong = new List<PedHash>();
                 spectatorsHashesThirdSong.Add(PedHash.Beach01AFM);
@@ -418,6 +409,17 @@ namespace DemagoScript
                 Function.Call(Hash.SET_PED_COMPONENT_VARIATION, nadineMorano.Handle, 2, 1, 2, 2);
             };
             goToTheaterWithBikeObjective.OnFirstTimeOnVehicle += (sender, vehicle) => {
+                foreach (Ped ped in copsPeds)
+                {
+                    if (ped != null && ped.Exists())
+                    {
+                        ped.Task.ClearAllImmediately();
+                        ped.Task.FightAgainst(Game.Player.Character);
+                        ped.Weapons.Give(WeaponHash.Pistol, 1, true, true);
+                        ped.MarkAsNoLongerNeeded();
+                    }
+                }
+
                 Game.Player.WantedLevel = 3;
             };
             goToTheaterWithBikeObjective.OnAccomplished += (sender, elapsedTime) => {
@@ -555,6 +557,7 @@ namespace DemagoScript
             {
                 bikeRegen = true;
 
+                goToHome.Checkpoint.SongsNames = new string[] { "flics5", "dialogue8", "dialogue9" };
                 AudioManager.Instance.startPlaylist(new string[] { "flics5", "dialogue8", "dialogue9" });
 
                 GTA.UI.ShowSubtitle("Spectateurs : C'est nul ! Casse toi ! On a encore appelé les flics ! Tu vas avoir des problèmes !", 3000);

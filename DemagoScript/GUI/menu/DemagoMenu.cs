@@ -250,7 +250,7 @@ namespace DemagoScript
             var teleportMarkerItem = new UIMenuItem("Se téléporter au marqueur");
             var wantedUpItem = new UIMenuItem("Ajouter une étoile");
             var wantedDownItem = new UIMenuItem("Supprimer une étoile");
-            var wantedLevelItem = new UIMenuItem("Supprimer toute les étoiles");
+            var wantedLevelItem = new UIMenuItem("Supprimer toutes les étoiles");
             var addMoney = new UIMenuItem("Ajouter 50.000$");
             var removeMoney = new UIMenuItem("Enlever 50.000$");
             var gravityActiveItem = new UIMenuCheckboxItem("Zéro gravité", zeroGravity, "Si la case est cochée, il n'y aura plus de gravité sur la map entière");

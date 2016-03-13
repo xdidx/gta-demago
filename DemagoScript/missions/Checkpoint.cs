@@ -17,6 +17,7 @@ namespace DemagoScript
         protected float clockTransitionTime = -1;
         protected Dictionary<Entity, Vector3> entitiesCollectorPositions = new Dictionary<Entity, Vector3>();
         protected Dictionary<Entity, int> entitiesCollectorHeadings = new Dictionary<Entity, int>();
+        protected List<string> songsNames = new List<string> { "" };
 
         public Vector3 PlayerPosition { get; set; } = Vector3.Zero;
         public Weather Weather { get; set; } = Weather.Smog;
@@ -49,6 +50,15 @@ namespace DemagoScript
         {
             get { return armor; }
             set { armor = Math.Max(value, 0); }
+        }
+
+        /// <summary>
+        /// Armor, minimum 0
+        /// </summary>
+        public string[] SongsNames
+        {
+            get { return songsNames.ToArray(); }
+            set { songsNames = value.ToList<string>(); }
         }
 
         /// <summary>
@@ -112,6 +122,12 @@ namespace DemagoScript
                         entity.Heading = entitiesCollectorHeadings[entity];
                     }
                 }
+            }
+
+            if(songsNames.ToArray()[0] != "")
+            {
+                AudioManager.Instance.FilesSubFolder = @"joe\joe";
+                AudioManager.Instance.startPlaylist(songsNames.ToArray());
             }
         }
 
