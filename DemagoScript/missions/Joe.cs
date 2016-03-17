@@ -138,7 +138,11 @@ namespace DemagoScript
             AudioManager.Instance.FilesSubFolder = @"joe\joe";
 
             this.createEntities();
-            this.createAndAddObjectives();
+            if (getObjectives().Count == 0)
+            {
+                this.createAndAddObjectives();
+            }
+            
         }
 
         protected override void populateDestructibleElements()
@@ -297,15 +301,16 @@ namespace DemagoScript
             firstSongObjectives.OnAccomplished += (sender, elapsedTime) => {
                 foreach (Ped spectator in firstSongSpectatorsPeds)
                 {
-                    spectator.Task.ClearAll();
+                    spectator.Task.ClearAllImmediately();
+                    spectator.Task.ClearLookAt();
                     if (random.Next(0, 1) == 0)
                     {
-                        Tools.log("spectator FightAgainst");
+                        Tools.log("spectator FightAgainst adri");
                         spectator.Task.FightAgainst(Game.Player.Character);
                     }
                     else
                     {
-                        Tools.log("spectator UseMobilePhone");
+                        Tools.log("spectator UseMobilePhone adri");
                         spectator.Task.UseMobilePhone();
                     }
                 }

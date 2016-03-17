@@ -225,6 +225,7 @@ namespace DemagoScript
 
             if (currentObjectiveIndex >= objectives.Count)
             {
+                Tools.log("Mission finie");
                 this.accomplish();
             }
             else
