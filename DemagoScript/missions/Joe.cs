@@ -26,7 +26,7 @@ namespace DemagoScript
 
         public static Vehicle bike = null;
         private Ped introPed = null, nadineMorano = null;
-        private List<Ped> spectatorsPeds = new List<Ped>(), copsPeds = new List<Ped>(), spectatorsPeds3 = new List<Ped>();
+        private List<Ped> firstSongSpectatorsPeds = new List<Ped>(), secondSongCopsPeds = new List<Ped>(), thirdSongSpectatorsPeds = new List<Ped>();
         
         private Random random = new Random();
 
@@ -46,14 +46,82 @@ namespace DemagoScript
             this.name = "Joe l'anticonformiste";
         }
 
+        public List<Ped> getPedsListByName(string entitiesListName)
+        {
+            if (entitiesListName == "firstSongSpectators")
+            {
+                return firstSongSpectatorsPeds;
+            }
+
+            if (entitiesListName == "secondSongCopsPeds")
+            {
+                return secondSongCopsPeds;
+            }
+
+            if (entitiesListName == "thirdSongSpectatorsPeds")
+            {
+                return thirdSongSpectatorsPeds;
+            }
+
+            return new List<Ped>();
+        }
+
+        public Entity getEntityByName(string entityName)
+        {
+            if (entityName == "nadineMorano")
+            {
+                return nadineMorano;
+            }
+
+            return null;
+        }
+
+        public void createEntities()
+        {
+            if (firstSongSpectatorsPeds.Count == 0)
+            {
+                List<PedHash> firstSongSpectatorsHashes = new List<PedHash>();
+                firstSongSpectatorsHashes.Add(PedHash.Ashley);
+                firstSongSpectatorsHashes.Add(PedHash.Car3Guy2);
+                firstSongSpectatorsHashes.Add(PedHash.Car3Guy1);
+                firstSongSpectatorsHashes.Add(PedHash.Bankman);
+                firstSongSpectatorsHashes.Add(PedHash.Barry);
+                firstSongSpectatorsHashes.Add(PedHash.Beach01AFM);
+                firstSongSpectatorsHashes.Add(PedHash.Beach01AFY);
+                firstSongSpectatorsHashes.Add(PedHash.Beach01AMM);
+                firstSongSpectatorsHashes.Add(PedHash.Beach02AMM);
+
+                foreach (PedHash hash in firstSongSpectatorsHashes)
+                {
+                    Ped ped = null;
+                    while (ped == null)
+                    {
+                        ped = World.CreatePed(hash, firstSongPosition.Around(50), 0);
+                    }
+                    firstSongSpectatorsPeds.Add(ped);
+                }
+            }
+        }
+
         public override void checkRequiredElements()
         {
             base.checkRequiredElements();
             
             while (Joe.bike == null || !Joe.bike.Exists()) {
                 Joe.bike = World.CreateVehicle(VehicleHash.TriBike, bikePositionAtHome);
+
+                foreach (AbstractObjective objective in this.getObjectives())
+                {
+                    if (objective is GoToPositionInVehicle)
+                    {
+                        Tools.log("set vehicle on gotopos with veh "+ objective.getName());
+                        ((GoToPositionInVehicle)objective).setVehicle(Joe.bike);
+                    }
+                }                
+
+                Tools.log("creatte Joe.bike ", Joe.bike);
             }
-            
+            Tools.log("OK Joe.bike ", Joe.bike);
             Joe.bike.EnginePowerMultiplier = 100;
             Joe.bike.IsInvincible = true;
             Joe.bike.CanTiresBurst = false;
@@ -68,12 +136,19 @@ namespace DemagoScript
             CameraShotsList.Instance.reset();
 
             AudioManager.Instance.FilesSubFolder = @"joe\joe";
+
+            this.createEntities();
+            this.createAndAddObjectives();
         }
 
-        public override void populateDestructibleElements()
+        protected override void populateDestructibleElements()
         {
             base.populateDestructibleElements();
-            
+        }
+
+        private void createAndAddObjectives()
+        {
+            Tools.log("Joe.createAndAddObjectives");
             #region Objectives 
             GoToPosition goToFirstSongObjective = new GoToPosition(firstSongPosition);
             goToFirstSongObjective.Checkpoint = new Checkpoint();
@@ -89,9 +164,8 @@ namespace DemagoScript
             {
                 Ped player = Game.Player.Character;
 
-                if (this.getElaspedTime() < 5)
+                if (!this.loadingCheckpoint)
                 {
-                    #region Intro cinematic
                     bikeRegen = false;
                     playerDown = true;
                     playerWalked = false;
@@ -129,37 +203,26 @@ namespace DemagoScript
 
                     CameraShotsList.Instance.initialize(cameraShots, AudioManager.Instance.getLength("dialogue0"));
 
-                    List<PedHash> spectatorsHashesFirstSong = new List<PedHash>();
-                    spectatorsHashesFirstSong.Add(PedHash.Ashley);
-                    spectatorsHashesFirstSong.Add(PedHash.Car3Guy2);
-                    spectatorsHashesFirstSong.Add(PedHash.Car3Guy1);
-                    spectatorsHashesFirstSong.Add(PedHash.Bankman);
-                    spectatorsHashesFirstSong.Add(PedHash.Barry);
-                    spectatorsHashesFirstSong.Add(PedHash.Beach01AFM);
-                    spectatorsHashesFirstSong.Add(PedHash.Beach01AFY);
-                    spectatorsHashesFirstSong.Add(PedHash.Beach01AMM);
-                    spectatorsHashesFirstSong.Add(PedHash.Beach02AMM);
-
-                    foreach (PedHash hash in spectatorsHashesFirstSong)
-                    {
-                        Ped ped = World.CreatePed(hash, firstSongPosition.Around(50), 0);
-                        if (ped != null && ped.Exists())
-                        {
-                            TaskSequence incomingSpectator = new TaskSequence();
-                            incomingSpectator.AddTask.GoTo(firstSongPosition.Around(7).Around(2));
-                            incomingSpectator.AddTask.TurnTo(player);
-                            incomingSpectator.AddTask.LookAt(player);
-                            incomingSpectator.AddTask.PlayAnimation("facials@gen_male@variations@angry", "mood_angry_1", 8f, -1, true, -1f);
-
-                            ped.Task.PerformSequence(incomingSpectator);
-                            spectatorsPeds.Add(ped);
-                        }
-                    }
-                
                     AudioManager.Instance.startSound("dialogue0");
-
-                    #endregion
                 }
+                else
+                {
+                    foreach (Ped spectator in firstSongSpectatorsPeds)
+                        if (spectator.Position.DistanceTo(firstSongPosition) > 10)
+                            spectator.Position = firstSongPosition.Around(7).Around(2);
+                }
+
+                foreach (Ped spectator in firstSongSpectatorsPeds)
+                {
+                    TaskSequence incomingSpectator = new TaskSequence();
+                    incomingSpectator.AddTask.GoTo(firstSongPosition.Around(7).Around(2));
+                    incomingSpectator.AddTask.TurnTo(player);
+                    incomingSpectator.AddTask.LookAt(player);
+                    incomingSpectator.AddTask.PlayAnimation("facials@gen_male@variations@angry", "mood_angry_1", 8f, -1, true, -1f);
+                    spectator.Task.PerformSequence(incomingSpectator);
+                }
+
+                Tools.log("foreach firstSongSpectators " + firstSongSpectatorsPeds.Count);                
             };
 
             AbstractObjective firstSongObjectives = new PlayInstrument(InstrumentHash.Guitar, "anticonformiste");
@@ -171,7 +234,8 @@ namespace DemagoScript
             firstSongObjectives.Checkpoint.WantedLevel = 0;
             firstSongObjectives.OnStarted += (sender) =>
             {
-                #region Cinematic
+                Tools.log("firstSongObjectives.OnStarted");
+                
                 Vector3 firstCameraPosition = firstSongPosition;
                 firstCameraPosition.Z += 2;
                 firstCameraPosition.X += 4;
@@ -216,7 +280,7 @@ namespace DemagoScript
                 CameraShotsList.Instance.initialize(cameraShots);
 
                 Ped player = Game.Player.Character;
-                foreach (Ped spectator in spectatorsPeds)
+                foreach (Ped spectator in firstSongSpectatorsPeds)
                 {
                     TaskSequence angrySpectator = new TaskSequence();
                     angrySpectator.AddTask.ClearAllImmediately();
@@ -228,27 +292,24 @@ namespace DemagoScript
 
                     spectator.Task.PerformSequence(angrySpectator);
                 }
-                #endregion
+                Tools.log("foreach firstSongSpectators 2 " + firstSongSpectatorsPeds.Count);
             };
             firstSongObjectives.OnAccomplished += (sender, elapsedTime) => {
-                GTA.UI.ShowSubtitle("Spectateurs : C'est nul ! Casse toi ! On a appelé les flics !", 3000);
-
-                foreach (Ped spectator in spectatorsPeds)
+                foreach (Ped spectator in firstSongSpectatorsPeds)
                 {
-                    if (spectator != null && spectator.Exists())
+                    spectator.Task.ClearAll();
+                    if (random.Next(0, 1) == 0)
                     {
-                        spectator.Task.ClearAllImmediately();
-                        if (random.Next(0, 1) == 0)
-                        {
-                            spectator.Task.FightAgainst(Game.Player.Character);
-                        }
-                        else
-                        {
-                            spectator.Task.UseMobilePhone();
-                        }
-
+                        Tools.log("spectator FightAgainst");
+                        spectator.Task.FightAgainst(Game.Player.Character);
+                    }
+                    else
+                    {
+                        Tools.log("spectator UseMobilePhone");
+                        spectator.Task.UseMobilePhone();
                     }
                 }
+                Tools.log("foreach firstSongSpectators 3 " + firstSongSpectatorsPeds.Count);
             }; 
 
             GoToPositionInVehicle goToPoliceWithBikeObjective = new GoToPositionInVehicle(roadFaceToPoliceStationPosition);
@@ -273,12 +334,10 @@ namespace DemagoScript
             goToSecondSongObjective.Checkpoint.WantedLevel = 0;
             goToSecondSongObjective.OnStarted += (sender) =>
             {
-                foreach (Ped spectator in spectatorsPeds)
+                Tools.log("firstSongSpectatorsPeds MarkAsNoLongerNeeded");
+                foreach (Ped spectator in firstSongSpectatorsPeds)
                 {
-                    if (spectator != null && spectator.Exists())
-                    {
-                        spectator.MarkAsNoLongerNeeded();
-                    }
+                    spectator.MarkAsNoLongerNeeded();
                 }
 
                 List<PedHash> spectatorsHashesSecondSong = new List<PedHash> { PedHash.Cop01SFY, PedHash.Cop01SMY, PedHash.Cop01SFY, PedHash.Cop01SMY };
@@ -288,7 +347,7 @@ namespace DemagoScript
                     if (ped != null && ped.Exists())
                     {
                         ped.Task.WanderAround(secondSongPosition, 5);
-                        copsPeds.Add(ped);
+                        secondSongCopsPeds.Add(ped);
                     }
                 }
             };
@@ -323,7 +382,7 @@ namespace DemagoScript
                 policeSurrounding.AddTask.GoTo(player.Position.Around(2).Around(1));
                 policeSurrounding.AddTask.TurnTo(player);
                 policeSurrounding.AddTask.LookAt(player);
-                foreach (Ped spectator in copsPeds)
+                foreach (Ped spectator in secondSongCopsPeds)
                 {
                     if (spectator != null && spectator.Exists())
                     {
@@ -377,7 +436,7 @@ namespace DemagoScript
             {
                 AudioManager.Instance.startPlaylist(new string[] { "flics2", "flics3", "flics4", "dialogue4", "dialogue5", "dialogue6" });
 
-                foreach (Ped ped in copsPeds)
+                foreach (Ped ped in secondSongCopsPeds)
                 {
                     if (ped != null && ped.Exists())
                     {
@@ -406,7 +465,7 @@ namespace DemagoScript
                             Function.Call(Hash.SET_PED_COMPONENT_VARIATION, ped.Handle, 4, 1, 0, 2);
                         }
 
-                        spectatorsPeds3.Add(ped);
+                        thirdSongSpectatorsPeds.Add(ped);
                     }
                 }
 
@@ -414,14 +473,14 @@ namespace DemagoScript
                 {
                     nadineMorano = World.CreatePed(PedHash.Business02AFM, thirdSongPosition);
                 }
-                nadineMorano.Task.TurnTo( spectatorsPeds3[0] );
+                nadineMorano.Task.TurnTo( thirdSongSpectatorsPeds[0] );
                 Function.Call(Hash.SET_PED_COMPONENT_VARIATION, nadineMorano.Handle, 2, 1, 2, 2);
             };
             goToTheaterWithBikeObjective.OnFirstTimeOnVehicle += (sender, vehicle) => {
                 Game.Player.WantedLevel = 3;
             };
             goToTheaterWithBikeObjective.OnAccomplished += (sender, elapsedTime) => {
-                foreach (Ped ped in copsPeds)
+                foreach (Ped ped in secondSongCopsPeds)
                 {
                     if (ped != null && ped.Exists())
                     {
@@ -432,7 +491,7 @@ namespace DemagoScript
 
             GoToPosition goToThirdSongPosition = new GoToPosition(thirdSongPosition);
             goToThirdSongPosition.Checkpoint = new Checkpoint();
-            goToThirdSongPosition.Checkpoint.addEntity(Joe.bike, thirdSongBikePosition, 90);
+            goToThirdSongPosition.Checkpoint.addEntity(Joe.bike, thirdSongBikePosition, -90);
             goToThirdSongPosition.Checkpoint.PlayerPosition = thirdSongBikePosition;
             goToThirdSongPosition.Checkpoint.WantedLevel = 0;
 
@@ -440,7 +499,7 @@ namespace DemagoScript
             AbstractObjective thirdSongObjectives = new PlayInstrument(InstrumentHash.Guitar, "degueulasse");
             thirdSongObjectives.Checkpoint = new Checkpoint();
             thirdSongObjectives.Checkpoint.Activable = true;
-            thirdSongObjectives.Checkpoint.addEntity(Joe.bike, thirdSongBikePosition, 90);
+            thirdSongObjectives.Checkpoint.addEntity(Joe.bike, thirdSongBikePosition, -90);
             thirdSongObjectives.Checkpoint.PlayerPosition = thirdSongPosition;
             thirdSongObjectives.Checkpoint.Weather = Weather.Raining;
             thirdSongObjectives.Checkpoint.WantedLevel = 0;
@@ -464,7 +523,7 @@ namespace DemagoScript
                     AudioManager.Instance.startIndependantSound("degueulasseHoo2");
                 };
 
-                foreach (Ped spectator in spectatorsPeds3)
+                foreach (Ped spectator in thirdSongSpectatorsPeds)
                 {
                     TaskSequence angrySpectator = new TaskSequence();
                     angrySpectator.AddTask.ClearAllImmediately();
@@ -508,13 +567,15 @@ namespace DemagoScript
 
                 #endregion
             };
-            thirdSongObjectives.OnAccomplished += (sender, elapsedTime) =>
+            thirdSongObjectives.OnEnded += (sender) =>
             {
                 if (chansonHoo2 != null)
-                    chansonHoo2.stop();
-
+                    chansonHoo2.interrupt();
+            };
+            thirdSongObjectives.OnAccomplished += (sender, elapsedTime) =>
+            {
                 int number = 0;
-                foreach (Ped ped in spectatorsPeds3)
+                foreach (Ped ped in thirdSongSpectatorsPeds)
                 {
                     if (ped != null && ped.Exists() && ped != Game.Player.Character)
                     {
@@ -544,7 +605,7 @@ namespace DemagoScript
             GoToPositionInVehicle goToHome = new GoToPositionInVehicle(joeHomePosition);
             goToHome.setVehicle(Joe.bike);
             goToHome.Checkpoint = new Checkpoint();
-            goToHome.Checkpoint.addEntity(Joe.bike, thirdSongBikePosition, 90);
+            goToHome.Checkpoint.addEntity(Joe.bike, thirdSongBikePosition, -90);
             goToHome.Checkpoint.PlayerPosition = thirdSongPosition;
             goToHome.Checkpoint.Health = 300;
             goToHome.Checkpoint.Armor = 100;
@@ -583,7 +644,7 @@ namespace DemagoScript
 
         }
 
-        public override void depopulateDestructibleElements(bool removePhysicalElements = false)
+        protected override void depopulateDestructibleElements(bool removePhysicalElements = false)
         {
             base.depopulateDestructibleElements(removePhysicalElements);
 
@@ -615,7 +676,7 @@ namespace DemagoScript
                 }
             }
 
-            foreach (Ped spectator in spectatorsPeds)
+            foreach (Ped spectator in firstSongSpectatorsPeds)
                 if (spectator != null && spectator.Exists())
                 {
                     spectator.MarkAsNoLongerNeeded();
@@ -623,9 +684,9 @@ namespace DemagoScript
                         spectator.Delete();
                 }
 
-            spectatorsPeds.Clear();
+            firstSongSpectatorsPeds.Clear();
 
-            foreach (Ped spectator in copsPeds)
+            foreach (Ped spectator in secondSongCopsPeds)
                 if (spectator != null && spectator.Exists())
                 {
                     spectator.MarkAsNoLongerNeeded();
@@ -633,9 +694,9 @@ namespace DemagoScript
                         spectator.Delete();
                 }
 
-            copsPeds.Clear();
+            secondSongCopsPeds.Clear();
 
-            foreach (Ped spectator in spectatorsPeds3)
+            foreach (Ped spectator in thirdSongSpectatorsPeds)
                 if (spectator != null && spectator.Exists())
                 {
                     spectator.MarkAsNoLongerNeeded();
@@ -643,7 +704,7 @@ namespace DemagoScript
                         spectator.Delete();
                 }
 
-            spectatorsPeds3.Clear();
+            thirdSongSpectatorsPeds.Clear();
         }
         
         public override bool update()
@@ -700,10 +761,11 @@ namespace DemagoScript
                         AudioManager.Instance.stopAll();
                         CameraShotsList.Instance.reset();
 
-                        foreach (Ped spectator in spectatorsPeds)
+                        foreach (Ped spectator in firstSongSpectatorsPeds)
                             if (spectator.Position.DistanceTo(firstSongPosition) > 10)
                                 spectator.Position = firstSongPosition.Around(7).Around(2);
 
+                        Tools.log("intro ended");
                         player.Task.ClearAllImmediately();
                         introPed.IsVisible = false;
                         introPed.Delete();

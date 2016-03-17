@@ -78,6 +78,7 @@ namespace DemagoScript
 
         public void initialize()
         {
+            Tools.log("initialize checkpoint with WantedLevel : " + WantedLevel);
             if (WantedLevel != -1)
                 Game.Player.WantedLevel = WantedLevel;
 
@@ -90,7 +91,7 @@ namespace DemagoScript
             if (clockHour != -1)
                 Tools.setClockTime(clockHour, Math.Max(clockTransitionTime, 0));
 
-            if (PlayerPosition != Vector3.Zero && PlayerPosition.DistanceTo(Game.Player.Character.Position) > 30)
+            if (PlayerPosition != Vector3.Zero && PlayerPosition.DistanceTo(Game.Player.Character.Position) > 10)
             {
                 teleportPlayerToCheckpoint();
             }
@@ -104,9 +105,16 @@ namespace DemagoScript
             foreach (KeyValuePair<Entity, Vector3> pair in entitiesCollectorPositions)
             {
                 Entity entity = pair.Key;
+                Tools.log("entity to teleport ", entity);
+
                 if (entity != null && entity.Exists() && entity.Position.DistanceTo(pair.Value) > 30)
                 {
-                    entity.Position = pair.Value;
+                    if (pair.Value != Vector3.Zero && pair.Value.DistanceTo(entity.Position) > 10)
+                    {
+                        Tools.log("teleport entity");
+                        entity.Position = pair.Value;
+                    }
+
                     if (entitiesCollectorHeadings[entity] != -1)
                     {
                         entity.Heading = entitiesCollectorHeadings[entity];
@@ -117,13 +125,28 @@ namespace DemagoScript
 
         public void teleportPlayerToCheckpoint()
         {
+            /*
             Timer safeThing = new Timer( 5000 );
             safeThing.OnTimerUpdate += ( elapsedMilliseconds, elapsedPourcent ) =>
             {
                 if ( PlayerPosition.DistanceTo( Game.Player.Character.Position ) > 100 ) {
-                    Tools.TeleportPlayer( PlayerPosition );
+            */
+            Tools.log("teleport player");
+
+            Tools.TeleportPlayer( PlayerPosition );
+
+            Script.Wait(100);
+
+            while (!Game.Player.Character.IsOnFoot)
+            {
+                Script.Wait(100);
+                Tools.log("Is not on foot after teleportation");
+            }
+
+            /*
                 }
             };
+            */
         }
     }
 }

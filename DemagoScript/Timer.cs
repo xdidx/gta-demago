@@ -11,23 +11,22 @@ namespace DemagoScript
     class Timer
     {
         public delegate void TimerStopEvent(Timer sender);
+        public delegate void TimerInterruptEvent(Timer sender, float elapsedMilliseconds);
         public delegate void TimerUpdateEvent(float elapsedMilliseconds, float elapsedPourcent);
         public event TimerStopEvent OnTimerStop;
-        public event TimerUpdateEvent OnTimerUpdate;
+        public event TimerUpdateEvent OnTimerUpdate; 
+        public event TimerInterruptEvent OnTimerInterrupt; 
 
-        private static List<Timer> timers = null;
+        private static List<Timer> timers = new List<Timer>();
 
-        private float startTime;
+        private float startTime = 0;
         private float millisecondsToWait = 0;
+        private bool isInProgress = true;
 
         public Timer(float millisecondsToWait)
         {
             this.startTime = DemagoScript.getScriptTime();
             this.millisecondsToWait = millisecondsToWait;
-            if (timers == null)
-            {
-                timers = new List<Timer>();
-            }
             timers.Add(this);
         }
 
@@ -43,34 +42,48 @@ namespace DemagoScript
 
         public static void updateAllTimers()
         {
-            if (timers == null)
-            {
-                timers = new List<Timer>();
-            }
-
             for (int i = timers.Count - 1; i >= 0; i--)
             {
-                timers[i].update();
+                if (timers[i].isInProgress)
+                {
+                    timers[i].update();
+                }
             }
         }
 
-        public void stop()
+        private void stop()
         {
-            timers.Remove(this);
-            OnTimerStop?.Invoke(this);
+            if (isInProgress)
+            {
+                this.interrupt();
+                OnTimerStop?.Invoke(this);
+            }
+        }
+
+        public void interrupt()
+        {
+            if (isInProgress)
+            {
+                timers.Remove(this);
+                isInProgress = false;
+                OnTimerInterrupt?.Invoke(this, this.getElapsedMilliSeconds());
+            }
         }
 
         public void update()
         {
-            float elapsedMilliseconds = DemagoScript.getScriptTime() - startTime;
-            if (elapsedMilliseconds > millisecondsToWait)
+            if (isInProgress)
             {
-                stop();
-            }
-            else
-            {
-                float elapsedPourcent = elapsedMilliseconds / millisecondsToWait;
-                OnTimerUpdate?.Invoke(elapsedMilliseconds, elapsedPourcent);
+                float elapsedMilliseconds = DemagoScript.getScriptTime() - startTime;
+                if (elapsedMilliseconds <= millisecondsToWait)
+                {
+                    float elapsedPourcent = elapsedMilliseconds / millisecondsToWait;
+                    OnTimerUpdate?.Invoke(elapsedMilliseconds, elapsedPourcent);
+                }
+                else
+                {
+                    this.stop();
+                }
             }
         }
 

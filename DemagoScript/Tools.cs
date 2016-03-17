@@ -214,7 +214,8 @@ namespace DemagoScript
 
             if (clockTransitionTimer != null)
             {
-                clockTransitionTimer.stop();
+                Tools.log("clockTransitionTimer interrupt");
+                clockTransitionTimer.interrupt();
             }
 
             if (transitionDuration <= 0)
@@ -232,12 +233,9 @@ namespace DemagoScript
 
                     Function.Call(Hash.SET_CLOCK_TIME, hour, minute, 0);
                 };
-                clockTransitionTimer.OnTimerStop += (sender) =>
+                clockTransitionTimer.OnTimerInterrupt += (sender, elapsedMilliseconds) =>
                 {
-                    if (sender == clockTransitionTimer)
-                    {
-                        clockTransitionTimer = null;
-                    }
+                    clockTransitionTimer = null;
                 };
             }
         }

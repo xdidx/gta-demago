@@ -24,7 +24,7 @@ namespace DemagoScript
         /// <summary>
         /// Populate objective elements
         /// </summary>
-        public override void populateDestructibleElements()
+        protected override void populateDestructibleElements()
         {
             base.populateDestructibleElements();
 
@@ -40,7 +40,7 @@ namespace DemagoScript
             Function.Call(Hash.SET_CHECKPOINT_CYLINDER_HEIGHT, this.finishCheckpoint, Tools.GetGroundedPosition( this.destination ).Z + 30.0f, Tools.GetGroundedPosition( this.destination ).Z + 30.0f, 30.0f);
         }
 
-        public override void depopulateDestructibleElements(bool removePhysicalElements = false)
+        protected override void depopulateDestructibleElements(bool removePhysicalElements = false)
         {
             if ( this.destinationBlip != null) {
                 this.destinationBlip.Remove();

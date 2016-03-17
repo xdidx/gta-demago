@@ -23,7 +23,7 @@ namespace DemagoScript
             this.vehicleHash = vehicleHash;
         }
 
-        public override void populateDestructibleElements()
+        protected override void populateDestructibleElements()
         {
             base.populateDestructibleElements();
 
@@ -35,7 +35,7 @@ namespace DemagoScript
             vehicle.CurrentBlip.ShowRoute = true;
         }
 
-        public override void depopulateDestructibleElements(bool removePhysicalElements = false)
+        protected override void depopulateDestructibleElements(bool removePhysicalElements = false)
         {
             if (vehicle != null && vehicle.Exists())
             {

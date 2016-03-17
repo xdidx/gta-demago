@@ -57,12 +57,14 @@ namespace DemagoScript
         /// <summary>
         /// Populate all elements that will have to be cleaned at the end
         /// </summary>
-        public virtual void populateDestructibleElements()
+        protected virtual void populateDestructibleElements()
         {
+            Tools.log("populateDestructibleElements "+getName());
             this.checkRequiredElements();
 
             if (Checkpoint != null)
             {
+                Tools.log("initialize checkpoint " + getName());
                 Checkpoint.initialize();
             }
         }
@@ -75,7 +77,7 @@ namespace DemagoScript
         /// <summary>
         /// Remove all elements that have been created during the objective
         /// </summary>
-        public abstract void depopulateDestructibleElements(bool removePhysicalElements = false);
+        protected abstract void depopulateDestructibleElements(bool removePhysicalElements = false);
 
         /// <summary>
         /// Return the objective's name
@@ -119,7 +121,7 @@ namespace DemagoScript
         /// </summary>
         public virtual void play()
         {
-            this.depopulateDestructibleElements();
+            this.depopulateDestructibleElements(true);
             this.populateDestructibleElements();
             this.inProgress = true;
         }
@@ -135,6 +137,7 @@ namespace DemagoScript
             {
                 return;
             }
+
             elapsedTime = 0;
 
             this.play();
@@ -167,9 +170,9 @@ namespace DemagoScript
         /// </summary>
         public virtual void stop( bool removePhysicalElements = false )
         {
-            Tools.log("Stop " + getName());
-
             this.elapsedTime = 0;
+
+            Tools.log("depopulateDestructibleElements " + getName());
 
             this.depopulateDestructibleElements(removePhysicalElements);
 

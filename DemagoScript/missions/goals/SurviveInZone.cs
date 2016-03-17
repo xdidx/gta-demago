@@ -37,7 +37,7 @@ namespace DemagoScript
             ennemyRelationshipGroup = World.AddRelationshipGroup( "SurviveInZoneObjectiveEnnemies" );
         }
 
-        public override void populateDestructibleElements()
+        protected override void populateDestructibleElements()
         {
             base.populateDestructibleElements();
 
@@ -50,7 +50,7 @@ namespace DemagoScript
             startPositionBlip.ShowRoute = true;
         }
 
-        public override void depopulateDestructibleElements(bool removePhysicalElements = false)
+        protected override void depopulateDestructibleElements(bool removePhysicalElements = false)
         {
             if (startPositionBlip != null && startPositionBlip.Exists())
             {
