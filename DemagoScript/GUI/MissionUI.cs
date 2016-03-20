@@ -20,11 +20,6 @@ namespace DemagoScript.GUI
         private UITextElement missionTimeTextElement = null;
         private UITextElement objectiveTimeTextElement = null;
 
-        public MissionUI()
-        {
-            
-        }
-
         public void setObjective(string text)
         {
             if ( String.IsNullOrWhiteSpace( text ) ) {
@@ -40,7 +35,6 @@ namespace DemagoScript.GUI
             }
 
             this.objectiveTextElement.setText(this.objective);
-            this.show();
         }
 
         public void setAdvice(string text)
@@ -59,7 +53,6 @@ namespace DemagoScript.GUI
             }
 
             this.adviceTextElement.setText(this.advice);
-            this.show();
         }
 
         public void setMissionTime(string text)

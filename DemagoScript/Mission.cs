@@ -211,6 +211,9 @@ namespace DemagoScript
         {
             currentObjectiveIndex++;
 
+            GUIManager.Instance.missionUI.setAdvice("");
+            GUIManager.Instance.missionUI.setObjective("");
+
             if (currentObjectiveIndex >= objectives.Count)
             {
                 this.accomplish();
