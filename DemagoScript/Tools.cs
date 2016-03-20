@@ -72,10 +72,8 @@ namespace DemagoScript
         {
             if (newModel == DemagoModel.Joe)
             {
-                if (Game.Player.Character.Model.Hash.Equals(PedHash.Acult01AMO))
+                if ((uint)Game.Player.Character.Model.Hash == (uint)PedHash.Migrant01SFY)
                     return;
-
-                Tools.log("set model to joe");
 
                 Model joeModel = new Model(PedHash.Acult01AMO);
                 joeModel.Request(500);
@@ -115,7 +113,7 @@ namespace DemagoScript
 
             if (newModel == DemagoModel.Fouras)
             {
-                if (Game.Player.Character.Model.Hash.Equals(PedHash.PriestCutscene))
+                if ((uint)Game.Player.Character.Model.Hash == (uint)PedHash.Migrant01SFY)
                     return;
 
                 Model fourasModel = new Model(PedHash.PriestCutscene);
@@ -156,7 +154,7 @@ namespace DemagoScript
 
             if (newModel == DemagoModel.Gastrow)
             {
-                if (Game.Player.Character.Model.Hash.Equals(PedHash.Migrant01SFY))
+                if ((uint)Game.Player.Character.Model.Hash == (uint)PedHash.Migrant01SFY)
                     return;
 
                 Model gastrowModel = new Model(PedHash.Migrant01SFY);

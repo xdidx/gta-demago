@@ -99,7 +99,17 @@ namespace DemagoScript
 
             if (PlayerPosition != Vector3.Zero && PlayerPosition.DistanceTo(Game.Player.Character.Position) > 10)
             {
-                teleportPlayerToCheckpoint();
+                Tools.log("Teleportplayer");
+                Tools.TeleportPlayer(PlayerPosition);
+                /*
+                Timer safeThing = new Timer( 5000 );
+                safeThing.OnTimerUpdate += ( elapsedMilliseconds, elapsedPourcent ) =>
+                {
+                    if ( PlayerPosition.DistanceTo( Game.Player.Character.Position ) > 100 ) {
+                        Tools.TeleportPlayer( PlayerPosition );
+                    }
+                };
+                */
             }
 
             if (Heading != -1)
@@ -111,8 +121,6 @@ namespace DemagoScript
             foreach (KeyValuePair<Entity, Vector3> pair in entitiesCollectorPositions)
             {
                 Entity entity = pair.Key;
-                Tools.log("entity to teleport ", entity);
-
                 if (entity != null && entity.Exists() && entity.Position.DistanceTo(pair.Value) > 30)
                 {
                     if (pair.Value != Vector3.Zero && pair.Value.DistanceTo(entity.Position) > 10)
@@ -127,20 +135,6 @@ namespace DemagoScript
                     }
                 }
             }
-        }
-
-        public void teleportPlayerToCheckpoint()
-        {
-            Tools.TeleportPlayer(PlayerPosition);
-            /*
-            Timer safeThing = new Timer( 5000 );
-            safeThing.OnTimerUpdate += ( elapsedMilliseconds, elapsedPourcent ) =>
-            {
-                if ( PlayerPosition.DistanceTo( Game.Player.Character.Position ) > 100 ) {
-                    Tools.TeleportPlayer( PlayerPosition );
-                }
-            };
-            */
         }
     }
 }
