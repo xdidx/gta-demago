@@ -140,10 +140,21 @@ namespace DemagoScript
         public void addObjective(AbstractObjective objective)
         {
             objective.OnFailed += (sender, reason) => {
-                Tools.log("stop mission because of fail " + reason);
+                #region Show checkpoint popup
+                var title = reason;
+                var subtitle = "Voulez-vous revenir au dernier checkpoint ?";
 
-                this.stop();
-                GTA.UI.Notify("Mission échouée : "+reason);
+                ConfirmationPopup checkpointPopup = new ConfirmationPopup(title, subtitle);
+                checkpointPopup.OnPopupAccept += () =>
+                {
+                    this.loadLastCheckpoint();
+                };
+                checkpointPopup.OnPopupRefuse += () =>
+                {
+                    this.stop(true);
+                };
+                checkpointPopup.show();
+                #endregion
             };
             objective.OnAccomplished += (sender, elapsedTime) => {
                 this.next();

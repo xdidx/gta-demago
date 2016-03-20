@@ -290,12 +290,27 @@ namespace DemagoScript
                     TaskSequence angrySpectator = new TaskSequence();
                     angrySpectator.AddTask.GoTo(newPosition);
                     angrySpectator.AddTask.TurnTo(player, 1000);
-                    angrySpectator.AddTask.UseMobilePhone(random.Next(5000, 50000));
-                    angrySpectator.AddTask.LookAt(player);
-                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_what_hard", random.Next(5000, 50000), -1, false, -1f);
-                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_yes_soft", random.Next(5000, 50000), -1, true, -1f);
-                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_you_soft", random.Next(5000, 50000), -1, false, -1f);
-                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_no_hard", random.Next(5000, 50000), -1, true, -1f);
+                    angrySpectator.AddTask.LookAt(player, random.Next(2000, 10000));
+                    angrySpectator.AddTask.UseMobilePhone(random.Next(5000, 30000));
+
+                    angrySpectator.AddTask.TurnTo(player, 1000);
+                    angrySpectator.AddTask.LookAt(player, random.Next(2000, 10000));
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_what_hard", 8f, random.Next(5000, 30000), false, -1f);
+
+                    angrySpectator.AddTask.TurnTo(player, 1000);
+                    angrySpectator.AddTask.LookAt(player, random.Next(2000, 10000));
+
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_yes_soft", 0.1f, random.Next(5000, 30000), false, -1f);
+
+                    angrySpectator.AddTask.TurnTo(player, 1000);
+                    angrySpectator.AddTask.LookAt(player, random.Next(2000, 10000));
+
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_you_soft", 8f, random.Next(5000, 30000), false, -1f);
+
+                    angrySpectator.AddTask.TurnTo(player, 1000);
+                    angrySpectator.AddTask.LookAt(player, random.Next(2000, 10000));
+
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_no_hard", 8f, random.Next(5000, 30000), true, -1f);
                     angrySpectator.Close();
 
                     spectator.Task.PerformSequence(angrySpectator);
@@ -314,7 +329,7 @@ namespace DemagoScript
                         spectator.Task.ClearAllImmediately();
 
                         TaskSequence spectatorsCallPoliceAndFlee = new TaskSequence();
-                        spectatorsCallPoliceAndFlee.AddTask.UseMobilePhone(random.Next(5000, 20000));
+                        spectatorsCallPoliceAndFlee.AddTask.UseMobilePhone(random.Next(3000, 8000));
                         spectatorsCallPoliceAndFlee.AddTask.ReactAndFlee(Game.Player.Character);
                         spectatorsCallPoliceAndFlee.Close();
 

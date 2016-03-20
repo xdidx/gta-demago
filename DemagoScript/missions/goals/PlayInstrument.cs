@@ -48,13 +48,6 @@ namespace DemagoScript
                 while (instrumentProp == null)
                 {
                     instrumentProp = World.CreateProp("prop_acc_guitar_01", player.Position + player.ForwardVector * 4.0f, true, true);
-                    Tools.log("instrumentHash CreateProp ");
-                }
-
-                while (!Game.Player.Character.IsOnFoot)
-                {
-                    Script.Wait(100);
-                    Tools.log("instrumentHash Is not on foot after teleportation");
                 }
 
                 instrumentProp.HasCollision = true;
@@ -62,11 +55,6 @@ namespace DemagoScript
                 instrumentProp.AttachTo(player, player.GetBoneIndex(Bone.SKEL_Pelvis), new Vector3(-0.18f, 0.28f, -0.1f), new Vector3(195f, -24f, 0f));
                 player.Task.ClearAllImmediately();
                 player.Task.PlayAnimation("amb@world_human_musician@guitar@male@base", "base", 8f, -1, true, -1f);
-                Tools.log("play guitar animation ");
-            }
-            else
-            {
-                Tools.log("instrumentHash : "+ instrumentHash);
             }
             #endregion
         }
@@ -75,17 +63,15 @@ namespace DemagoScript
         {
             Game.Player.Character.Task.ClearAllImmediately();
             if (instrumentProp != null)
-            //if (instrumentProp != null && instrumentProp.Exists())
             {
                 instrumentProp.Detach();
                 instrumentProp.MarkAsNoLongerNeeded();
                 if (removePhysicalElements)
                 {
                     instrumentProp.Delete();
+                    instrumentProp = null;
                 }
             }
-
-            instrumentProp = null;
         }
 
         public override bool update()
