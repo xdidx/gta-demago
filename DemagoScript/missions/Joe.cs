@@ -150,9 +150,6 @@ namespace DemagoScript
             CameraShotsList.Instance.reset();
 
             AudioManager.Instance.FilesSubFolder = @"joe\joe";
-
-
-            Tools.log("Objectives count : "+this.getObjectives().Count);
         }
 
         protected override void populateDestructibleElements()
@@ -165,7 +162,6 @@ namespace DemagoScript
 
         private void createAndAddObjectives()
         {
-            Tools.log("Joe.createAndAddObjectives");
             #region Objectives 
             GoToPosition goToFirstSongObjective = new GoToPosition(firstSongPosition);
             goToFirstSongObjective.Checkpoint = new Checkpoint();
@@ -222,24 +218,12 @@ namespace DemagoScript
 
                     AudioManager.Instance.startSound("dialogue0");
                 }
-                else
-                {
-                    foreach (Ped spectator in firstSongSpectatorsPeds)
-                        if (spectator.Position.DistanceTo(firstSongPosition) > 10)
-                            spectator.Position = firstSongPosition.Around(7).Around(2);
-                }
 
                 foreach (Ped spectator in firstSongSpectatorsPeds)
                 {
-                    TaskSequence incomingSpectator = new TaskSequence();
-                    incomingSpectator.AddTask.GoTo(firstSongPosition.Around(7).Around(2));
-                    incomingSpectator.AddTask.TurnTo(player);
-                    incomingSpectator.AddTask.LookAt(player);
-                    incomingSpectator.AddTask.PlayAnimation("facials@gen_male@variations@angry", "mood_angry_1", 8f, -1, true, -1f);
-                    spectator.Task.PerformSequence(incomingSpectator);
+                    spectator.Task.ClearAllImmediately();
+                    spectator.Task.WanderAround(spectator.Position, 100);
                 }
-
-                Tools.log("foreach firstSongSpectators " + firstSongSpectatorsPeds.Count);                
             };
 
             AbstractObjective firstSongObjectives = new PlayInstrument(InstrumentHash.Guitar, "anticonformiste");
@@ -251,8 +235,6 @@ namespace DemagoScript
             firstSongObjectives.Checkpoint.WantedLevel = 0;
             firstSongObjectives.OnStarted += (sender) =>
             {
-                Tools.log("firstSongObjectives.OnStarted");
-                
                 Vector3 firstCameraPosition = firstSongPosition;
                 firstCameraPosition.Z += 2;
                 firstCameraPosition.X += 4;
@@ -299,35 +281,46 @@ namespace DemagoScript
                 Ped player = Game.Player.Character;
                 foreach (Ped spectator in firstSongSpectatorsPeds)
                 {
+                    Vector3 positionsDifference = firstSongPosition - spectator.Position;
+                    positionsDifference *= 0.9f;
+                    Vector3 newPosition = spectator.Position + positionsDifference;
+
+                    spectator.Task.ClearAllImmediately();
+
                     TaskSequence angrySpectator = new TaskSequence();
-                    angrySpectator.AddTask.ClearAllImmediately();
+                    angrySpectator.AddTask.GoTo(newPosition);
                     angrySpectator.AddTask.TurnTo(player, 1000);
-                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_what_hard", 8f, -1, false, -1f);
-                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_yes_soft", 0.01f, AudioManager.Instance.getLength("anticonformiste") - 6000, true, -1f);
-                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_you_soft", 8f, -1, false, -1f);
-                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_no_hard", 8f, -1, true, -1f);
+                    angrySpectator.AddTask.UseMobilePhone(random.Next(5000, 50000));
+                    angrySpectator.AddTask.LookAt(player);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_what_hard", random.Next(5000, 50000), -1, false, -1f);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_yes_soft", random.Next(5000, 50000), -1, true, -1f);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_you_soft", random.Next(5000, 50000), -1, false, -1f);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_no_hard", random.Next(5000, 50000), -1, true, -1f);
+                    angrySpectator.Close();
 
                     spectator.Task.PerformSequence(angrySpectator);
                 }
-                Tools.log("foreach firstSongSpectators 2 " + firstSongSpectatorsPeds.Count);
             };
             firstSongObjectives.OnAccomplished += (sender, elapsedTime) => {
                 foreach (Ped spectator in firstSongSpectatorsPeds)
                 {
                     spectator.Task.ClearAllImmediately();
-                    spectator.Task.ClearLookAt();
-                    if (random.Next(0, 1) == 0)
+                    if (random.Next(0, 2) == 0)
                     {
-                        Tools.log("spectator FightAgainst adri");
                         spectator.Task.FightAgainst(Game.Player.Character);
                     }
                     else
                     {
-                        Tools.log("spectator UseMobilePhone adri");
-                        spectator.Task.UseMobilePhone();
+                        spectator.Task.ClearAllImmediately();
+
+                        TaskSequence spectatorsCallPoliceAndFlee = new TaskSequence();
+                        spectatorsCallPoliceAndFlee.AddTask.UseMobilePhone(random.Next(5000, 20000));
+                        spectatorsCallPoliceAndFlee.AddTask.ReactAndFlee(Game.Player.Character);
+                        spectatorsCallPoliceAndFlee.Close();
+
+                        spectator.Task.PerformSequence(spectatorsCallPoliceAndFlee);
                     }
                 }
-                Tools.log("foreach firstSongSpectators 3 " + firstSongSpectatorsPeds.Count);
             }; 
 
             GoToPositionInVehicle goToPoliceWithBikeObjective = new GoToPositionInVehicle(roadFaceToPoliceStationPosition);
@@ -350,7 +343,6 @@ namespace DemagoScript
             goToSecondSongObjective.Checkpoint.WantedLevel = 0;
             goToSecondSongObjective.OnStarted += (sender) =>
             {
-                Tools.log("firstSongSpectatorsPeds MarkAsNoLongerNeeded");
                 foreach (Ped spectator in firstSongSpectatorsPeds)
                 {
                     spectator.MarkAsNoLongerNeeded();
@@ -392,16 +384,20 @@ namespace DemagoScript
                     }
                 }
 
-                TaskSequence policeSurrounding = new TaskSequence();
-                policeSurrounding.AddTask.TurnTo(player);
-                policeSurrounding.AddTask.StandStill(10000);
-                policeSurrounding.AddTask.GoTo(player.Position.Around(2).Around(1));
-                policeSurrounding.AddTask.TurnTo(player);
-                policeSurrounding.AddTask.LookAt(player);
                 foreach (Ped spectator in secondSongCopsPeds)
                 {
                     if (spectator != null && spectator.Exists())
                     {
+                        spectator.Task.ClearAllImmediately();
+
+                        TaskSequence policeSurrounding = new TaskSequence();
+                        policeSurrounding.AddTask.TurnTo(player);
+                        policeSurrounding.AddTask.StandStill(10000);
+                        policeSurrounding.AddTask.GoTo(player.Position.Around(2).Around(1));
+                        policeSurrounding.AddTask.TurnTo(player);
+                        policeSurrounding.AddTask.LookAt(player);
+                        policeSurrounding.Close();
+
                         spectator.Task.PerformSequence(policeSurrounding);
                     }
                 }
@@ -541,13 +537,15 @@ namespace DemagoScript
 
                 foreach (Ped spectator in thirdSongSpectatorsPeds)
                 {
+                    spectator.Task.ClearAllImmediately();
+
                     TaskSequence angrySpectator = new TaskSequence();
-                    angrySpectator.AddTask.ClearAllImmediately();
                     angrySpectator.AddTask.TurnTo(player, 1000);
                     angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_what_hard", 8f, -1, false, -1f);
                     angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_yes_soft", 0.01f, AudioManager.Instance.getLength("degueulasse") - 6000, true, -1f);
                     angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_you_soft", 8f, -1, false, -1f);
                     angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_no_hard", 8f, -1, true, -1f);
+                    angrySpectator.Close();
 
                     spectator.Task.PerformSequence(angrySpectator);
                 }
@@ -777,11 +775,6 @@ namespace DemagoScript
                         AudioManager.Instance.stopAll();
                         CameraShotsList.Instance.reset();
 
-                        foreach (Ped spectator in firstSongSpectatorsPeds)
-                            if (spectator.Position.DistanceTo(firstSongPosition) > 10)
-                                spectator.Position = firstSongPosition.Around(7).Around(2);
-
-                        Tools.log("intro ended");
                         player.Task.ClearAllImmediately();
                         introPed.IsVisible = false;
                         introPed.Delete();

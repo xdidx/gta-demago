@@ -72,7 +72,7 @@ namespace DemagoScript
         {
             if (newModel == DemagoModel.Joe)
             {
-                if ((uint)Game.Player.Character.Model.Hash == (uint)PedHash.Migrant01SFY)
+                if ((uint)Game.Player.Character.Model.Hash == (uint)PedHash.Acult01AMO)
                     return;
 
                 Model joeModel = new Model(PedHash.Acult01AMO);
@@ -113,7 +113,7 @@ namespace DemagoScript
 
             if (newModel == DemagoModel.Fouras)
             {
-                if ((uint)Game.Player.Character.Model.Hash == (uint)PedHash.Migrant01SFY)
+                if ((uint)Game.Player.Character.Model.Hash == (uint)PedHash.PriestCutscene)
                     return;
 
                 Model fourasModel = new Model(PedHash.PriestCutscene);

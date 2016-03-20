@@ -158,12 +158,18 @@ namespace DemagoScript
             }
             else
             {
+                isSitting = true;
+
                 Game.Player.Character.Heading = Game.Player.Character.Heading + 180;
+
+                Game.Player.Character.Task.ClearAllImmediately();
+
                 TaskSequence sitDown = new TaskSequence();
                 sitDown.AddTask.PlayAnimation("amb@world_human_picnic@male@enter", "enter", 8f, -1, false, -1f);
                 sitDown.AddTask.PlayAnimation("amb@world_human_picnic@male@base", "base", 8f, -1, true, -1f);
+                sitDown.Close();
+
                 Game.Player.Character.Task.PerformSequence(sitDown);
-                isSitting = true;
             }
         }
 

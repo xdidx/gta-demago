@@ -47,9 +47,7 @@ namespace DemagoScript
                 Tools.log( "CameraShotsList: sequence list cannot be empty or null." );
                 return;
             }
-
-            Tools.log("initialize sequence with "+ sequence.Count+" elements");
-
+            
             Function.Call(Hash.DISPLAY_RADAR, false);
             Function.Call(Hash.DISPLAY_HUD, false);
             GUIManager.Instance.missionUI.hide();

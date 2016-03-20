@@ -40,17 +40,10 @@ namespace DemagoScript
             for (int objectiveIndex = this.currentObjectiveIndex; objectiveIndex >= 0 && this.lastActivableCheckpointIndex == 0; objectiveIndex--)
             {
                 var currentObjective = objectives[objectiveIndex];
-                if (currentObjective != null) 
+                if (currentObjective != null && currentObjective.Checkpoint != null && currentObjective.Checkpoint.Activable)
                 {
-                    if (currentObjective.Checkpoint != null && currentObjective.Checkpoint.Activable)
-                    {
-                        Tools.log("checkpoint activable ! : " + currentObjective.getName() + " index : "+ objectiveIndex);
-                        this.lastActivableCheckpointIndex = objectiveIndex;
-                    }
-                    else
-                    {
-                        Tools.log("loadlast not checkpoint activable : "+currentObjective.getName() + " index : " + objectiveIndex);
-                    }
+                    this.lastActivableCheckpointIndex = objectiveIndex;
+                    break;
                 }
             }
 
@@ -323,13 +316,13 @@ namespace DemagoScript
                     player.IsVisible = true;
                     player.IsInvincible = false;
                     #endregion
-                }
 
-                #region Show death or arrested popups
-                if (playerWasDead || playerWasArrested)
-                {
-                    Script.Wait(10000);
+                    while (!Function.Call<bool>(Hash.IS_PLAYER_CONTROL_ON, Game.Player))
+                    {
+                        Script.Wait(100);
+                    }
 
+                    #region Show death or arrested popups
                     var title = (playerWasDead) ? "Vous êtes mort" : "Vous vous êtes fait arrêter";
                     var subtitle = "Voulez-vous revenir au dernier checkpoint ?";
 
@@ -343,8 +336,8 @@ namespace DemagoScript
                         this.stop(true);
                     };
                     checkpointPopup.show();
+                    #endregion
                 }
-                #endregion
             }
         }
     }
