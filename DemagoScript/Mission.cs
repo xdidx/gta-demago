@@ -115,13 +115,16 @@ namespace DemagoScript
         {
             base.stop(true);
 
+            this.reset();
+        }
+
+        public void reset()
+        {
             #region Depopulate objectives
             foreach (AbstractObjective objective in objectives)
             {
                 objective.depopulateDestructibleElements(true);
             }
-            this.currentObjectiveIndex = 0;
-            objectives.Clear();
             #endregion
 
             #region Player health

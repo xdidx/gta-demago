@@ -15,8 +15,6 @@ namespace DemagoScript
 {
     class ModelManager
     {
-        private ISoundEngine engine = new ISoundEngine();
-
         private static ModelManager instance;
 
         public static ModelManager Instance
