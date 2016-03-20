@@ -282,7 +282,7 @@ namespace DemagoScript
                 foreach (Ped spectator in firstSongSpectatorsPeds)
                 {
                     Vector3 positionsDifference = firstSongPosition - spectator.Position;
-                    positionsDifference *= 0.9f;
+                    positionsDifference *= 0.8f;
                     Vector3 newPosition = spectator.Position + positionsDifference;
 
                     spectator.Task.ClearAllImmediately();
@@ -319,6 +319,12 @@ namespace DemagoScript
             firstSongObjectives.OnAccomplished += (sender, elapsedTime) => {
                 foreach (Ped spectator in firstSongSpectatorsPeds)
                 {
+                    if (spectator.Position.DistanceTo(firstSongPosition) > 30)
+                    {
+                        Vector3 positionsDifference = firstSongPosition - spectator.Position;
+                        positionsDifference *= 0.8f;
+                        spectator.Position += positionsDifference;
+                    }
                     spectator.Task.ClearAllImmediately();
                     if (random.Next(0, 2) == 0)
                     {
@@ -326,8 +332,6 @@ namespace DemagoScript
                     }
                     else
                     {
-                        spectator.Task.ClearAllImmediately();
-
                         TaskSequence spectatorsCallPoliceAndFlee = new TaskSequence();
                         spectatorsCallPoliceAndFlee.AddTask.UseMobilePhone(random.Next(3000, 8000));
                         spectatorsCallPoliceAndFlee.AddTask.ReactAndFlee(Game.Player.Character);

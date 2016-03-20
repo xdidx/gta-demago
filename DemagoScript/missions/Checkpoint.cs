@@ -101,6 +101,7 @@ namespace DemagoScript
             {
                 Tools.log("Teleportplayer");
                 Tools.TeleportPlayer(PlayerPosition);
+                Script.Wait(100);
                 /*
                 Timer safeThing = new Timer( 5000 );
                 safeThing.OnTimerUpdate += ( elapsedMilliseconds, elapsedPourcent ) =>
