@@ -14,7 +14,8 @@ namespace DemagoScript
     {
         protected Vector3 start_position   = Vector3.Zero;
         protected float   duration       = 0;
-        protected float   percentage     = 0;
+        protected float percentage = 0;
+        public bool WithFadeTransition { get; set; } = false;
 
         protected Camera camera;
         
@@ -48,10 +49,18 @@ namespace DemagoScript
         {
             return this.camera;
         }
-        
+
         public void activateCamera()
         {
+            Tools.log("activateCamera");
             World.RenderingCamera = this.camera;
+        }
+
+        public void destroyCamera()
+        {
+            Tools.log("destroyCamera");
+            this.camera.Destroy();
+            World.RenderingCamera = null;
         }
         
         public void lookAt( Entity target )

@@ -13,12 +13,16 @@ namespace DemagoScript
 {
     class CameraShotsList
     {
-        private List<CameraShot> sequence       = new List<CameraShot>();
-        private float sequence_elapsed_time     = 0;
-        private float sequence_total_duration   = 0;
-        private int   current_index             = 0;
-        private float current_elapsed_time      = 0;
-        private CameraShot current_element      = null;
+        private List<CameraShot> sequence = new List<CameraShot>();
+        private CameraShot current_element = null;
+        
+        private float sequenceElapsedTime = 0; 
+        private float sequence_total_duration = 0;
+        private int current_index = -1;
+        private float current_element_elapsed_time = 0;
+
+        private Timer transitionTimer = null;
+        private float fadeTransitionDuration = 300f;
 
         private static CameraShotsList instance = null;
 
@@ -43,80 +47,117 @@ namespace DemagoScript
                 Tools.log( "CameraShotsList: sequence list cannot be empty or null." );
                 return;
             }
-
+            
             Function.Call(Hash.DISPLAY_RADAR, false);
             Function.Call(Hash.DISPLAY_HUD, false);
             GUIManager.Instance.missionUI.hide();
 
             this.sequence = sequence;
             this.sequence_total_duration = sequence_duration;
-            this.current_element = this.sequence[this.current_index];
+            this.next();
         }
 
         // Update
         public void update()
         {
-            // Si on a pas d'élément courant alors on sort
-            if ( this.current_element == null ) { // CAD qu'on a pas encore initialisé
-                return;
+            if (this.isInProgress())
+            {
+                if (this.current_element_elapsed_time > this.current_element.getDuration())
+                {
+                    if (!this.next())
+                    {
+                        return;
+                    }
+                }
+
+                this.current_element.update(this.current_element_elapsed_time);
+             
+                float millisecondsSinceLastFrame = Game.LastFrameTime * 1000;
+                this.current_element_elapsed_time += millisecondsSinceLastFrame;
+                this.sequenceElapsedTime += millisecondsSinceLastFrame;
+            }
+        }
+
+        public bool isInProgress()
+        {
+            return this.current_element != null && (this.sequence_total_duration == 0 || this.sequenceElapsedTime < this.sequence_total_duration);
+        }
+
+        public bool next()
+        {
+            if (this.current_element != null)
+            {
+                this.current_element.destroyCamera();
             }
 
-            // Si l'element en cours dure plus longtemps que prévu
-            if ( this.current_elapsed_time > this.current_element.getDuration() ) {
-
-                // On passe au suivant
-                this.next();
-
+            if (current_index < -1)
+            {
+                current_index = -1;
             }
 
-            // Si la sequence est en cours et que l'index n'est pas trop grand
-            if ((this.sequence_total_duration == 0 || this.sequence_elapsed_time < this.sequence_total_duration) && this.current_index < this.sequence.Count )
-            { 
-                // On recupere le current element
-                this.current_element = this.sequence[this.current_index];
+            this.current_index++;
+            this.current_element_elapsed_time = 0;
 
-                // Changement de CameraShot
-                if ( this.current_elapsed_time == 0 ) {
+            if (this.current_index < this.sequence.Count)
+            {
+                this.current_element = this.sequence[current_index];
+                if (this.current_element.WithFadeTransition)
+                {
+                    Game.FadeScreenOut((int)fadeTransitionDuration);
+
+                    transitionTimer = new Timer(fadeTransitionDuration);
+                    transitionTimer.OnTimerStop += (sender) =>
+                    {
+                        Tools.log("transitionTimer.OnTimerStop ");
+                        this.current_element.activateCamera();
+                    };
+                    transitionTimer.OnTimerInterrupt += (sender, elapsedMilliseconds) =>
+                    {
+                        Tools.log("transitionTimer.OnTimerInterrupt " + elapsedMilliseconds + "ms");
+                        Game.FadeScreenIn((int)fadeTransitionDuration);
+                    };
+                }
+                else
+                {
                     this.current_element.activateCamera();
                 }
 
-                // Mise à jour du CameraShot
-                this.current_element.update( this.current_elapsed_time );
-
-            } else { // Sinon (si la sequence n'est plus en cours)
-
-                // On stop la sequence
-                this.reset();
-
+                return true;
             }
-
-            // Mise à jours des temps
-            float time = Game.LastFrameTime * 1000;
-            this.current_elapsed_time += time; // element
-            this.sequence_elapsed_time += time; // sequence
+            else
+            {
+                this.reset();
+                return false;
+            }
         }
 
-        // Element suivant dans la sequence
-        public void next()
-        {
-            this.current_index++;
-            this.current_elapsed_time = 0;
-        }
-
-        // On reset la sequence
         public void reset()
         {
             Function.Call(Hash.DISPLAY_RADAR, true);
             Function.Call(Hash.DISPLAY_HUD, true);
+
             GUIManager.Instance.missionUI.show();
-            
-            this.sequence = null;
-            this.sequence_elapsed_time = 0;
-            this.sequence_total_duration = 0;
-            this.current_index = 0;
-            this.current_elapsed_time = 0;
+
+            if (transitionTimer != null)
+            {
+                Tools.log("transitionTimer interrupt");
+
+                transitionTimer.interrupt();
+                transitionTimer = null;
+            }
+
+            foreach (CameraShot cameraShot in this.sequence)
+            {
+                cameraShot.destroyCamera();
+            }
+            this.sequence.Clear();
+
             this.current_element = null;
-            World.RenderingCamera = null;
+
+            this.sequenceElapsedTime = 0;
+            this.sequence_total_duration = 0;
+            this.current_index = -1;
+            this.current_element_elapsed_time = 0;
         }
     }
 }

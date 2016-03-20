@@ -45,7 +45,7 @@ namespace DemagoScript
             teleportPlayerInVehicle = false;
         }
 
-        public override void populateDestructibleElements()
+        protected override void populateDestructibleElements()
         {
             base.populateDestructibleElements();
 
@@ -65,6 +65,7 @@ namespace DemagoScript
             }
             else if (vehicle == null || !vehicle.Exists())
             {
+                Tools.log("Le véhicule obligatoire  ", vehicle);
                 fail("Le véhicule obligatoire n'existe plus");
             }
 
@@ -73,7 +74,7 @@ namespace DemagoScript
             destination = Tools.GetGroundedPosition(destination);
         }
 
-        public override void depopulateDestructibleElements(bool removePhysicalElements = false)
+        protected override void depopulateDestructibleElements(bool removePhysicalElements = false)
         {
             if (vehicle != null)
             {

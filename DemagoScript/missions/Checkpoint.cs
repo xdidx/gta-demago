@@ -17,7 +17,6 @@ namespace DemagoScript
         protected float clockTransitionTime = -1;
         protected Dictionary<Entity, Vector3> entitiesCollectorPositions = new Dictionary<Entity, Vector3>();
         protected Dictionary<Entity, int> entitiesCollectorHeadings = new Dictionary<Entity, int>();
-        protected List<string> songsNames = new List<string> { "" };
 
         public Vector3 PlayerPosition { get; set; } = Vector3.Zero;
         public Weather Weather { get; set; } = Weather.Smog;
@@ -55,11 +54,7 @@ namespace DemagoScript
         /// <summary>
         /// Armor, minimum 0
         /// </summary>
-        public string[] SongsNames
-        {
-            get { return songsNames.ToArray(); }
-            set { songsNames = value.ToList<string>(); }
-        }
+        public string[] SongsNames { get; set; } = new string[0];
 
         /// <summary>
         /// Set hour on clock [transition in seconds] between 0 and 23
@@ -74,6 +69,12 @@ namespace DemagoScript
         {
             entitiesCollectorPositions.Add(entity, position);
             entitiesCollectorHeadings.Add(entity, heading);
+        }
+
+        public void removeEntities()
+        {
+            entitiesCollectorPositions.Clear();
+            entitiesCollectorHeadings.Clear();
         }
 
         public Vector3 getEntityPosition(Entity entity)
@@ -100,9 +101,20 @@ namespace DemagoScript
             if (clockHour != -1)
                 Tools.setClockTime(clockHour, Math.Max(clockTransitionTime, 0));
 
-            if (PlayerPosition != Vector3.Zero && PlayerPosition.DistanceTo(Game.Player.Character.Position) > 30)
+            if (PlayerPosition != Vector3.Zero && PlayerPosition.DistanceTo(Game.Player.Character.Position) > 10)
             {
-                teleportPlayerToCheckpoint();
+                Tools.log("Teleportplayer");
+                Tools.TeleportPlayer(PlayerPosition);
+                Script.Wait(100);
+                /*
+                Timer safeThing = new Timer( 5000 );
+                safeThing.OnTimerUpdate += ( elapsedMilliseconds, elapsedPourcent ) =>
+                {
+                    if ( PlayerPosition.DistanceTo( Game.Player.Character.Position ) > 100 ) {
+                        Tools.TeleportPlayer( PlayerPosition );
+                    }
+                };
+                */
             }
 
             if (Heading != -1)
@@ -116,7 +128,12 @@ namespace DemagoScript
                 Entity entity = pair.Key;
                 if (entity != null && entity.Exists() && entity.Position.DistanceTo(pair.Value) > 30)
                 {
-                    entity.Position = pair.Value;
+                    if (pair.Value != Vector3.Zero && pair.Value.DistanceTo(entity.Position) > 10)
+                    {
+                        Tools.log("teleport entity");
+                        entity.Position = pair.Value;
+                    }
+
                     if (entitiesCollectorHeadings[entity] != -1)
                     {
                         entity.Heading = entitiesCollectorHeadings[entity];
@@ -124,22 +141,10 @@ namespace DemagoScript
                 }
             }
 
-            if(songsNames.ToArray()[0] != "")
+            if (SongsNames is string[] && SongsNames.Length > 0)
             {
-                AudioManager.Instance.FilesSubFolder = @"joe\joe";
-                AudioManager.Instance.startPlaylist(songsNames.ToArray());
+                AudioManager.Instance.startPlaylist(SongsNames);
             }
-        }
-
-        public void teleportPlayerToCheckpoint()
-        {
-            Timer safeThing = new Timer( 5000 );
-            safeThing.OnTimerUpdate += ( elapsedMilliseconds, elapsedPourcent ) =>
-            {
-                if ( PlayerPosition.DistanceTo( Game.Player.Character.Position ) > 100 ) {
-                    Tools.TeleportPlayer( PlayerPosition );
-                }
-            };
         }
     }
 }

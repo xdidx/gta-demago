@@ -49,7 +49,7 @@ namespace DemagoScript
             this.name = "Mission Speed";
         }
 
-        public override void populateDestructibleElements()
+        protected override void populateDestructibleElements()
         {
             base.populateDestructibleElements();
             
@@ -96,7 +96,7 @@ namespace DemagoScript
             }
         }
 
-        public override void depopulateDestructibleElements(bool removePhysicalElements = false)
+        protected override void depopulateDestructibleElements(bool removePhysicalElements = false)
         {
             base.depopulateDestructibleElements(removePhysicalElements);
 

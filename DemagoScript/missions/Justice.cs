@@ -20,7 +20,7 @@ namespace DemagoScript
             this.name = "La justice";
         }
 
-        public override void populateDestructibleElements()
+        protected override void populateDestructibleElements()
         {
             base.populateDestructibleElements();
             
@@ -45,7 +45,7 @@ namespace DemagoScript
             addObjective(new EnterInVehicle(buzzardPosition, VehicleHash.Buzzard));
         }
 
-        public override void depopulateDestructibleElements(bool removePhysicalElements = false)
+        protected override void depopulateDestructibleElements(bool removePhysicalElements = false)
         {
             base.depopulateDestructibleElements(removePhysicalElements);
             foreach (WeaponHash hash in Enum.GetValues(typeof(WeaponHash)))

@@ -72,6 +72,9 @@ namespace DemagoScript
         {
             if (newModel == DemagoModel.Joe)
             {
+                if ((uint)Game.Player.Character.Model.Hash == (uint)PedHash.Acult01AMO)
+                    return;
+
                 Model joeModel = new Model(PedHash.Acult01AMO);
                 joeModel.Request(500);
                 if (joeModel.IsInCdImage && joeModel.IsValid)
@@ -110,6 +113,9 @@ namespace DemagoScript
 
             if (newModel == DemagoModel.Fouras)
             {
+                if ((uint)Game.Player.Character.Model.Hash == (uint)PedHash.PriestCutscene)
+                    return;
+
                 Model fourasModel = new Model(PedHash.PriestCutscene);
                 fourasModel.Request(500);
                 if (fourasModel.IsInCdImage && fourasModel.IsValid)
@@ -148,6 +154,9 @@ namespace DemagoScript
 
             if (newModel == DemagoModel.Gastrow)
             {
+                if ((uint)Game.Player.Character.Model.Hash == (uint)PedHash.Migrant01SFY)
+                    return;
+
                 Model gastrowModel = new Model(PedHash.Migrant01SFY);
                 gastrowModel.Request(500);
                 if (gastrowModel.IsInCdImage && gastrowModel.IsValid)
@@ -214,7 +223,8 @@ namespace DemagoScript
 
             if (clockTransitionTimer != null)
             {
-                clockTransitionTimer.stop();
+                Tools.log("clockTransitionTimer interrupt");
+                clockTransitionTimer.interrupt();
             }
 
             if (transitionDuration <= 0)
@@ -232,12 +242,9 @@ namespace DemagoScript
 
                     Function.Call(Hash.SET_CLOCK_TIME, hour, minute, 0);
                 };
-                clockTransitionTimer.OnTimerStop += (sender) =>
+                clockTransitionTimer.OnTimerInterrupt += (sender, elapsedMilliseconds) =>
                 {
-                    if (sender == clockTransitionTimer)
-                    {
-                        clockTransitionTimer = null;
-                    }
+                    clockTransitionTimer = null;
                 };
             }
         }

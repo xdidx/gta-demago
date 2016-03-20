@@ -11,73 +11,58 @@ namespace DemagoScript
 {
     abstract class Mission : AbstractObjective
     {
-        protected List<AbstractObjective> objectives = new List<AbstractObjective>();
-        protected int currentObjectiveIndex = 0;
-        protected bool introEnded = false;
+        private List<AbstractObjective> objectives = new List<AbstractObjective>();
+        private int currentObjectiveIndex = 0;
+        protected bool loadingCheckpoint = false; 
+        protected bool introEnded = false; 
+
+        private int lastActivableCheckpointIndex = 0;
+
+        protected List<AbstractObjective> getObjectives()
+        {
+            return objectives;
+        }
 
         public virtual void loadLastCheckpoint()
         {
             Game.FadeScreenOut(500);
             Script.Wait(500);
-            
-            int lastActivableCheckpointIndex = 0;
+
+            this.lastActivableCheckpointIndex = 0;
 
             if (this.currentObjectiveIndex >= objectives.Count)
             {
-                this.currentObjectiveIndex = objectives.Count - 1;
+                stop(true);
+                Game.FadeScreenIn(500);
+                return;
             }
 
-            for (int objectiveIndex = this.currentObjectiveIndex; objectiveIndex >= 0 && lastActivableCheckpointIndex == 0; objectiveIndex--)
+            for (int objectiveIndex = this.currentObjectiveIndex; objectiveIndex >= 0 && this.lastActivableCheckpointIndex == 0; objectiveIndex--)
             {
                 var currentObjective = objectives[objectiveIndex];
-                if (currentObjective != null) 
+                if (currentObjective != null && currentObjective.Checkpoint != null && currentObjective.Checkpoint.Activable)
                 {
-                    if (currentObjective.Checkpoint != null && currentObjective.Checkpoint.Activable)
-                    {
-                        Tools.log("checkpoint activable ! : " + currentObjective.getName() + " index : "+ objectiveIndex);
-                        lastActivableCheckpointIndex = objectiveIndex;
-                    }
-                    else
-                    {
-                        Tools.log("loadlast not checkpoint activable : "+currentObjective.getName() + " index : " + objectiveIndex);
-                    }
+                    this.lastActivableCheckpointIndex = objectiveIndex;
+                    break;
                 }
             }
 
-            this.reset();
-            
-            if (lastActivableCheckpointIndex == 0)
+            if (this.lastActivableCheckpointIndex == 0)
             {
                 this.stop(true);
                 this.start();
             }
             else
             {
+                this.reset();
+                this.loadingCheckpoint = true;
                 this.play();
-
-                this.currentObjectiveIndex = 0;
-                objectives[this.currentObjectiveIndex].start();
-                while (this.currentObjectiveIndex < lastActivableCheckpointIndex)
-                {
-                    objectives[this.currentObjectiveIndex].accomplish();
-                }
             }
-
-            Game.FadeScreenIn(500);
         }
 
-        public override void depopulateDestructibleElements(bool removePhysicalElements = false)
+        protected override void depopulateDestructibleElements(bool removePhysicalElements = false)
         {
-            foreach (AbstractObjective objective in objectives)
-            {
-                objective.depopulateDestructibleElements(removePhysicalElements);
-            }
-
-            if (removePhysicalElements)
-            {
-                currentObjectiveIndex = 0;
-                objectives.Clear();
-            }
+            this.reset();
         }
 
         public override void play()
@@ -98,7 +83,7 @@ namespace DemagoScript
 
             base.start();
 
-            if (this.currentObjectiveIndex == 0 && objectives.Count > 0)
+            if (this.lastActivableCheckpointIndex == 0 && this.currentObjectiveIndex == 0 && objectives.Count > 0)
             {
                 objectives[0].start();
             }
@@ -107,26 +92,27 @@ namespace DemagoScript
         }
 
         /// <summary>
-        /// When the mission is stopped, everything has to be removed
+        /// When the mission is stopped, everything has to be removed and the timer is set to 0
         /// </summary>
         /// <param name="removePhysicalElements"></param>
         public override void stop(bool removePhysicalElements = false)
         {
             base.stop(true);
-
-            this.reset();
-
-            this.currentObjectiveIndex = 0;
-            objectives.Clear();
         }
 
+        /// <summary>
+        /// When the mission is resetted, everything has to be removed and the timer ISN't reinitialized
+        /// </summary>
         public void reset()
         {
             #region Depopulate objectives
             foreach (AbstractObjective objective in objectives)
             {
-                objective.depopulateDestructibleElements(true);
+                objective.stop(true);
             }
+            objectives.Clear();
+
+            this.currentObjectiveIndex = 0;
             #endregion
 
             #region Player health
@@ -136,13 +122,14 @@ namespace DemagoScript
             player.Health = 100;
             player.Armor = 100;
             #endregion
-
+            
             World.Weather = Weather.Clear;
             Game.Player.WantedLevel = 0;
 
-            GUIManager.Instance.missionUI.hide();
             CameraShotsList.Instance.reset();
+            GUIManager.Instance.missionUI.hide();
             AudioManager.Instance.stopAll();
+            this.resetPlayerModel();
         }
 
         public override void accomplish()
@@ -153,7 +140,21 @@ namespace DemagoScript
         public void addObjective(AbstractObjective objective)
         {
             objective.OnFailed += (sender, reason) => {
-                fail(reason);
+                #region Show checkpoint popup
+                var title = reason;
+                var subtitle = "Voulez-vous revenir au dernier checkpoint ?";
+
+                ConfirmationPopup checkpointPopup = new ConfirmationPopup(title, subtitle);
+                checkpointPopup.OnPopupAccept += () =>
+                {
+                    this.loadLastCheckpoint();
+                };
+                checkpointPopup.OnPopupRefuse += () =>
+                {
+                    this.stop(true);
+                };
+                checkpointPopup.show();
+                #endregion
             };
             objective.OnAccomplished += (sender, elapsedTime) => {
                 this.next();
@@ -168,6 +169,11 @@ namespace DemagoScript
                 return false;
             }
 
+            if (this.loadingCheckpoint)
+            {
+                Tools.log("update mission, loading checkpoint");
+            }
+            
             if (Game.Player.IsDead || Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, false))
             {
                 this.pause();
@@ -175,7 +181,7 @@ namespace DemagoScript
                 this.resetPlayerModel();
             }
 
-            if (currentObjectiveIndex < objectives.Count)
+            if (this.currentObjectiveIndex < objectives.Count)
             {
                 AbstractObjective objective = objectives[currentObjectiveIndex];
 
@@ -183,16 +189,29 @@ namespace DemagoScript
                 {
                     objective.update();
                 }
-                else
-                {
-                    objective.ObjectiveText = "";
-                }
 
-                if (!Function.Call<bool>(Hash.IS_HUD_HIDDEN))
+                if (this.loadingCheckpoint)
                 {
-                    GUIManager.Instance.missionUI.setMissionTime(Tools.getTextFromMilliSeconds(this.getElaspedTime()));
-                    GUIManager.Instance.missionUI.setObjectiveTime(Tools.getTextFromMilliSeconds(objective.getElaspedTime()));
+                    if (this.currentObjectiveIndex < this.lastActivableCheckpointIndex)
+                    {
+                        if (this.currentObjectiveIndex == 0)
+                        {
+                            objectives[0].start();
+                        }
+                        Tools.log("accomplish "+objective.getName()+" : "+ this.currentObjectiveIndex + " / "+ this.lastActivableCheckpointIndex);
+                        objective.accomplish();
+                    }
+                    else
+                    {
+                        this.lastActivableCheckpointIndex = 0;
+                        this.loadingCheckpoint = false;
+                        Tools.log("lastActivableCheckpointIndex FadeScreenIn");
+                        Game.FadeScreenIn(500);
+                    }
                 }
+                
+                GUIManager.Instance.missionUI.setMissionTime(Tools.getTextFromMilliSeconds(this.getElaspedTime()));
+                GUIManager.Instance.missionUI.setObjectiveTime(Tools.getTextFromMilliSeconds(objective.getElaspedTime()));
             }
             else
             {
@@ -208,10 +227,12 @@ namespace DemagoScript
 
             if (currentObjectiveIndex >= objectives.Count)
             {
+                Tools.log("Mission finie");
                 this.accomplish();
             }
             else
             {
+                this.checkRequiredElements();
                 AbstractObjective objective = objectives[currentObjectiveIndex];
                 objective.start();
             }
@@ -306,13 +327,13 @@ namespace DemagoScript
                     player.IsVisible = true;
                     player.IsInvincible = false;
                     #endregion
-                }
 
-                #region Show death or arrested popups
-                if (playerWasDead || playerWasArrested)
-                {
-                    Script.Wait(10000);
+                    while (!Function.Call<bool>(Hash.IS_PLAYER_CONTROL_ON, Game.Player))
+                    {
+                        Script.Wait(100);
+                    }
 
+                    #region Show death or arrested popups
                     var title = (playerWasDead) ? "Vous êtes mort" : "Vous vous êtes fait arrêter";
                     var subtitle = "Voulez-vous revenir au dernier checkpoint ?";
 
@@ -326,8 +347,8 @@ namespace DemagoScript
                         this.stop(true);
                     };
                     checkpointPopup.show();
+                    #endregion
                 }
-                #endregion
             }
         }
     }

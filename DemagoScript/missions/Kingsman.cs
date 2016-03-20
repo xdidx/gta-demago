@@ -13,7 +13,7 @@ namespace DemagoScript
             this.name = "Kingsman Mod";
         }
         
-        public override void populateDestructibleElements()
+        protected override void populateDestructibleElements()
         {
             base.populateDestructibleElements();
 
@@ -43,7 +43,7 @@ namespace DemagoScript
             addObjective(waitObjective);
         }
 
-        public override void depopulateDestructibleElements(bool removePhysicalElements = false)
+        protected override void depopulateDestructibleElements(bool removePhysicalElements = false)
         {
             base.depopulateDestructibleElements(removePhysicalElements);
 

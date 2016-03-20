@@ -31,7 +31,7 @@ namespace DemagoScript
             this.musicToPlay = musicToPlay;
         }
 
-        public override void populateDestructibleElements()
+        protected override void populateDestructibleElements()
         {
             base.populateDestructibleElements();
 
@@ -39,32 +39,30 @@ namespace DemagoScript
             this.secondToPlay = AudioManager.Instance.getLength(musicToPlay);
 
             #region Start animation
-            Ped player = Game.Player.Character;
 
-            player.Task.ClearAllImmediately();
 
-            if (instrumentProp == null)
+            if (instrumentHash == InstrumentHash.Guitar)
             {
-                if (instrumentHash == InstrumentHash.Guitar)
+                Ped player = Game.Player.Character;
+
+                while (instrumentProp == null)
                 {
                     instrumentProp = World.CreateProp("prop_acc_guitar_01", player.Position + player.ForwardVector * 4.0f, true, true);
-                    if (instrumentProp != null)
-                    {
-                        instrumentProp.HasCollision = true;
-                        instrumentProp.HasGravity = true;
-                        instrumentProp.AttachTo(player, player.GetBoneIndex(Bone.SKEL_Pelvis), new Vector3(-0.18f, 0.28f, -0.1f), new Vector3(195f, -24f, 0f));
-                    }
-                    
-                    player.Task.PlayAnimation("amb@world_human_musician@guitar@male@base", "base", 8f, -1, true, -1f);
                 }
+
+                instrumentProp.HasCollision = true;
+                instrumentProp.HasGravity = true;
+                instrumentProp.AttachTo(player, player.GetBoneIndex(Bone.SKEL_Pelvis), new Vector3(-0.18f, 0.28f, -0.1f), new Vector3(195f, -24f, 0f));
+                player.Task.ClearAllImmediately();
+                player.Task.PlayAnimation("amb@world_human_musician@guitar@male@base", "base", 8f, -1, true, -1f);
             }
             #endregion
         }
 
-        public override void depopulateDestructibleElements(bool removePhysicalElements = false)
+        protected override void depopulateDestructibleElements(bool removePhysicalElements = false)
         {
             Game.Player.Character.Task.ClearAllImmediately();
-            if (instrumentProp != null && instrumentProp.Exists())
+            if (instrumentProp != null)
             {
                 instrumentProp.Detach();
                 instrumentProp.MarkAsNoLongerNeeded();

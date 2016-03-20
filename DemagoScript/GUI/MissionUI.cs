@@ -78,7 +78,6 @@ namespace DemagoScript.GUI
             }
 
             this.missionTimeTextElement.setText(this.missionTime);
-            this.show();
         }
 
         public void setObjectiveTime(string text)
@@ -97,7 +96,6 @@ namespace DemagoScript.GUI
             }
 
             this.objectiveTimeTextElement.setText(this.objectiveTime);
-            this.show();
         }
     }
 }
