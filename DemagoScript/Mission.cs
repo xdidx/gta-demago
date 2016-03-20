@@ -221,8 +221,6 @@ namespace DemagoScript
         {
             currentObjectiveIndex++;
 
-            Tools.log("next "+ currentObjectiveIndex+" et "+objectives.Count);
-
             if (currentObjectiveIndex >= objectives.Count)
             {
                 Tools.log("Mission finie");
@@ -233,7 +231,6 @@ namespace DemagoScript
                 this.checkRequiredElements();
                 AbstractObjective objective = objectives[currentObjectiveIndex];
                 objective.start();
-                Tools.log("next objective.start");
             }
         }
 

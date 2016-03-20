@@ -110,18 +110,32 @@ namespace DemagoScript
             while (Joe.bike == null || !Joe.bike.Exists()) {
                 Joe.bike = World.CreateVehicle(VehicleHash.TriBike, bikePositionAtHome);
 
-                foreach (AbstractObjective objective in this.getObjectives())
+                for (int i = 0; i < this.getObjectives().Count; i++)
                 {
+                    AbstractObjective objective = this.getObjectives()[i];
                     if (objective is GoToPositionInVehicle)
                     {
-                        Tools.log("set vehicle on gotopos with veh "+ objective.getName());
                         ((GoToPositionInVehicle)objective).setVehicle(Joe.bike);
-                    }
-                }                
 
-                Tools.log("creatte Joe.bike ", Joe.bike);
+                        if (objective.Checkpoint != null)
+                        {
+                            objective.Checkpoint.removeEntities();
+                            if (i < 3)
+                            {
+                                objective.Checkpoint.addEntity(Joe.bike, bikePositionAtHome, 0);
+                            }
+                            else if (i < 6)
+                            {
+                                objective.Checkpoint.addEntity(Joe.bike, roadFaceToPoliceStationPosition, 0);
+                            }
+                            else
+                            {
+                                objective.Checkpoint.addEntity(Joe.bike, thirdSongBikePosition, -90);
+                            }
+                        }
+                    }
+                }
             }
-            Tools.log("OK Joe.bike ", Joe.bike);
             Joe.bike.EnginePowerMultiplier = 100;
             Joe.bike.IsInvincible = true;
             Joe.bike.CanTiresBurst = false;
@@ -137,17 +151,16 @@ namespace DemagoScript
 
             AudioManager.Instance.FilesSubFolder = @"joe\joe";
 
-            this.createEntities();
-            if (getObjectives().Count == 0)
-            {
-                this.createAndAddObjectives();
-            }
-            
+
+            Tools.log("Objectives count : "+this.getObjectives().Count);
         }
 
         protected override void populateDestructibleElements()
         {
             base.populateDestructibleElements();
+
+            this.createEntities();
+            this.createAndAddObjectives();
         }
 
         private void createAndAddObjectives()
@@ -321,7 +334,6 @@ namespace DemagoScript
             goToPoliceWithBikeObjective.setVehicle(Joe.bike);
             goToPoliceWithBikeObjective.Checkpoint = new Checkpoint();
             goToPoliceWithBikeObjective.Checkpoint.addEntity(Joe.bike, bikePositionAtHome, 0);
-            goToPoliceWithBikeObjective.Checkpoint.PlayerPosition = firstSongPosition;
             goToPoliceWithBikeObjective.Checkpoint.setClockHour(14);
             goToPoliceWithBikeObjective.Checkpoint.Health = 300;
             goToPoliceWithBikeObjective.Checkpoint.Armor = 100;
@@ -335,7 +347,6 @@ namespace DemagoScript
             GoToPosition goToSecondSongObjective = new GoToPosition(secondSongPosition);
             goToSecondSongObjective.Checkpoint = new Checkpoint();
             goToSecondSongObjective.Checkpoint.addEntity(Joe.bike, roadFaceToPoliceStationPosition, 0);
-            goToSecondSongObjective.Checkpoint.PlayerPosition = roadFaceToPoliceStationPosition;
             goToSecondSongObjective.Checkpoint.WantedLevel = 0;
             goToSecondSongObjective.OnStarted += (sender) =>
             {

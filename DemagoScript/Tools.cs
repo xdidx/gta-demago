@@ -72,6 +72,11 @@ namespace DemagoScript
         {
             if (newModel == DemagoModel.Joe)
             {
+                if (Game.Player.Character.Model.Hash.Equals(PedHash.Acult01AMO))
+                    return;
+
+                Tools.log("set model to joe");
+
                 Model joeModel = new Model(PedHash.Acult01AMO);
                 joeModel.Request(500);
                 if (joeModel.IsInCdImage && joeModel.IsValid)
@@ -110,6 +115,9 @@ namespace DemagoScript
 
             if (newModel == DemagoModel.Fouras)
             {
+                if (Game.Player.Character.Model.Hash.Equals(PedHash.PriestCutscene))
+                    return;
+
                 Model fourasModel = new Model(PedHash.PriestCutscene);
                 fourasModel.Request(500);
                 if (fourasModel.IsInCdImage && fourasModel.IsValid)
@@ -148,6 +156,9 @@ namespace DemagoScript
 
             if (newModel == DemagoModel.Gastrow)
             {
+                if (Game.Player.Character.Model.Hash.Equals(PedHash.Migrant01SFY))
+                    return;
+
                 Model gastrowModel = new Model(PedHash.Migrant01SFY);
                 gastrowModel.Request(500);
                 if (gastrowModel.IsInCdImage && gastrowModel.IsValid)

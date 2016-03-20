@@ -66,6 +66,12 @@ namespace DemagoScript
             entitiesCollectorHeadings.Add(entity, heading);
         }
 
+        public void removeEntities()
+        {
+            entitiesCollectorPositions.Clear();
+            entitiesCollectorHeadings.Clear();
+        }
+
         public Vector3 getEntityPosition(Entity entity)
         {
             return this.entitiesCollectorPositions[entity];
@@ -125,25 +131,13 @@ namespace DemagoScript
 
         public void teleportPlayerToCheckpoint()
         {
+            Tools.TeleportPlayer(PlayerPosition);
             /*
             Timer safeThing = new Timer( 5000 );
             safeThing.OnTimerUpdate += ( elapsedMilliseconds, elapsedPourcent ) =>
             {
                 if ( PlayerPosition.DistanceTo( Game.Player.Character.Position ) > 100 ) {
-            */
-            Tools.log("teleport player");
-
-            Tools.TeleportPlayer( PlayerPosition );
-
-            Script.Wait(100);
-
-            while (!Game.Player.Character.IsOnFoot)
-            {
-                Script.Wait(100);
-                Tools.log("Is not on foot after teleportation");
-            }
-
-            /*
+                    Tools.TeleportPlayer( PlayerPosition );
                 }
             };
             */
