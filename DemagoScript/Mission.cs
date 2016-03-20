@@ -129,7 +129,7 @@ namespace DemagoScript
             CameraShotsList.Instance.reset();
             GUIManager.Instance.missionUI.hide();
             AudioManager.Instance.stopAll();
-            this.resetPlayerModel();
+            ModelManager.Instance.resetPlayerModel();
         }
 
         public override void accomplish()
@@ -169,18 +169,6 @@ namespace DemagoScript
                 return false;
             }
 
-            if (this.loadingCheckpoint)
-            {
-                Tools.log("update mission, loading checkpoint");
-            }
-            
-            if (Game.Player.IsDead || Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, false))
-            {
-                this.pause();
-                AudioManager.Instance.pauseAll();
-                this.resetPlayerModel();
-            }
-
             if (this.currentObjectiveIndex < objectives.Count)
             {
                 AbstractObjective objective = objectives[currentObjectiveIndex];
@@ -198,14 +186,12 @@ namespace DemagoScript
                         {
                             objectives[0].start();
                         }
-                        Tools.log("accomplish "+objective.getName()+" : "+ this.currentObjectiveIndex + " / "+ this.lastActivableCheckpointIndex);
                         objective.accomplish();
                     }
                     else
                     {
                         this.lastActivableCheckpointIndex = 0;
                         this.loadingCheckpoint = false;
-                        Tools.log("lastActivableCheckpointIndex FadeScreenIn");
                         Game.FadeScreenIn(500);
                     }
                 }
@@ -227,7 +213,6 @@ namespace DemagoScript
 
             if (currentObjectiveIndex >= objectives.Count)
             {
-                Tools.log("Mission finie");
                 this.accomplish();
             }
             else
@@ -253,103 +238,5 @@ namespace DemagoScript
         }
 
         public virtual void fillMenu(ref UIMenu menu) { }
-
-        /// <summary>
-        /// Reset old player model
-        /// </summary>
-        private void resetPlayerModel()
-        {
-            bool playerWasDead = false;
-            bool playerWasArrested = false;
-            Ped player = Game.Player.Character;
-            if ((PedHash)player.Model.Hash != DemagoScript.savedPlayerModelHash)
-            {
-                Vehicle currentVehicle = null;
-                if (player.IsInVehicle())
-                {
-                    currentVehicle = player.CurrentVehicle;
-                }
-
-                if (player.IsDead || Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, false))
-                {
-                    #region Create remplacement ped
-                    Ped replacementPed = Function.Call<Ped>(Hash.CLONE_PED, Game.Player.Character, Function.Call<int>(Hash.GET_ENTITY_HEADING, Function.Call<int>(Hash.PLAYER_PED_ID)), false, true);
-
-                    if (player.IsDead)
-                    {
-                        playerWasDead = true;
-                        replacementPed.Kill();
-                    }
-                    else
-                    {
-                        playerWasArrested = true;
-                        replacementPed.Task.HandsUp(10000);
-                    }
-
-                    replacementPed.MarkAsNoLongerNeeded();
-                    #endregion
-                }
-
-                #region Change player model with saved PedHash
-                var characterModel = new Model(DemagoScript.savedPlayerModelHash);
-                characterModel.Request(500);
-
-                if (characterModel.IsInCdImage && characterModel.IsValid)
-                {
-                    while (!characterModel.IsLoaded) Script.Wait(100);
-
-                    Function.Call(Hash.SET_PLAYER_MODEL, Game.Player, characterModel.Hash);
-                    Function.Call(Hash.SET_PED_DEFAULT_COMPONENT_VARIATION, Game.Player.Character.Handle);
-                }
-
-                characterModel.MarkAsNoLongerNeeded();
-                #endregion
-
-                player = Game.Player.Character;
-                if (currentVehicle != null)
-                {
-                    player.SetIntoVehicle(currentVehicle, VehicleSeat.Driver);
-                }
-
-                if (playerWasDead || playerWasArrested)
-                {
-                    #region Hide real player and wait for game recovery
-                    player.IsVisible = false;
-                    player.IsInvincible = true;
-                    player.Task.StandStill(-1);
-
-                    //Tant qu'on charge le jeu, on fait attendre le script GTA Démago
-                    while (!Function.Call<bool>(Hash.IS_PLAYER_PLAYING, Game.Player))
-                    {
-                        Script.Wait(100);
-                    }
-
-                    player.IsVisible = true;
-                    player.IsInvincible = false;
-                    #endregion
-
-                    while (!Function.Call<bool>(Hash.IS_PLAYER_CONTROL_ON, Game.Player))
-                    {
-                        Script.Wait(100);
-                    }
-
-                    #region Show death or arrested popups
-                    var title = (playerWasDead) ? "Vous êtes mort" : "Vous vous êtes fait arrêter";
-                    var subtitle = "Voulez-vous revenir au dernier checkpoint ?";
-
-                    ConfirmationPopup checkpointPopup = new ConfirmationPopup(title, subtitle);
-                    checkpointPopup.OnPopupAccept += () =>
-                    {
-                        this.loadLastCheckpoint();
-                    };
-                    checkpointPopup.OnPopupRefuse += () =>
-                    {
-                        this.stop(true);
-                    };
-                    checkpointPopup.show();
-                    #endregion
-                }
-            }
-        }
     }
 }

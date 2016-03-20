@@ -143,17 +143,17 @@ namespace DemagoScript
 
                 if (item == joeModelItem)
                 {
-                    Tools.setDemagoModel(DemagoModel.Joe);
+                    ModelManager.Instance.setDemagoModel(DemagoModel.Joe);
                 }
 
                 if (item == fourasModelItem)
                 {
-                    Tools.setDemagoModel(DemagoModel.Fouras);
+                    ModelManager.Instance.setDemagoModel(DemagoModel.Fouras);
                 }
 
                 if (item == gastrowModelItem)
                 {
-                    Tools.setDemagoModel(DemagoModel.Gastrow);
+                    ModelManager.Instance.setDemagoModel(DemagoModel.Gastrow);
                 }
             };
 

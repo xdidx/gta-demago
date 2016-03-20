@@ -139,8 +139,8 @@ namespace DemagoScript
             Joe.bike.EnginePowerMultiplier = 100;
             Joe.bike.IsInvincible = true;
             Joe.bike.CanTiresBurst = false;
-
-            Tools.setDemagoModel(DemagoModel.Joe);
+            
+            ModelManager.Instance.setDemagoModel(DemagoModel.Joe);
 
             Ped player = Game.Player.Character;
             player.MaxHealth = 300;
