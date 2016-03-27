@@ -56,6 +56,7 @@ namespace DemagoScript
                 {
                     if (item == startItem)
                     {
+                        DemagoScript.stopCurrentMission(true);
                         mission.start();
                     }
                 };
