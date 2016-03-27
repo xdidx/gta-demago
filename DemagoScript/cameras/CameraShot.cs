@@ -52,13 +52,11 @@ namespace DemagoScript
 
         public void activateCamera()
         {
-            Tools.log("activateCamera");
             World.RenderingCamera = this.camera;
         }
 
         public void destroyCamera()
         {
-            Tools.log("destroyCamera");
             this.camera.Destroy();
             World.RenderingCamera = null;
         }

@@ -140,8 +140,6 @@ namespace DemagoScript
 
             if (transitionTimer != null)
             {
-                Tools.log("transitionTimer interrupt");
-
                 transitionTimer.interrupt();
                 transitionTimer = null;
             }

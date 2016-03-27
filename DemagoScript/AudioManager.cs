@@ -165,6 +165,7 @@ namespace DemagoScript
         public void startPlaylist(string[] soundsNames)
         {
             stopAll();
+
             foreach (string soundName in soundsNames)
             {
                 var fileFullPath = FullPrefix + soundName + ".wav";
@@ -181,8 +182,16 @@ namespace DemagoScript
                         playlist.Remove(soundName);
                     }
                 }
+                else
+                {
+                    Tools.log(fileFullPath + " : le fichier n'existe pas");
+                }
             }
-            playlist.First().Value.Paused = false;
+
+            if (playlist.Count > 0)
+            {
+                playlist.First().Value.Paused = false;
+            }
         }
 
         public void startSound(string soundName)

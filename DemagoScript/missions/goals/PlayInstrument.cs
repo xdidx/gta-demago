@@ -85,7 +85,7 @@ namespace DemagoScript
                 return false;
             }
             
-            secondToPlay -= Game.LastFrameTime;
+            secondToPlay -= Game.LastFrameTime * 1000;
             if (secondToPlay <= 0) {
                 accomplish();
                 return false;
