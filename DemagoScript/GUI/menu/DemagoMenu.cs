@@ -277,121 +277,136 @@ namespace DemagoScript
 
             toolsMenu.OnItemSelect += (sender, item, checked_) =>
             {
-                if (item == teleportMarkerItem)
+                if (!DemagoScript.isThereACurrentMission())
                 {
-                    Tools.TeleportPlayerToWaypoint();
-                }
-
-                if (item == showMessageItem) {
-                    if (this.testPopup == null)
+                    if (item == teleportMarkerItem)
                     {
-                        this.testPopup = new ConfirmationPopup(
-                            "Bienvenue !",
-                            "Ca te dit de fermer la popup de test ?"
-                        );
-
-                        this.testPopup.OnPopupAccept += () =>
-                        {
-                            UI.Notify("Requête acceptée");
-                        };
-
-                        this.testPopup.OnPopupRefuse += () =>
-                        {
-                            UI.Notify("Requête refusée");                            
-                        };
+                        Tools.TeleportPlayerToWaypoint();
                     }
-                    
-                    this.testPopup.show();
-                }
 
-                if (item == showPositionItem)
-                {
-                    GTA.UI.Notify("player X : " + Game.Player.Character.Position.X + " / Y : " + Game.Player.Character.Position.Y + " / Z : " + Game.Player.Character.Position.Z);
+                    if (item == showMessageItem)
+                    {
+                        if (this.testPopup == null)
+                        {
+                            this.testPopup = new ConfirmationPopup(
+                                "Bienvenue !",
+                                "Ca te dit de fermer la popup de test ?"
+                            );
+
+                            this.testPopup.OnPopupAccept += () =>
+                            {
+                                UI.Notify("Requête acceptée");
+                            };
+
+                            this.testPopup.OnPopupRefuse += () =>
+                            {
+                                UI.Notify("Requête refusée");
+                            };
+                        }
+
+                        this.testPopup.show();
+                    }
+
+                    if (item == showPositionItem)
+                    {
+                        GTA.UI.Notify("player X : " + Game.Player.Character.Position.X + " / Y : " + Game.Player.Character.Position.Y + " / Z : " + Game.Player.Character.Position.Z);
+                    }
+                    if (item == showRotationItem)
+                    {
+                        GTA.UI.Notify("rot X : " + Game.Player.Character.Rotation.X + " / Y : " + Game.Player.Character.Rotation.Y + " / Z : " + Game.Player.Character.Rotation.Z);
+                    }
+                    if (item == wantedDownItem)
+                    {
+                        if (Game.Player.WantedLevel > 0)
+                            Game.Player.WantedLevel--;
+                    }
+                    if (item == wantedLevelItem)
+                    {
+                        Game.Player.WantedLevel = 0;
+                    }
+                    if (item == wantedUpItem)
+                    {
+                        if (Game.Player.WantedLevel < 5)
+                            Game.Player.WantedLevel++;
+                    }
+                    if (item == addMoney)
+                    {
+                        Game.Player.Money += 50000;
+                    }
+                    if (item == removeMoney)
+                    {
+                        if (Game.Player.Money > 50000)
+                            Game.Player.Money -= 50000;
+                        else
+                            Game.Player.Money = 0;
+                    }
                 }
-                if (item == showRotationItem)
+                else
                 {
-                    GTA.UI.Notify("rot X : " + Game.Player.Character.Rotation.X + " / Y : " + Game.Player.Character.Rotation.Y + " / Z : " + Game.Player.Character.Rotation.Z);
-                }
-                if (item == wantedDownItem)
-                {
-                    if (Game.Player.WantedLevel > 0)
-                        Game.Player.WantedLevel--;
-                }
-                if (item == wantedLevelItem)
-                {
-                    Game.Player.WantedLevel = 0;
-                }
-                if (item == wantedUpItem)
-                {
-                    if (Game.Player.WantedLevel < 5)
-                        Game.Player.WantedLevel++;
-                }
-                if (item == addMoney)
-                {
-                    Game.Player.Money += 50000;
-                }
-                if (item == removeMoney)
-                {
-                    if (Game.Player.Money > 50000)
-                        Game.Player.Money -= 50000;
-                    else
-                        Game.Player.Money = 0;
+                    GTA.UI.Notify("Fonction désactivée pendant les missions");
                 }
             };
 
             toolsMenu.OnCheckboxChange += (sender, item, checked_) =>
             {
-                Ped player = Game.Player.Character;
-                if (item == gravityActiveItem)
+                if (!DemagoScript.isThereACurrentMission())
                 {
-                    zeroGravity = checked_;
-                    if (zeroGravity)
+                    Ped player = Game.Player.Character;
+                    if (item == gravityActiveItem)
                     {
-                        Function.Call(Hash.SET_GRAVITY_LEVEL, 3);
+                        zeroGravity = checked_;
+                        if (zeroGravity)
+                        {
+                            Function.Call(Hash.SET_GRAVITY_LEVEL, 3);
+                        }
+                        else
+                        {
+                            Function.Call(Hash.SET_GRAVITY_LEVEL, 0);
+                        }
                     }
-                    else
+                    if (item == seePlayerActiveItem)
                     {
-                        Function.Call(Hash.SET_GRAVITY_LEVEL, 0);
-                    }
-                }
-                if (item == seePlayerActiveItem)
-                {
-                    seePlayer = checked_;
-                    player.IsVisible = !seePlayer;
-                }
-                if (item == godPlayerActiveItem)
-                {
-                    godPlayer = checked_;
-                    Game.Player.IsInvincible = godPlayer;
-                }
-
-                if (item == seeVehicleActiveItem)
-                {
-                    if (player.IsInVehicle())
-                    {
-                        seeVehicle = checked_;
-                        toChangeVehicle.IsVisible = !seeVehicle;
+                        seePlayer = checked_;
                         player.IsVisible = !seePlayer;
                     }
-                    else
+                    if (item == godPlayerActiveItem)
                     {
-                        seeVehicleActiveItem.Checked = false;
-                        UI.Notify("Impossible , vous êtes à pied !");
+                        godPlayer = checked_;
+                        Game.Player.IsInvincible = godPlayer;
+                    }
+
+                    if (item == seeVehicleActiveItem)
+                    {
+                        if (player.IsInVehicle())
+                        {
+                            seeVehicle = checked_;
+                            toChangeVehicle.IsVisible = !seeVehicle;
+                            player.IsVisible = !seePlayer;
+                        }
+                        else
+                        {
+                            seeVehicleActiveItem.Checked = false;
+                            UI.Notify("Impossible , vous êtes à pied !");
+                        }
+                    }
+                    if (item == godVehicleActiveItem)
+                    {
+                        if (player.IsInVehicle())
+                        {
+                            godVehicle = checked_;
+                            toChangeVehicle.IsInvincible = godVehicle;
+                            toChangeVehicle.CanTiresBurst = godVehicle;
+                        }
+                        else
+                        {
+                            godVehicleActiveItem.Checked = false;
+                            UI.Notify("Impossible , vous êtes à pied !");
+                        }
                     }
                 }
-                if (item == godVehicleActiveItem)
+                else
                 {
-                    if (player.IsInVehicle())
-                    {
-                        godVehicle = checked_;
-                        toChangeVehicle.IsInvincible = godVehicle;
-                        toChangeVehicle.CanTiresBurst = godVehicle;
-                    }
-                    else
-                    {
-                        godVehicleActiveItem.Checked = false;
-                        UI.Notify("Impossible , vous êtes à pied !");
-                    }
+                    GTA.UI.Notify("Fonction désactivée pendant les missions");
                 }
             };
         }

@@ -183,57 +183,60 @@ namespace DemagoScript
             foreach (Type missionClass in missionsClassesList)
             {
                 Mission newMission = (Mission)Activator.CreateInstance(missionClass);
-                Tools.log( "creating mission " + newMission.getName() );
 
-                newMission.OnStarted += (sender) =>
-                {
-                    if (DemagoScript.currentMission != null)
+                if(newMission.getName() == "Joe l'anticonformiste") { 
+                    Tools.log("creating mission " + newMission.getName());
+
+                    newMission.OnStarted += (sender) =>
                     {
-                        DemagoScript.currentMission.stop();
-                    }
-                    DemagoScript.currentMission = newMission;
-                    GTA.UI.Notify(sender.getName());
-                };
-
-                newMission.OnAccomplished += (sender, time) =>
-                {
-                    string missionTime = "Temps inconnu";
-                    if (Tools.getTextFromMilliSeconds(time) != "")
-                    {
-                        missionTime = "En " + Tools.getTextFromMilliSeconds(time);
-                    }
-
-                    SuccessMissionPopup successPopup = new SuccessMissionPopup(sender.getName(), missionTime);
-                    successPopup.show();
-                    successPopup.OnPopupClose += () =>
-                    {
-                        GUIManager.Instance.popupManager.remove(successPopup);
-
-                        NotificationPopup creditsPopup = new NotificationPopup();
-                        creditsPopup.add(new UIRectElement(0.5, 0.5, 1, 1, UIColor.BLACK, 200));
-                        creditsPopup.add(new UITextElement("GTA Démago", 0.5, 0.2, 1.5, true, Font.Pricedown, UIColor.GTA_YELLOW));
-                        creditsPopup.add(new UITextElement("Merci d’avoir jouer à GTA Démago !", 0.5, 0.29, 0.7, true, Font.ChaletLondon, UIColor.WHITE));
-                        creditsPopup.add(new UITextElement("De nouvelles missions seront bientôt disponibles alors rejoignez nous sur ", 0.5, 0.33, 0.7, true, Font.ChaletLondon, UIColor.WHITE));
-                        creditsPopup.add(new UITextElement("Twitch : http://twitch.tv/realmyop2", 0.5, 0.39, 0.5, true, Font.ChaletLondon, UIColor.WHITE));
-                        creditsPopup.add(new UITextElement("Facebook : http://facebook.com/realmyop", 0.5, 0.42, 0.5, true, Font.ChaletLondon, UIColor.WHITE));
-                        creditsPopup.add(new UITextElement("Twitter : http://twitter.com/RealMyop", 0.5, 0.45, 0.5, true, Font.ChaletLondon, UIColor.WHITE));
-                        creditsPopup.add(new UITextElement("Venez nombreux !", 0.5, 0.525, 1, true, Font.HouseScript, UIColor.WHITE));
-                        creditsPopup.add(new UITextElement("Entrée pour fermer", 0.5, 0.9, 0.6, true, Font.HouseScript, UIColor.WHITE));
-                        creditsPopup.OnPopupClose += () =>
+                        if (DemagoScript.currentMission != null)
                         {
-                            GUIManager.Instance.popupManager.remove(creditsPopup);
-                        };
-                        
-                        creditsPopup.show();
+                            DemagoScript.currentMission.stop();
+                        }
+                        DemagoScript.currentMission = newMission;
+                        GTA.UI.Notify(sender.getName());
                     };
-                };
 
-                newMission.OnEnded += (sender) =>
-                {
-                    DemagoScript.currentMission = null;
-                };
+                    newMission.OnAccomplished += (sender, time) =>
+                    {
+                        string missionTime = "Temps inconnu";
+                        if (Tools.getTextFromMilliSeconds(time) != "")
+                        {
+                            missionTime = "En " + Tools.getTextFromMilliSeconds(time);
+                        }
 
-                missions.Add(newMission);
+                        SuccessMissionPopup successPopup = new SuccessMissionPopup(sender.getName(), missionTime);
+                        successPopup.show();
+                        successPopup.OnPopupClose += () =>
+                        {
+                            GUIManager.Instance.popupManager.remove(successPopup);
+
+                            NotificationPopup creditsPopup = new NotificationPopup();
+                            creditsPopup.add(new UIRectElement(0.5, 0.5, 1, 1, UIColor.BLACK, 200));
+                            creditsPopup.add(new UITextElement("GTA Démago", 0.5, 0.2, 1.5, true, Font.Pricedown, UIColor.GTA_YELLOW));
+                            creditsPopup.add(new UITextElement("Merci d’avoir jouer à GTA Démago !", 0.5, 0.29, 0.7, true, Font.ChaletLondon, UIColor.WHITE));
+                            creditsPopup.add(new UITextElement("De nouvelles missions seront bientôt disponibles alors rejoignez nous sur ", 0.5, 0.33, 0.7, true, Font.ChaletLondon, UIColor.WHITE));
+                            creditsPopup.add(new UITextElement("Twitch : http://twitch.tv/realmyop2", 0.5, 0.39, 0.5, true, Font.ChaletLondon, UIColor.WHITE));
+                            creditsPopup.add(new UITextElement("Facebook : http://facebook.com/realmyop", 0.5, 0.42, 0.5, true, Font.ChaletLondon, UIColor.WHITE));
+                            creditsPopup.add(new UITextElement("Twitter : http://twitter.com/RealMyop", 0.5, 0.45, 0.5, true, Font.ChaletLondon, UIColor.WHITE));
+                            creditsPopup.add(new UITextElement("Venez nombreux !", 0.5, 0.525, 1, true, Font.HouseScript, UIColor.WHITE));
+                            creditsPopup.add(new UITextElement("Entrée pour fermer", 0.5, 0.9, 0.6, true, Font.HouseScript, UIColor.WHITE));
+                            creditsPopup.OnPopupClose += () =>
+                            {
+                                GUIManager.Instance.popupManager.remove(creditsPopup);
+                            };
+
+                            creditsPopup.show();
+                        };
+                    };
+
+                    newMission.OnEnded += (sender) =>
+                    {
+                        DemagoScript.currentMission = null;
+                    };
+
+                    missions.Add(newMission);
+                }
             }
         }
 
