@@ -33,11 +33,12 @@ namespace DemagoScript
 
         private UIMenuCheckboxItem godVehicleActiveItem, seeVehicleActiveItem, godPlayerActiveItem, seePlayerActiveItem;
 
-        public delegate void MenuAction();      
+        public delegate void MenuAction();
 
         public DemagoMenu(List<Mission> missions = null)
         {
-            if ( missions == null ) {
+            if (missions == null)
+            {
                 missions = new List<Mission>();
             }
 
@@ -61,7 +62,7 @@ namespace DemagoScript
                     }
                 };
             }
-                       
+
             var teleportToTaxiItem = new UIMenuItem("Se téléporter à la mission taxi");
             var stopCurrentMissionItem = new UIMenuItem("Stopper la mission");
 
@@ -110,7 +111,7 @@ namespace DemagoScript
                     UI.Notify("Vous possédez déjà le modèle de base !");
                 }
 
-                if ( DemagoScript.savedPlayerModelHash != (PedHash)Game.Player.Character.Model.Hash)
+                if (DemagoScript.savedPlayerModelHash != (PedHash)Game.Player.Character.Model.Hash)
                 {
                     //Reset to old model
                     Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, (int)DemagoScript.savedPlayerModelHash);
@@ -242,7 +243,7 @@ namespace DemagoScript
                     //TODO : Spawn de la voiture de Fouras
                 }
             };
-            
+
             //Outils
             seePlayerActiveItem = new UIMenuCheckboxItem("Personnage invisible", seePlayer, "Si la case est cochée, votre personnage est invisible");
             godPlayerActiveItem = new UIMenuCheckboxItem("Personnage invincible", godPlayer, "Si la case est cochée, votre personnage est invincible");
@@ -259,25 +260,26 @@ namespace DemagoScript
             var showRotationItem = new UIMenuItem("Afficher la rotation");
             var showMessageItem = new UIMenuItem("Afficher la popup de test");
 
-            var toolsMenu = menuPool.AddSubMenu(mainMenu, "Outils");
-            toolsMenu.AddItem(wantedLevelItem);
-            toolsMenu.AddItem(wantedDownItem);
-            toolsMenu.AddItem(wantedUpItem);
-            toolsMenu.AddItem(teleportMarkerItem);
-            toolsMenu.AddItem(addMoney);
-            toolsMenu.AddItem(removeMoney);
-            toolsMenu.AddItem(gravityActiveItem);
-            toolsMenu.AddItem(seePlayerActiveItem);
-            toolsMenu.AddItem(godPlayerActiveItem);
-            toolsMenu.AddItem(seeVehicleActiveItem);
-            toolsMenu.AddItem(godVehicleActiveItem);
-            toolsMenu.AddItem(showPositionItem);
-            toolsMenu.AddItem(showRotationItem);
-            toolsMenu.AddItem(showMessageItem);
+            // Si mission en cours alors ne pas faire ça (ça ne marche pas !)
+           /* if (!DemagoScript.isThereACurrentMission())
+            {*/
+                var toolsMenu = menuPool.AddSubMenu(mainMenu, "Outils");
+                toolsMenu.AddItem(wantedLevelItem);
+                toolsMenu.AddItem(wantedDownItem);
+                toolsMenu.AddItem(wantedUpItem);
+                toolsMenu.AddItem(teleportMarkerItem);
+                toolsMenu.AddItem(addMoney);
+                toolsMenu.AddItem(removeMoney);
+                toolsMenu.AddItem(gravityActiveItem);
+                toolsMenu.AddItem(seePlayerActiveItem);
+                toolsMenu.AddItem(godPlayerActiveItem);
+                toolsMenu.AddItem(seeVehicleActiveItem);
+                toolsMenu.AddItem(godVehicleActiveItem);
+                toolsMenu.AddItem(showPositionItem);
+                toolsMenu.AddItem(showRotationItem);
+                toolsMenu.AddItem(showMessageItem);
 
-            toolsMenu.OnItemSelect += (sender, item, checked_) =>
-            {
-                if (!DemagoScript.isThereACurrentMission())
+                toolsMenu.OnItemSelect += (sender, item, checked_) =>
                 {
                     if (item == teleportMarkerItem)
                     {
@@ -340,17 +342,10 @@ namespace DemagoScript
                         else
                             Game.Player.Money = 0;
                     }
-                }
-                else
-                {
-                    GTA.UI.Notify("Fonction désactivée pendant les missions");
-                }
-            };
+                };
 
-            toolsMenu.OnCheckboxChange += (sender, item, checked_) =>
-            {
-                if (!DemagoScript.isThereACurrentMission())
-                {
+                toolsMenu.OnCheckboxChange += (sender, item, checked_) =>
+                { 
                     Ped player = Game.Player.Character;
                     if (item == gravityActiveItem)
                     {
@@ -403,12 +398,12 @@ namespace DemagoScript
                             UI.Notify("Impossible , vous êtes à pied !");
                         }
                     }
-                }
-                else
-                {
-                    GTA.UI.Notify("Fonction désactivée pendant les missions");
-                }
-            };
+                };
+            /*}
+            else
+            {
+                menuPool.hide("Outils");
+            }*/
         }
 
         public void process()
@@ -509,6 +504,11 @@ namespace DemagoScript
         public void show()
         {
             mainMenu.Visible = true;
+        }
+
+        public MenuPool getMenuPool()
+        {
+            return menuPool;
         }
     }
 }

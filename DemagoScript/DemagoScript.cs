@@ -184,8 +184,11 @@ namespace DemagoScript
             {
                 Mission newMission = (Mission)Activator.CreateInstance(missionClass);
 
-                if(newMission.getName() == "Joe l'anticonformiste") { 
+                if(newMission.getIsActivated()) { 
                     Tools.log("creating mission " + newMission.getName());
+                    // La référence d'objet n'est pas définie à une instance d'un objet ?? :(
+                    GUIManager.Instance.menu.getMenuPool().hide("Outils");
+                    GUIManager.Instance.update();
 
                     newMission.OnStarted += (sender) =>
                     {

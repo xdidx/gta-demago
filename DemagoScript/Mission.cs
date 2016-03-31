@@ -14,13 +14,19 @@ namespace DemagoScript
         private List<AbstractObjective> objectives = new List<AbstractObjective>();
         private int currentObjectiveIndex = 0;
         protected bool loadingCheckpoint = false; 
-        protected bool introEnded = false; 
+        protected bool introEnded = false;
+        protected bool isActivated = false;
 
         private int lastActivableCheckpointIndex = 0;
 
         protected List<AbstractObjective> getObjectives()
         {
             return objectives;
+        }
+
+        public bool getIsActivated()
+        {
+            return isActivated;
         }
 
         public virtual void loadLastCheckpoint()

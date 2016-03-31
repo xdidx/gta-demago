@@ -44,6 +44,7 @@ namespace DemagoScript
         public Joe()
         {
             this.name = "Joe l'anticonformiste";
+            this.isActivated = true;
         }
 
         public List<Ped> getPedsListByName(string entitiesListName)
