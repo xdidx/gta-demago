@@ -39,8 +39,6 @@ namespace DemagoScript
             this.secondToPlay = AudioManager.Instance.getLength(musicToPlay);
 
             #region Start animation
-
-
             if (instrumentHash == InstrumentHash.Guitar)
             {
                 Ped player = Game.Player.Character;
@@ -80,17 +78,17 @@ namespace DemagoScript
                 return false;
             }
 
-            if (Game.IsKeyPressed(System.Windows.Forms.Keys.Back)) {
-                accomplish();
-                return false;
+            if (Game.IsControlPressed(0, GTA.Control.PhoneCancel))
+            {
+                this.accomplish();
             }
-            
+
             secondToPlay -= Game.LastFrameTime * 1000;
             if (secondToPlay <= 0) {
-                accomplish();
+                this.accomplish();
                 return false;
             } else {
-                ObjectiveText = "Attend que les spectateurs aient assez apprécié la musique de Joe. (Back pour passer)";
+                ObjectiveText = "Attend que les spectateurs aient assez apprécié la musique de Joe. (Bouton B pour passer)";
             }
 
             return true;

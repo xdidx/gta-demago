@@ -6,6 +6,7 @@ using GTA.Math;
 using GTA.Native;
 using NativeUI;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -17,8 +18,6 @@ namespace DemagoScript
 {
     class DemagoMenu
     {
-        private ConfirmationPopup testPopup = null;
-
         private MenuPool menuPool;
         private UIMenu mainMenu;
         private Vector3 teleportationPosition = Joe.joeHomePosition;
@@ -31,9 +30,39 @@ namespace DemagoScript
         private bool godVehicle = false;
         private Vehicle toChangeVehicle = null;
 
+        private Dictionary<Keys, float> lastTimeKeysPressed = new Dictionary<Keys, float>();
+        private Dictionary<GTA.Control, float> lastTimeControlPressed = new Dictionary<GTA.Control, float>();
+        private int doublePressDelay = 300;
+
         private UIMenuCheckboxItem godVehicleActiveItem, seeVehicleActiveItem, godPlayerActiveItem, seePlayerActiveItem;
 
         public delegate void MenuAction();
+
+        public delegate void KeysPressedEvent(Keys key);
+        public delegate void KeysDoublePressedEvent(Keys key);
+
+        public delegate void ControlPressedEvent(GTA.Control control);
+        public delegate void ControlDoublePressedEvent(GTA.Control control);
+
+        /// <summary>
+        /// Called when user press a GTA control
+        /// </summary>
+        public event ControlPressedEvent OnControlPressed;
+
+        /// <summary>
+        /// Called when user press 2 time the same GTA control in a short time
+        /// </summary>
+        public event ControlDoublePressedEvent OnControlDoublePressed;
+
+        /// <summary>
+        /// Called when user press a key on the keyboard
+        /// </summary>
+        public event KeysPressedEvent OnKeysPressedEvent;
+
+        /// <summary>
+        /// Called when user pressed 2 time the same key in a short time
+        /// </summary>
+        public event KeysDoublePressedEvent OnKeysDoublePressedEvent;
 
         public DemagoMenu(List<Mission> missions = null)
         {
@@ -42,6 +71,16 @@ namespace DemagoScript
                 missions = new List<Mission>();
             }
 
+            #region Controls gestion
+            this.OnControlDoublePressed += (GTA.Control control) => {
+                if (control == GTA.Control.SelectWeapon)
+                {
+                    this.toggleDisplay();
+                }
+            };
+            #endregion
+
+            #region Menu creation
             menuPool = new MenuPool();
             mainMenu = new UIMenu("GTA Demago", "~b~Configuration du mod");
             menuPool.Add(mainMenu);
@@ -258,156 +297,127 @@ namespace DemagoScript
             var gravityActiveItem = new UIMenuCheckboxItem("Zéro gravité", zeroGravity, "Si la case est cochée, il n'y aura plus de gravité sur la map entière");
             var showPositionItem = new UIMenuItem("Afficher la position");
             var showRotationItem = new UIMenuItem("Afficher la rotation");
-            var showMessageItem = new UIMenuItem("Afficher la popup de test");
+            
+            var toolsMenu = menuPool.AddSubMenu(mainMenu, "Outils");
+            toolsMenu.AddItem(wantedLevelItem);
+            toolsMenu.AddItem(wantedDownItem);
+            toolsMenu.AddItem(wantedUpItem);
+            toolsMenu.AddItem(teleportMarkerItem);
+            toolsMenu.AddItem(addMoney);
+            toolsMenu.AddItem(removeMoney);
+            toolsMenu.AddItem(gravityActiveItem);
+            toolsMenu.AddItem(seePlayerActiveItem);
+            toolsMenu.AddItem(godPlayerActiveItem);
+            toolsMenu.AddItem(seeVehicleActiveItem);
+            toolsMenu.AddItem(godVehicleActiveItem);
+            toolsMenu.AddItem(showPositionItem);
+            toolsMenu.AddItem(showRotationItem);
 
-            // Si mission en cours alors ne pas faire ça (ça ne marche pas !)
-           /* if (!DemagoScript.isThereACurrentMission())
-            {*/
-                var toolsMenu = menuPool.AddSubMenu(mainMenu, "Outils");
-                toolsMenu.AddItem(wantedLevelItem);
-                toolsMenu.AddItem(wantedDownItem);
-                toolsMenu.AddItem(wantedUpItem);
-                toolsMenu.AddItem(teleportMarkerItem);
-                toolsMenu.AddItem(addMoney);
-                toolsMenu.AddItem(removeMoney);
-                toolsMenu.AddItem(gravityActiveItem);
-                toolsMenu.AddItem(seePlayerActiveItem);
-                toolsMenu.AddItem(godPlayerActiveItem);
-                toolsMenu.AddItem(seeVehicleActiveItem);
-                toolsMenu.AddItem(godVehicleActiveItem);
-                toolsMenu.AddItem(showPositionItem);
-                toolsMenu.AddItem(showRotationItem);
-                toolsMenu.AddItem(showMessageItem);
-
-                toolsMenu.OnItemSelect += (sender, item, checked_) =>
+            toolsMenu.OnItemSelect += (sender, item, checked_) =>
+            {
+                if (item == teleportMarkerItem)
                 {
-                    if (item == teleportMarkerItem)
-                    {
-                        Tools.TeleportPlayerToWaypoint();
-                    }
+                    Tools.TeleportPlayerToWaypoint();
+                }
 
-                    if (item == showMessageItem)
-                    {
-                        if (this.testPopup == null)
-                        {
-                            this.testPopup = new ConfirmationPopup(
-                                "Bienvenue !",
-                                "Ca te dit de fermer la popup de test ?"
-                            );
+                if (item == showPositionItem)
+                {
+                    GTA.UI.Notify("player X : " + Game.Player.Character.Position.X + " / Y : " + Game.Player.Character.Position.Y + " / Z : " + Game.Player.Character.Position.Z);
+                }
+                if (item == showRotationItem)
+                {
+                    GTA.UI.Notify("rot X : " + Game.Player.Character.Rotation.X + " / Y : " + Game.Player.Character.Rotation.Y + " / Z : " + Game.Player.Character.Rotation.Z);
+                }
+                if (item == wantedDownItem)
+                {
+                    if (Game.Player.WantedLevel > 0)
+                        Game.Player.WantedLevel--;
+                }
+                if (item == wantedLevelItem)
+                {
+                    Game.Player.WantedLevel = 0;
+                }
+                if (item == wantedUpItem)
+                {
+                    if (Game.Player.WantedLevel < 5)
+                        Game.Player.WantedLevel++;
+                }
+                if (item == addMoney)
+                {
+                    Game.Player.Money += 50000;
+                }
+                if (item == removeMoney)
+                {
+                    if (Game.Player.Money > 50000)
+                        Game.Player.Money -= 50000;
+                    else
+                        Game.Player.Money = 0;
+                }
+            };
 
-                            this.testPopup.OnPopupAccept += () =>
-                            {
-                                UI.Notify("Requête acceptée");
-                            };
 
-                            this.testPopup.OnPopupRefuse += () =>
-                            {
-                                UI.Notify("Requête refusée");
-                            };
-                        }
+            toolsMenu.OnCheckboxChange += (sender, item, checked_) =>
+            { 
+                Ped player = Game.Player.Character;
+                if (item == gravityActiveItem)
+                {
+                    zeroGravity = checked_;
+                    if (zeroGravity)
+                    {
+                        Function.Call(Hash.SET_GRAVITY_LEVEL, 3);
+                    }
+                    else
+                    {
+                        Function.Call(Hash.SET_GRAVITY_LEVEL, 0);
+                    }
+                }
+                if (item == seePlayerActiveItem)
+                {
+                    seePlayer = checked_;
+                    player.IsVisible = !seePlayer;
+                }
+                if (item == godPlayerActiveItem)
+                {
+                    godPlayer = checked_;
+                    Game.Player.IsInvincible = godPlayer;
+                }
 
-                        this.testPopup.show();
-                    }
-
-                    if (item == showPositionItem)
+                if (item == seeVehicleActiveItem)
+                {
+                    if (player.IsInVehicle())
                     {
-                        GTA.UI.Notify("player X : " + Game.Player.Character.Position.X + " / Y : " + Game.Player.Character.Position.Y + " / Z : " + Game.Player.Character.Position.Z);
-                    }
-                    if (item == showRotationItem)
-                    {
-                        GTA.UI.Notify("rot X : " + Game.Player.Character.Rotation.X + " / Y : " + Game.Player.Character.Rotation.Y + " / Z : " + Game.Player.Character.Rotation.Z);
-                    }
-                    if (item == wantedDownItem)
-                    {
-                        if (Game.Player.WantedLevel > 0)
-                            Game.Player.WantedLevel--;
-                    }
-                    if (item == wantedLevelItem)
-                    {
-                        Game.Player.WantedLevel = 0;
-                    }
-                    if (item == wantedUpItem)
-                    {
-                        if (Game.Player.WantedLevel < 5)
-                            Game.Player.WantedLevel++;
-                    }
-                    if (item == addMoney)
-                    {
-                        Game.Player.Money += 50000;
-                    }
-                    if (item == removeMoney)
-                    {
-                        if (Game.Player.Money > 50000)
-                            Game.Player.Money -= 50000;
-                        else
-                            Game.Player.Money = 0;
-                    }
-                };
-
-                toolsMenu.OnCheckboxChange += (sender, item, checked_) =>
-                { 
-                    Ped player = Game.Player.Character;
-                    if (item == gravityActiveItem)
-                    {
-                        zeroGravity = checked_;
-                        if (zeroGravity)
-                        {
-                            Function.Call(Hash.SET_GRAVITY_LEVEL, 3);
-                        }
-                        else
-                        {
-                            Function.Call(Hash.SET_GRAVITY_LEVEL, 0);
-                        }
-                    }
-                    if (item == seePlayerActiveItem)
-                    {
-                        seePlayer = checked_;
+                        seeVehicle = checked_;
+                        toChangeVehicle.IsVisible = !seeVehicle;
                         player.IsVisible = !seePlayer;
                     }
-                    if (item == godPlayerActiveItem)
+                    else
                     {
-                        godPlayer = checked_;
-                        Game.Player.IsInvincible = godPlayer;
+                        seeVehicleActiveItem.Checked = false;
+                        UI.Notify("Impossible , vous êtes à pied !");
                     }
-
-                    if (item == seeVehicleActiveItem)
+                }
+                if (item == godVehicleActiveItem)
+                {
+                    if (player.IsInVehicle())
                     {
-                        if (player.IsInVehicle())
-                        {
-                            seeVehicle = checked_;
-                            toChangeVehicle.IsVisible = !seeVehicle;
-                            player.IsVisible = !seePlayer;
-                        }
-                        else
-                        {
-                            seeVehicleActiveItem.Checked = false;
-                            UI.Notify("Impossible , vous êtes à pied !");
-                        }
+                        godVehicle = checked_;
+                        toChangeVehicle.IsInvincible = godVehicle;
+                        toChangeVehicle.CanTiresBurst = godVehicle;
                     }
-                    if (item == godVehicleActiveItem)
+                    else
                     {
-                        if (player.IsInVehicle())
-                        {
-                            godVehicle = checked_;
-                            toChangeVehicle.IsInvincible = godVehicle;
-                            toChangeVehicle.CanTiresBurst = godVehicle;
-                        }
-                        else
-                        {
-                            godVehicleActiveItem.Checked = false;
-                            UI.Notify("Impossible , vous êtes à pied !");
-                        }
+                        godVehicleActiveItem.Checked = false;
+                        UI.Notify("Impossible , vous êtes à pied !");
                     }
-                };
-            /*}
-            else
-            {
-                menuPool.hide("Outils");
-            }*/
+                }
+            };
+            #endregion
         }
 
         public void process()
         {
+            controlsGestion();
+
             menuPool.ProcessMenus();
 
             Ped player = Game.Player.Character;
@@ -449,7 +459,35 @@ namespace DemagoScript
         private bool playerModelIsValid()
         {
             Ped player = Game.Player.Character;
-            return ( (PedHash)player.Model.Hash == DemagoScript.savedPlayerModelHash || (!player.IsDead && !Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, false)));
+            return ((PedHash)player.Model.Hash == DemagoScript.savedPlayerModelHash || (!player.IsDead && !Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, false)));
+        }
+        
+        public void controlsGestion()
+        {
+            foreach (GTA.Control control in Enum.GetValues(typeof(GTA.Control)))
+            {
+                if (Game.IsControlJustReleased(2, control))
+                {
+                    if (((IDictionary)lastTimeControlPressed).Contains(control) && (DemagoScript.getScriptTime() - lastTimeControlPressed[control]) < doublePressDelay)
+                    {
+                        lastTimeControlPressed[control] = 0;
+                        OnControlDoublePressed?.Invoke(control);
+                    }
+                    else
+                    {
+                        OnControlPressed?.Invoke(control);
+                    }
+
+                    if (((IDictionary)lastTimeControlPressed).Contains(control))
+                    {
+                        lastTimeControlPressed[control] = DemagoScript.getScriptTime();
+                    }
+                    else
+                    {
+                        lastTimeControlPressed.Add(control, DemagoScript.getScriptTime());
+                    }
+                }
+            }
         }
 
         public void OnKeyDown(object sender, KeyEventArgs e)
@@ -474,13 +512,31 @@ namespace DemagoScript
             menuPool.SetKey(NativeUI.UIMenu.MenuControls.Right, Keys.NumPad6);
             menuPool.SetKey(NativeUI.UIMenu.MenuControls.Select, Keys.NumPad5);
             menuPool.SetKey(NativeUI.UIMenu.MenuControls.Back, Keys.NumPad0);
+            
+            menuPool.ProcessKey(e.KeyCode);
+        }
 
-            if (e.KeyCode == Keys.F5)
+        public void OnKeyUp(object sender, KeyEventArgs e)
+        {
+            Keys key = e.KeyCode;
+            if (((IDictionary)lastTimeKeysPressed).Contains(key) && (DemagoScript.getScriptTime() - lastTimeKeysPressed[key]) < doublePressDelay)
             {
-                toggleDisplay();
+                lastTimeKeysPressed[key] = 0;
+                OnKeysDoublePressedEvent?.Invoke(key);
+            }
+            else
+            {
+                OnKeysPressedEvent?.Invoke(key);
             }
 
-            menuPool.ProcessKey(e.KeyCode);
+            if (((IDictionary)lastTimeKeysPressed).Contains(key))
+            {
+                lastTimeKeysPressed[key] = DemagoScript.getScriptTime();
+            }
+            else
+            {
+                lastTimeKeysPressed.Add(key, DemagoScript.getScriptTime());
+            }
         }
 
         public void toggleDisplay()

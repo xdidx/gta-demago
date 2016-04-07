@@ -757,8 +757,8 @@ namespace DemagoScript
 
                     float musicTime = AudioManager.Instance.getLength("dialogue0");
                     float musicTimeSplit = musicTime / 3;
-
-                    if (Game.IsKeyPressed(System.Windows.Forms.Keys.Back))
+                    
+                    if (Game.IsControlJustReleased(2, GTA.Control.PhoneCancel))
                     {
                         elapsedMilliseconds = musicTime + 1;
                         playerDown = false;

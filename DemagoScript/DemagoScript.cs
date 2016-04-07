@@ -20,8 +20,7 @@ namespace DemagoScript
         private static float scriptTime = 0;   
         private static List<Mission> missions = null;
         private static Mission currentMission = null;
-
-        private bool initialized = false;
+        
         private bool isPaused = false;
         private bool isSitting = false;
 
@@ -31,10 +30,37 @@ namespace DemagoScript
             Tools.log("-------------Initialisation du mod GTA Démago------------");
             GTA.UI.Notify( "GTA Démago - " + date.Hour + ':' + date.Minute + ':' + date.Second );
 
-            createMissions();
+            this.createMissions();
+            GUIManager.Instance.initialize(missions);
+
+            GUIManager.Instance.menu.OnKeysPressedEvent += (Keys key) => {
+                if (key == Keys.Decimal)
+                {
+                    playerSitting();
+                }
+            };
+
+            GUIManager.Instance.menu.OnControlPressed += (GTA.Control control) => {
+                if (control == GTA.Control.FrontendPauseAlternate || control == GTA.Control.FrontendPause)
+                {
+                    togglePause();
+                }
+            };
+
 
             Tick += OnTick;
             KeyDown += OnKeyDown;
+            KeyUp += OnKeyUp;
+        }
+
+        private void OnKeyDown(object sender, KeyEventArgs e)
+        {
+            GUIManager.Instance.OnKeyDown(sender, e);
+        }
+
+        private void OnKeyUp(object sender, KeyEventArgs e)
+        {
+            GUIManager.Instance.OnKeyUp(sender, e);
         }
 
         public static bool isThereACurrentMission()
@@ -63,18 +89,6 @@ namespace DemagoScript
                 currentMission.pause();
         }
         
-        private void initialize()
-        {
-            if (initialized)
-            {
-                return;
-            }
-            
-            GUIManager.Instance.initialize(missions);
-
-            initialized = true;
-        }
-
         public static float getScriptTime()
         {
             return scriptTime;
@@ -82,11 +96,6 @@ namespace DemagoScript
 
         void OnTick(object sender, EventArgs e)
         {
-            if (!initialized)
-            {
-                initialize();
-            }
-
             scriptTime += (Game.LastFrameTime * 1000);
             
             Tools.update();
@@ -101,34 +110,7 @@ namespace DemagoScript
             
             GUIManager.Instance.update();
         }    
-
-        private void OnKeyDown(object sender, KeyEventArgs e)
-        {
-            switch ( e.KeyCode ) {
-
-                case Keys.Decimal:
-                    playerSitting();
-                    break;
-
-                case Keys.Escape:
-                    togglePause();
-                    break;
-                    
-                case Keys.I:
-                    Game.Player.Character.Task.PlayAnimation("amb@world_human_musician@guitar@male@base", "base", 8f, -1, true, -1f);
-                    break;
-
-                case Keys.K:
-                    Game.Player.Character.Task.ClearAllImmediately();
-                    break;
-
-                default:
-                    break;
-            }
-
-            GUIManager.Instance.OnKeyDown(sender, e);
-        }
-
+        
         private void togglePause()
         {
             isPaused = !isPaused;
@@ -147,7 +129,6 @@ namespace DemagoScript
                     togglePause();
                 }
             };
-
         }
 
         private void playerSitting()
@@ -176,7 +157,6 @@ namespace DemagoScript
 
         private void createMissions()
         {
-            Tools.log( "createMissions()" );
             missions = new List<Mission>();
 
             Type[] missionsClassesList = Assembly.GetExecutingAssembly().GetTypes().Where(type => type.IsSubclassOf(typeof(Mission))).ToArray();
@@ -184,12 +164,8 @@ namespace DemagoScript
             {
                 Mission newMission = (Mission)Activator.CreateInstance(missionClass);
 
-                if(newMission.getIsActivated()) { 
-                    Tools.log("creating mission " + newMission.getName());
-                    // La référence d'objet n'est pas définie à une instance d'un objet ?? :(
-                    GUIManager.Instance.menu.getMenuPool().hide("Outils");
-                    GUIManager.Instance.update();
-
+                if (Globals.debug == true || newMission.getIsActivated())
+                {
                     newMission.OnStarted += (sender) =>
                     {
                         if (DemagoScript.currentMission != null)
@@ -198,6 +174,13 @@ namespace DemagoScript
                         }
                         DemagoScript.currentMission = newMission;
                         GTA.UI.Notify(sender.getName());
+
+                        if (!Globals.debug)
+                        {
+                            GUIManager.Instance.menu.getMenuPool().hide("Outils");
+                            GUIManager.Instance.menu.getMenuPool().hide("Modèles");
+                            GUIManager.Instance.menu.getMenuPool().hide("Véhicules");
+                        }
                     };
 
                     newMission.OnAccomplished += (sender, time) =>
@@ -236,6 +219,13 @@ namespace DemagoScript
                     newMission.OnEnded += (sender) =>
                     {
                         DemagoScript.currentMission = null;
+
+                        if (!Globals.debug)
+                        {
+                            GUIManager.Instance.menu.getMenuPool().show("Outils");
+                            GUIManager.Instance.menu.getMenuPool().show("Modèles");
+                            GUIManager.Instance.menu.getMenuPool().show("Véhicules");
+                        }
                     };
 
                     missions.Add(newMission);

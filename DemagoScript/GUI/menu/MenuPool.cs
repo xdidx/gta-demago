@@ -204,14 +204,33 @@ namespace NativeUI
             _menuList.ForEach(m => m.Visible = false);
         }
 
-        // Fonction permettant de cacher un menu selon son nom mais j'ai rien dans mon tools.log :'(
         public void hide(string text)
         {
-            Tools.log("ca passe dans le hide()");
-            foreach (var menu in _menuList.Where(menu => menu.Title.Caption == text))
+            foreach (var menu in _menuList)
             {
-                Tools.log("ca passe dans le hide() pour "+text);
-                menu.Visible = false;
+                foreach (KeyValuePair<UIMenuItem, UIMenu> submenuDictionnary in menu.Children)
+                {
+                    Tools.log(submenuDictionnary.Key.Text + " == " + text);
+                    if (submenuDictionnary.Key.Text == text)
+                    {
+                        submenuDictionnary.Key.Enabled = false;
+                    }
+                }
+            }
+        }
+
+        public void show(string text)
+        {
+            foreach (var menu in _menuList)
+            {
+                foreach (KeyValuePair<UIMenuItem, UIMenu> submenuDictionnary in menu.Children)
+                {
+                    Tools.log(submenuDictionnary.Key.Text + " == " + text);
+                    if (submenuDictionnary.Key.Text == text)
+                    {
+                        submenuDictionnary.Key.Enabled = true;
+                    }
+                }
             }
         }
 

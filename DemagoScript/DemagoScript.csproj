@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Globals.cs" />
     <Compile Include="ModelManager.cs" />
     <Compile Include="AudioManager.cs" />
     <Compile Include="cameras\CameraTraveling.cs" />
