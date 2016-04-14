@@ -14,7 +14,7 @@ namespace DemagoScript
     {
         private Vector3 end_position = Vector3.Zero;
 
-        public CameraTraveling(float duration, Vector3 start_position, Vector3 end_position) : base(duration, start_position)
+        public CameraTraveling(float duration, Vector3 start_position, Vector3 end_position, bool lookAtPlayer = false) : base(duration, start_position, lookAtPlayer)
         {
             this.end_position   = end_position;
         }

@@ -41,13 +41,22 @@ namespace DemagoScript
         public delegate void KeysPressedEvent(Keys key);
         public delegate void KeysDoublePressedEvent(Keys key);
 
+        public delegate void KeysDownEvent(Keys key);
+
         public delegate void ControlPressedEvent(GTA.Control control);
-        public delegate void ControlDoublePressedEvent(GTA.Control control);
+        public delegate void ControlDoublePressedEvent(GTA.Control control); 
+
+        public delegate void ControlDownEvent(GTA.Control control); 
 
         /// <summary>
         /// Called when user press a GTA control
         /// </summary>
         public event ControlPressedEvent OnControlPressed;
+
+        /// <summary>
+        /// Called when user press a GTA control
+        /// </summary>
+        public event ControlDownEvent OnControlDown;
 
         /// <summary>
         /// Called when user press 2 time the same GTA control in a short time
@@ -58,6 +67,11 @@ namespace DemagoScript
         /// Called when user press a key on the keyboard
         /// </summary>
         public event KeysPressedEvent OnKeysPressedEvent;
+
+        /// <summary>
+        /// Called when user press a key on the keyboard
+        /// </summary>
+        public event KeysDownEvent OnKeysDownEvent;
 
         /// <summary>
         /// Called when user pressed 2 time the same key in a short time
@@ -72,6 +86,12 @@ namespace DemagoScript
             }
 
             #region Controls gestion
+            this.OnKeysPressedEvent += (Keys key) => {
+                if (key == Keys.F5)
+                {
+                    this.toggleDisplay();
+                }
+            };
             this.OnControlDoublePressed += (GTA.Control control) => {
                 if (control == GTA.Control.SelectWeapon)
                 {
@@ -466,6 +486,11 @@ namespace DemagoScript
         {
             foreach (GTA.Control control in Enum.GetValues(typeof(GTA.Control)))
             {
+                if (Game.IsControlJustPressed(2, control))
+                {
+                    OnControlDown?.Invoke(control);
+                }
+
                 if (Game.IsControlJustReleased(2, control))
                 {
                     if (((IDictionary)lastTimeControlPressed).Contains(control) && (DemagoScript.getScriptTime() - lastTimeControlPressed[control]) < doublePressDelay)
@@ -514,6 +539,8 @@ namespace DemagoScript
             menuPool.SetKey(NativeUI.UIMenu.MenuControls.Back, Keys.NumPad0);
             
             menuPool.ProcessKey(e.KeyCode);
+
+            OnKeysDownEvent?.Invoke(e.KeyCode);
         }
 
         public void OnKeyUp(object sender, KeyEventArgs e)

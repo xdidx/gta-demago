@@ -70,8 +70,14 @@ namespace DemagoScript
             }
 
             createDestinationBlip();
-
+            
             destination = Tools.GetGroundedPosition(destination);
+            if (Globals.debug)
+            {
+                Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+                vehicle.Position = destination.Around(12);
+                Game.Player.WantedLevel = 0;
+            }
         }
 
         protected override void depopulateDestructibleElements(bool removePhysicalElements = false)

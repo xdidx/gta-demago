@@ -78,7 +78,7 @@ namespace DemagoScript
                 return false;
             }
 
-            if (Game.IsControlPressed(0, GTA.Control.PhoneCancel))
+            if (Game.IsControlPressed(0, GTA.Control.PhoneCancel) && !Game.IsControlPressed(0, GTA.Control.FrontendPause) && !Game.IsControlPressed(0, GTA.Control.FrontendPauseAlternate))
             {
                 this.accomplish();
             }

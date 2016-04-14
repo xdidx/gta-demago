@@ -36,17 +36,16 @@ namespace DemagoScript
             GUIManager.Instance.menu.OnKeysPressedEvent += (Keys key) => {
                 if (key == Keys.Decimal)
                 {
-                    playerSitting();
+                    this.playerSitting();
                 }
             };
 
-            GUIManager.Instance.menu.OnControlPressed += (GTA.Control control) => {
+            GUIManager.Instance.menu.OnControlDown += (GTA.Control control) => {
                 if (control == GTA.Control.FrontendPauseAlternate || control == GTA.Control.FrontendPause)
                 {
-                    togglePause();
+                    this.togglePause();
                 }
             };
-
 
             Tick += OnTick;
             KeyDown += OnKeyDown;
@@ -197,6 +196,9 @@ namespace DemagoScript
                         {
                             GUIManager.Instance.popupManager.remove(successPopup);
 
+                            AudioManager.Instance.FilesSubFolder = @"joe\joe";
+                            AudioManager.Instance.startSound("anticonformiste");
+
                             NotificationPopup creditsPopup = new NotificationPopup();
                             creditsPopup.add(new UIRectElement(0.5, 0.5, 1, 1, UIColor.BLACK, 200));
                             creditsPopup.add(new UITextElement("GTA Démago", 0.5, 0.2, 1.5, true, Font.Pricedown, UIColor.GTA_YELLOW));
@@ -210,6 +212,9 @@ namespace DemagoScript
                             creditsPopup.OnPopupClose += () =>
                             {
                                 GUIManager.Instance.popupManager.remove(creditsPopup);
+
+                                AudioManager.Instance.stopAll();
+                                AudioManager.Instance.FilesSubFolder = "";
                             };
 
                             creditsPopup.show();
