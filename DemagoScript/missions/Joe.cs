@@ -355,7 +355,7 @@ namespace DemagoScript
                 }
             };
 
-            AbstractObjective secondSongObjectives = new PlayInstrument(InstrumentHash.Guitar, "lesFlics");
+            AbstractObjective secondSongObjectives = new PlayInstrument(InstrumentHash.Guitar, "lesFlics", 74770);
             secondSongObjectives.Checkpoint = new Checkpoint();
             secondSongObjectives.Checkpoint.Activable = true;
             secondSongObjectives.Checkpoint.addEntity(Joe.bike, roadFaceToPoliceStationPosition, 0);
@@ -425,7 +425,7 @@ namespace DemagoScript
             GoToPositionInVehicle goToTheaterWithBikeObjective = new GoToPositionInVehicle(thirdSongBikePosition);
             goToTheaterWithBikeObjective.setVehicle(Joe.bike);
             goToTheaterWithBikeObjective.Checkpoint = new Checkpoint();
-            goToTheaterWithBikeObjective.Checkpoint.SongsNames = new string[] { "flics2", "flics3", "flics4", "dialogue4", "dialogue5", "dialogue6" };
+            goToTheaterWithBikeObjective.Checkpoint.SongsNames = new string[] { "laissezmoi", "flics2", "flics3", "flics4", "dialogue4", "dialogue5", "dialogue6" };
             goToTheaterWithBikeObjective.Checkpoint.addEntity(Joe.bike, roadFaceToPoliceStationPosition, 0);
             goToTheaterWithBikeObjective.Checkpoint.PlayerPosition = secondSongPosition;
             goToTheaterWithBikeObjective.Checkpoint.Health = 300;
@@ -524,6 +524,8 @@ namespace DemagoScript
                     foreach (Ped spectator in thirdSongSpectatorsPeds)
                     {
                         spectator.Task.ClearAllImmediately();
+                        spectator.Task.ClearLookAt();
+                        spectator.Task.ClearAll();
 
                         TaskSequence angrySpectator = new TaskSequence();
                         angrySpectator.AddTask.TurnTo(player);

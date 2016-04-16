@@ -31,12 +31,25 @@ namespace DemagoScript
             this.musicToPlay = musicToPlay;
         }
 
+        public PlayInstrument(InstrumentHash instrumentHash, string musicToPlay, float secondToPlay)
+        {
+            this.name = "Play instrument";
+
+            this.instrumentHash = instrumentHash;
+            this.musicToPlay = musicToPlay;
+            this.secondToPlay = secondToPlay;
+        }
+
         protected override void populateDestructibleElements()
         {
             base.populateDestructibleElements();
 
             AudioManager.Instance.startSound(musicToPlay);
-            this.secondToPlay = AudioManager.Instance.getLength(musicToPlay);
+            Tools.log(AudioManager.Instance.getLength(musicToPlay).ToString());
+            if(this.secondToPlay == 0)
+            {
+                this.secondToPlay = AudioManager.Instance.getLength(musicToPlay);
+            }
 
             #region Start animation
             if (instrumentHash == InstrumentHash.Guitar)
