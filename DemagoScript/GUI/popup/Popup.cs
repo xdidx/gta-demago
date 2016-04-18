@@ -12,10 +12,7 @@ namespace DemagoScript.GUI.popup
     public delegate void PopupCloseEvent();
 
     class Popup : UIStack
-    {
-        public virtual void OnKeyDown(object sender, KeyEventArgs e) { }
-        public virtual void OnKeyUp(object sender, KeyEventArgs e) { }
-        
+    {        
         public Popup()
         {
             GUIManager.Instance.popupManager.add(this);

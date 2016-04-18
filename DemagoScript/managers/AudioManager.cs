@@ -134,8 +134,9 @@ namespace DemagoScript
             {
                 if (currentSoundIndex < playlist.Count)
                 {
-                    playlist.ElementAt(currentSoundIndex).Value.Paused = true;
+                    playlist.ElementAt(currentSoundIndex).Value.Paused = false;
                 }
+
                 currentInterruptSound.Dispose();
                 currentInterruptSound = null;
 
@@ -231,29 +232,31 @@ namespace DemagoScript
         /// Set audio pause from a boolean
         ///     pause = true, play = false
         /// </summary>
-        /// <param name="state"></param>
-        private void setAudioPause( bool state )
+        /// <param name="paused"></param>
+        public void setAudioPause(bool paused)
         {
-            if ( this.currentSoundIndex < this.playlist.Count ) {
-                ISound currentSound = playlist.ElementAt( currentSoundIndex ).Value;
-                currentSound.Paused = state;
-            }            
-        }
-
-        /// <summary>
-        /// Pause all sounds
-        /// </summary>
-        public void pauseAll()
-        {
-            this.setAudioPause( true );
-        }
-
-        /// <summary>
-        /// Play all sounds
-        /// </summary>
-        public void playAll()
-        {
-            this.setAudioPause( false );
+            if (paused)
+            {
+                engine.SetAllSoundsPaused(true);
+            }
+            else
+            {
+                foreach (KeyValuePair<string, ISound> pair in playlist)
+                {
+                    if (pair.Value.PlayPosition != 0)
+                    {
+                        pair.Value.Paused = false;
+                    }
+                }
+                
+                foreach (ISound sound in independantSongs)
+                {
+                    if (sound.PlayPosition != 0)
+                    {
+                        sound.Paused = false;
+                    }
+                }
+            }
         }
 
         /// <summary>

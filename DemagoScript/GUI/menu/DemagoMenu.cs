@@ -132,7 +132,7 @@ namespace DemagoScript
             {
                 if (item == stopCurrentMissionItem)
                 {
-                    DemagoScript.stopCurrentMission();
+                    DemagoScript.stopCurrentMission(true);
                 }
 
                 if (item == teleportToTaxiItem)

@@ -25,7 +25,7 @@ namespace DemagoScript.GUI.popup
         private UITextElement infos = null;
         private const string INFOS = "\"Entrée\" ou \"A\" pour valider, \"Echap\" ou \"B\" pour annuler";
 
-        public ConfirmationPopup(string text_title, string text_content) : base()
+        public ConfirmationPopup(string text_title, string text_content) : base(false)
         {
             // background
             this.background = new UIRectElement(0, 0, 2, 2, UIColor.BLACK, 230);
@@ -73,7 +73,6 @@ namespace DemagoScript.GUI.popup
                     {
                         this.accept();
                     }
-
                     if (key == Keys.Escape)
                     {
                         this.refuse();
@@ -82,19 +81,32 @@ namespace DemagoScript.GUI.popup
             };
         }
 
+        public override void show()
+        {
+            base.show();
+            AudioManager.Instance.setAudioPause(true);
+        }
+
+        public override void hide()
+        {
+            base.hide();
+            AudioManager.Instance.setAudioPause(false);
+        }
+
+        public void close()
+        {
+            base.PopupClose();
+        }
+
         public void accept()
         {
-            this.hide();
-            Function.Call(Hash.SET_GAME_PAUSED, false);
-            base.PopupClose();
+            this.close();
             OnPopupAccept?.Invoke();
         }
 
         public void refuse()
         {
-            this.hide();
-            Function.Call(Hash.SET_GAME_PAUSED, false);
-            base.PopupClose();
+            this.close();
             OnPopupRefuse?.Invoke();
         }
     }

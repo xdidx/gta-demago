@@ -159,7 +159,6 @@ namespace DemagoScript
                 {
                     this.stop(true);
                 };
-
                 checkpointPopup.show();
                 #endregion
             };

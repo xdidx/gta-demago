@@ -210,7 +210,6 @@ namespace NativeUI
             {
                 foreach (KeyValuePair<UIMenuItem, UIMenu> submenuDictionnary in menu.Children)
                 {
-                    Tools.log(submenuDictionnary.Key.Text + " == " + text);
                     if (submenuDictionnary.Key.Text == text)
                     {
                         submenuDictionnary.Key.Enabled = false;

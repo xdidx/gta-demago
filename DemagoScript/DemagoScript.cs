@@ -113,12 +113,8 @@ namespace DemagoScript
         private void togglePause()
         {
             isPaused = !isPaused;
-            
-            if (isPaused) {
-                AudioManager.Instance.pauseAll();
-            } else {
-                AudioManager.Instance.playAll();
-            }
+
+            AudioManager.Instance.setAudioPause(isPaused);
 
             Timer pauseTimer = new Timer(500);
             pauseTimer.OnTimerStop += (timerSender) =>
@@ -171,7 +167,8 @@ namespace DemagoScript
                         {
                             DemagoScript.currentMission.stop();
                         }
-                        DemagoScript.currentMission = newMission;
+
+                        DemagoScript.currentMission = (Mission)sender;
                         GTA.UI.Notify(sender.getName());
 
                         if (!Globals.debug)

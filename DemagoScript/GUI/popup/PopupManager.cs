@@ -34,21 +34,5 @@ namespace DemagoScript.GUI.popup
                 }
             }
         }
-
-        public void OnKeyDown(object sender, KeyEventArgs e)
-        {
-            for (int i = this.popups.Count - 1; i >= 0; i--)
-            {
-                this.popups[i].OnKeyDown(sender, e);
-            }
-        }
-
-        public void OnKeyUp(object sender, KeyEventArgs e)
-        {
-            for (int i = this.popups.Count - 1; i >= 0; i--)
-            {
-                this.popups[i].OnKeyUp(sender, e);
-            }
-        }
     }
 }

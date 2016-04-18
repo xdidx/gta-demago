@@ -45,7 +45,6 @@ namespace DemagoScript
             base.populateDestructibleElements();
 
             AudioManager.Instance.startSound(musicToPlay);
-            Tools.log(AudioManager.Instance.getLength(musicToPlay).ToString());
             if(this.secondToPlay == 0)
             {
                 this.secondToPlay = AudioManager.Instance.getLength(musicToPlay);
