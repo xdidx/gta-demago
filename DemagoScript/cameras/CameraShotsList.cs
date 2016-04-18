@@ -108,12 +108,10 @@ namespace DemagoScript
                     transitionTimer = new Timer(fadeTransitionDuration);
                     transitionTimer.OnTimerStop += (sender) =>
                     {
-                        Tools.log("transitionTimer.OnTimerStop ");
                         this.current_element.activateCamera();
                     };
                     transitionTimer.OnTimerInterrupt += (sender, elapsedMilliseconds) =>
                     {
-                        Tools.log("transitionTimer.OnTimerInterrupt " + elapsedMilliseconds + "ms");
                         Game.FadeScreenIn((int)fadeTransitionDuration);
                     };
                 }
@@ -140,8 +138,6 @@ namespace DemagoScript
 
             if (transitionTimer != null)
             {
-                Tools.log("transitionTimer interrupt");
-
                 transitionTimer.interrupt();
                 transitionTimer = null;
             }

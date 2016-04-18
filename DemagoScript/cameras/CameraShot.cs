@@ -19,9 +19,9 @@ namespace DemagoScript
 
         protected Camera camera;
         
-        public CameraShot(float duration, Vector3 start_position)
+        public CameraShot(float duration, Vector3 startPosition, bool targetPlayer = false)
         {
-            this.start_position = start_position;
+            this.start_position = startPosition;
             this.duration       = duration;
 
             this.camera = World.CreateCamera(
@@ -29,6 +29,11 @@ namespace DemagoScript
                 Vector3.Zero,                   // rotation
                 GameplayCamera.FieldOfView      // fov
             );
+
+            if (targetPlayer)
+            {
+                this.lookAt(Game.Player.Character);
+            }
         }
 
         /**
@@ -52,13 +57,11 @@ namespace DemagoScript
 
         public void activateCamera()
         {
-            Tools.log("activateCamera");
             World.RenderingCamera = this.camera;
         }
 
         public void destroyCamera()
         {
-            Tools.log("destroyCamera");
             this.camera.Destroy();
             World.RenderingCamera = null;
         }

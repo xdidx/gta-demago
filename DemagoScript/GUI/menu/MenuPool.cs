@@ -204,6 +204,35 @@ namespace NativeUI
             _menuList.ForEach(m => m.Visible = false);
         }
 
+        public void hide(string text)
+        {
+            foreach (var menu in _menuList)
+            {
+                foreach (KeyValuePair<UIMenuItem, UIMenu> submenuDictionnary in menu.Children)
+                {
+                    if (submenuDictionnary.Key.Text == text)
+                    {
+                        submenuDictionnary.Key.Enabled = false;
+                    }
+                }
+            }
+        }
+
+        public void show(string text)
+        {
+            foreach (var menu in _menuList)
+            {
+                foreach (KeyValuePair<UIMenuItem, UIMenu> submenuDictionnary in menu.Children)
+                {
+                    Tools.log(submenuDictionnary.Key.Text + " == " + text);
+                    if (submenuDictionnary.Key.Text == text)
+                    {
+                        submenuDictionnary.Key.Enabled = true;
+                    }
+                }
+            }
+        }
+
         public bool isVisible(List<UIMenu> menuList = null)
         {
             if (menuList == null)

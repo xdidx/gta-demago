@@ -41,7 +41,7 @@ namespace DemagoScript
             if (Game.Player.IsDead || Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, Game.Player, false))
             {
                 DemagoScript.pauseCurrentMission();
-                AudioManager.Instance.pauseAll();
+                AudioManager.Instance.setAudioPause(true);
                 this.resetPlayerModel();
             }
         }
@@ -258,11 +258,12 @@ namespace DemagoScript
                     ConfirmationPopup checkpointPopup = new ConfirmationPopup(title, subtitle);
                     checkpointPopup.OnPopupAccept += () =>
                     {
+
                         DemagoScript.loadLastCheckpointOnCurrentMission();
                     };
                     checkpointPopup.OnPopupRefuse += () =>
                     {
-                        DemagoScript.stopCurrentMission();
+                        DemagoScript.stopCurrentMission(true);
                     };
                     checkpointPopup.show();
                     #endregion

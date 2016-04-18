@@ -11,9 +11,39 @@ namespace DemagoScript.GUI.popup
         /// Called when user close popup.
         /// </summary>
         public event PopupCloseEvent OnPopupClose;
-        
+
+        public NotificationPopup(bool includeControlsEvents = true) : base()
+        {
+            if (includeControlsEvents)
+            {
+                GUIManager.Instance.menu.OnControlPressed += (GTA.Control control) =>
+                {
+                    if (this.isVisible())
+                    {
+                        if (control == GTA.Control.PhoneSelect || control == GTA.Control.PhoneCancel)
+                        {
+                            this.PopupClose();
+                        }
+                    }
+                };
+
+                GUIManager.Instance.menu.OnKeysPressedEvent += (Keys key) =>
+                {
+                    if (this.isVisible())
+                    {
+                        if (key == Keys.Enter || key == Keys.Escape)
+                        {
+                            this.PopupClose();
+                        }
+                    }
+                };
+            }
+        }
+
         protected virtual void PopupClose()
         {
+            this.hide();
+            Function.Call(Hash.SET_GAME_PAUSED, false);
             OnPopupClose?.Invoke();
         }
 
@@ -36,19 +66,6 @@ namespace DemagoScript.GUI.popup
             if (!Game.IsPaused)
                 Function.Call(Hash.SET_GAME_PAUSED, this.isVisible());
                 
-        }
-
-        public override void OnKeyDown(object sender, KeyEventArgs e)
-        {
-            if (this.isVisible())
-            {
-                if (e.KeyCode == Keys.Enter || e.KeyCode == Keys.Escape)
-                {
-                    this.hide();
-                    Function.Call(Hash.SET_GAME_PAUSED, false);
-                    OnPopupClose?.Invoke();
-                }
-            }
         }
     }
 }

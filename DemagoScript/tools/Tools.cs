@@ -16,7 +16,7 @@ namespace DemagoScript
 
     static class Tools
     {
-        private static string pathToLogFile = Environment.CurrentDirectory + "/scripts/test.log";
+        private static string pathToLogFile = Environment.CurrentDirectory + "/scripts/DemagoScript.log";
 
         private static Vector3 lastPlayerPosition = Vector3.Zero;
         private static Timer clockTransitionTimer;

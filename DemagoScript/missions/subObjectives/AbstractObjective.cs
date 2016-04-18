@@ -59,12 +59,10 @@ namespace DemagoScript
         /// </summary>
         protected virtual void populateDestructibleElements()
         {
-            Tools.log("populateDestructibleElements "+getName());
             this.checkRequiredElements();
 
             if (Checkpoint != null)
             {
-                Tools.log("initialize checkpoint " + getName());
                 Checkpoint.initialize();
             }
         }
@@ -171,8 +169,6 @@ namespace DemagoScript
         public virtual void stop( bool removePhysicalElements = false )
         {
             this.elapsedTime = 0;
-
-            Tools.log("depopulateDestructibleElements " + getName());
 
             this.depopulateDestructibleElements(removePhysicalElements);
 

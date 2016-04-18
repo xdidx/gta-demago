@@ -44,6 +44,7 @@ namespace DemagoScript
         public Joe()
         {
             this.name = "Joe l'anticonformiste";
+            this.isActivated = true;
         }
 
         public List<Ped> getPedsListByName(string entitiesListName)
@@ -226,7 +227,7 @@ namespace DemagoScript
                 }
             };
 
-            AbstractObjective firstSongObjectives = new PlayInstrument(InstrumentHash.Guitar, "anticonformiste");
+            AbstractObjective firstSongObjectives = new PlayInstrument(InstrumentHash.Guitar, "ronAlternates");
             firstSongObjectives.Checkpoint = new Checkpoint();
             firstSongObjectives.Checkpoint.Activable = true;
             firstSongObjectives.Checkpoint.addEntity(Joe.bike, bikePositionAtHome, 0);
@@ -235,47 +236,26 @@ namespace DemagoScript
             firstSongObjectives.Checkpoint.WantedLevel = 0;
             firstSongObjectives.OnStarted += (sender) =>
             {
-                Vector3 firstCameraPosition = firstSongPosition;
-                firstCameraPosition.Z += 2;
-                firstCameraPosition.X += 4;
-                firstCameraPosition.Y += 4;
+                Vector3 firstCameraPosition = new Vector3(firstSongPosition.X + 4, firstSongPosition.Y + 4, firstSongPosition.Z + 2);
                 Vector3 secondCameraPosition = firstCameraPosition;
                 secondCameraPosition.X -= 8;
-
-                Vector3 thirdCameraPosition = Vector3.Zero;
-                thirdCameraPosition.X = 2321;
-                thirdCameraPosition.Y = 2555.7f;
-                thirdCameraPosition.Z = firstSongPosition.Z;
-
-                Vector3 fourthCameraPosition = Vector3.Zero;
-                fourthCameraPosition.X = 2338;
-                fourthCameraPosition.Y = 2548.5f;
-                fourthCameraPosition.Z = firstSongPosition.Z;
-
-                Vector3 fifthCameraPosition = firstSongPosition;
-                fifthCameraPosition.X += 1;
-                fifthCameraPosition.Z -= 1;
+                Vector3 thirdCameraPosition = new Vector3(2321, 2555.7f, firstSongPosition.Z);
+                Vector3 fourthCameraPosition = new Vector3(2336, 2548.5f, firstSongPosition.Z);
+                Vector3 fifthCameraPosition = new Vector3(firstSongPosition.X + 1, firstSongPosition.Y, firstSongPosition.Z - 1);
                 Vector3 sixthCameraPosition = fifthCameraPosition;
                 sixthCameraPosition.Z += 2;
+                Vector3 seventhCameraPosition = new Vector3(2213, 2510, 83);
+                Vector3 eighthCameraPosition = new Vector3(2336.9f, 2550.8f, 47);
+
+                float shotTime = AudioManager.Instance.getLength("ronAlternates") / 6;
 
                 List<CameraShot> cameraShots = new List<CameraShot>();
-
-                CameraShot cameraShot = new CameraTraveling(AudioManager.Instance.getLength("anticonformiste") / 4, firstCameraPosition, secondCameraPosition);
-                cameraShot.lookAt(Game.Player.Character);
-                cameraShots.Add(cameraShot);
-
-                cameraShot = new CameraShot(AudioManager.Instance.getLength("anticonformiste") / 4, thirdCameraPosition);
-                cameraShot.lookAt(Game.Player.Character);
-                cameraShots.Add(cameraShot);
-
-                cameraShot = new CameraShot(AudioManager.Instance.getLength("anticonformiste") / 4, fourthCameraPosition);
-                cameraShot.lookAt(Game.Player.Character);
-                cameraShots.Add(cameraShot);
-
-                cameraShot = new CameraTraveling(AudioManager.Instance.getLength("anticonformiste") / 4, fifthCameraPosition, sixthCameraPosition);
-                cameraShot.lookAt(Game.Player.Character);
-                cameraShots.Add(cameraShot);
-
+                cameraShots.Add(new CameraTraveling(shotTime, firstCameraPosition, secondCameraPosition, true));
+                cameraShots.Add(new CameraShot(shotTime, thirdCameraPosition, true));
+                cameraShots.Add(new CameraShot(shotTime, fourthCameraPosition, true));
+                cameraShots.Add(new CameraTraveling(shotTime, fifthCameraPosition, sixthCameraPosition, true));
+                cameraShots.Add(new CameraShot(shotTime, seventhCameraPosition, true));
+                cameraShots.Add(new CameraShot(shotTime, eighthCameraPosition, true));
                 CameraShotsList.Instance.initialize(cameraShots);
 
                 Ped player = Game.Player.Character;
@@ -289,26 +269,26 @@ namespace DemagoScript
 
                     TaskSequence angrySpectator = new TaskSequence();
                     angrySpectator.AddTask.GoTo(newPosition);
-                    angrySpectator.AddTask.TurnTo(player, 1000);
-                    angrySpectator.AddTask.LookAt(player, random.Next(2000, 10000));
+                    angrySpectator.AddTask.TurnTo(player);
+                    angrySpectator.AddTask.LookAt(player);
                     angrySpectator.AddTask.UseMobilePhone(random.Next(5000, 30000));
 
-                    angrySpectator.AddTask.TurnTo(player, 1000);
-                    angrySpectator.AddTask.LookAt(player, random.Next(2000, 10000));
+                    angrySpectator.AddTask.TurnTo(player);
+                    angrySpectator.AddTask.LookAt(player);
                     angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_what_hard", 8f, random.Next(5000, 30000), false, -1f);
 
-                    angrySpectator.AddTask.TurnTo(player, 1000);
-                    angrySpectator.AddTask.LookAt(player, random.Next(2000, 10000));
+                    angrySpectator.AddTask.TurnTo(player);
+                    angrySpectator.AddTask.LookAt(player);
 
                     angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_yes_soft", 0.1f, random.Next(5000, 30000), false, -1f);
 
-                    angrySpectator.AddTask.TurnTo(player, 1000);
-                    angrySpectator.AddTask.LookAt(player, random.Next(2000, 10000));
+                    angrySpectator.AddTask.TurnTo(player);
+                    angrySpectator.AddTask.LookAt(player);
 
                     angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_you_soft", 8f, random.Next(5000, 30000), false, -1f);
 
-                    angrySpectator.AddTask.TurnTo(player, 1000);
-                    angrySpectator.AddTask.LookAt(player, random.Next(2000, 10000));
+                    angrySpectator.AddTask.TurnTo(player);
+                    angrySpectator.AddTask.LookAt(player);
 
                     angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_no_hard", 8f, random.Next(5000, 30000), true, -1f);
                     angrySpectator.Close();
@@ -356,7 +336,6 @@ namespace DemagoScript
             GoToPosition goToSecondSongObjective = new GoToPosition(secondSongPosition);
             goToSecondSongObjective.Checkpoint = new Checkpoint();
             goToSecondSongObjective.Checkpoint.addEntity(Joe.bike, roadFaceToPoliceStationPosition, 0);
-            goToSecondSongObjective.Checkpoint.WantedLevel = 0;
             goToSecondSongObjective.OnStarted += (sender) =>
             {
                 foreach (Ped spectator in firstSongSpectatorsPeds)
@@ -376,7 +355,7 @@ namespace DemagoScript
                 }
             };
 
-            AbstractObjective secondSongObjectives = new PlayInstrument(InstrumentHash.Guitar, "lesFlics");
+            AbstractObjective secondSongObjectives = new PlayInstrument(InstrumentHash.Guitar, "lesFlics", 74770);
             secondSongObjectives.Checkpoint = new Checkpoint();
             secondSongObjectives.Checkpoint.Activable = true;
             secondSongObjectives.Checkpoint.addEntity(Joe.bike, roadFaceToPoliceStationPosition, 0);
@@ -418,34 +397,27 @@ namespace DemagoScript
                     }
                 }
 
-                Vector3 firstCameraPosition = secondSongPosition;
-                firstCameraPosition.X += 4;
-                firstCameraPosition.Z += 2;
-                Vector3 secondCameraPosition = firstCameraPosition;
-                secondCameraPosition.X -= 4;
-                secondCameraPosition.Y += 4;
-                Vector3 thirdCameraPosition = secondCameraPosition;
-                thirdCameraPosition.X -= 4;
-                thirdCameraPosition.Y -= 4;
-                Vector3 fourthCameraPosition = thirdCameraPosition;
-                fourthCameraPosition.X += 4;
-                fourthCameraPosition.Y += 4;
+                Vector3 firstCameraPosition = new Vector3(secondSongPosition.X + 4, secondSongPosition.Y, secondSongPosition.Z + 2);
+                Vector3 secondCameraPosition = new Vector3(firstCameraPosition.X - 4, firstCameraPosition.Y + 4, firstCameraPosition.Z - 1);
+                Vector3 thirdCameraPosition = new Vector3(firstCameraPosition.X - 4, firstCameraPosition.Y - 4, secondCameraPosition.Z);
+                Vector3 fourthCameraPosition = new Vector3(firstCameraPosition.X + 4, firstCameraPosition.Y + 4, secondCameraPosition.Z);
+
+                Vector3 fifthCameraPosition = new Vector3(441, -988, 30.5f);
+                Vector3 sixthCameraPosition = new Vector3(441f, -981.2f, 31.5f);
+                Vector3 seventhCameraPosition = new Vector3(435, -986, 32.5f);
+                Vector3 eighthCameraPosition = new Vector3(440.5f, -983.7f, 30.7f);
+
+                float shotTime = AudioManager.Instance.getLength("lesFlics") / 6;
 
                 List<CameraShot> cameraShots = new List<CameraShot>();
-
-                CameraShot cameraShot = new CameraTraveling(AudioManager.Instance.getLength("lesFlics") / 3, firstCameraPosition, secondCameraPosition);
-                cameraShot.lookAt(Game.Player.Character);
-                cameraShots.Add(cameraShot);
-
-                cameraShot = new CameraTraveling(AudioManager.Instance.getLength("lesFlics") / 3, secondCameraPosition, thirdCameraPosition);
-                cameraShot.lookAt(Game.Player.Character);
-                cameraShots.Add(cameraShot);
-
-                cameraShot = new CameraTraveling(AudioManager.Instance.getLength("lesFlics") / 3, thirdCameraPosition, fourthCameraPosition);
-                cameraShot.lookAt(Game.Player.Character);
-                cameraShots.Add(cameraShot);
-
-                CameraShotsList.Instance.initialize(cameraShots, AudioManager.Instance.getLength("lesFlics"));
+                cameraShots.Add(new CameraTraveling(shotTime, firstCameraPosition, secondCameraPosition, true));
+                cameraShots.Add(new CameraShot(shotTime, fifthCameraPosition, true));
+                cameraShots.Add(new CameraShot(shotTime, sixthCameraPosition));
+                cameraShots.Add(new CameraTraveling(shotTime, secondCameraPosition, thirdCameraPosition, true));
+                cameraShots.Add(new CameraTraveling(shotTime, thirdCameraPosition, fourthCameraPosition, true));
+                cameraShots.Add(new CameraShot(shotTime, seventhCameraPosition, true));
+                cameraShots.Add(new CameraShot(shotTime, eighthCameraPosition, true));
+                CameraShotsList.Instance.initialize(cameraShots);
 
                 #endregion
             };
@@ -453,7 +425,7 @@ namespace DemagoScript
             GoToPositionInVehicle goToTheaterWithBikeObjective = new GoToPositionInVehicle(thirdSongBikePosition);
             goToTheaterWithBikeObjective.setVehicle(Joe.bike);
             goToTheaterWithBikeObjective.Checkpoint = new Checkpoint();
-            goToTheaterWithBikeObjective.Checkpoint.SongsNames = new string[] { "flics2", "flics3", "flics4", "dialogue4", "dialogue5", "dialogue6" };
+            goToTheaterWithBikeObjective.Checkpoint.SongsNames = new string[] { "laissezmoi", "flics2", "flics3", "flics4", "dialogue4", "dialogue5", "dialogue6" };
             goToTheaterWithBikeObjective.Checkpoint.addEntity(Joe.bike, roadFaceToPoliceStationPosition, 0);
             goToTheaterWithBikeObjective.Checkpoint.PlayerPosition = secondSongPosition;
             goToTheaterWithBikeObjective.Checkpoint.Health = 300;
@@ -520,7 +492,6 @@ namespace DemagoScript
             goToThirdSongPosition.Checkpoint = new Checkpoint();
             goToThirdSongPosition.Checkpoint.addEntity(Joe.bike, thirdSongBikePosition, -90);
             goToThirdSongPosition.Checkpoint.PlayerPosition = thirdSongBikePosition;
-            goToThirdSongPosition.Checkpoint.WantedLevel = 0;
 
             Timer chansonHoo2 = null;
             AbstractObjective thirdSongObjectives = new PlayInstrument(InstrumentHash.Guitar, "degueulasse");
@@ -548,6 +519,41 @@ namespace DemagoScript
                 chansonHoo2.OnTimerStop += (timerSender) =>
                 {
                     AudioManager.Instance.startIndependantSound("degueulasseHoo2");
+
+                    player = Game.Player.Character;
+                    foreach (Ped spectator in thirdSongSpectatorsPeds)
+                    {
+                        spectator.Task.ClearAllImmediately();
+                        spectator.Task.ClearLookAt();
+                        spectator.Task.ClearAll();
+
+                        TaskSequence angrySpectator = new TaskSequence();
+                        angrySpectator.AddTask.TurnTo(player);
+                        angrySpectator.AddTask.LookAt(player);
+
+                        angrySpectator.AddTask.TurnTo(player);
+                        angrySpectator.AddTask.LookAt(player);
+                        angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_what_hard", 8f, random.Next(2000, 5000), false, -1f);
+
+                        angrySpectator.AddTask.TurnTo(player);
+                        angrySpectator.AddTask.LookAt(player);
+
+                        angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_yes_soft", 0.1f, random.Next(2000, 5000), false, -1f);
+
+                        angrySpectator.AddTask.TurnTo(player);
+                        angrySpectator.AddTask.LookAt(player);
+
+                        angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_you_soft", 8f, random.Next(2000, 5000), false, -1f);
+
+                        angrySpectator.AddTask.TurnTo(player);
+                        angrySpectator.AddTask.LookAt(player);
+
+                        angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_no_hard", 8f, random.Next(2000, 5000), true, -1f);
+                        angrySpectator.Close();
+
+                        spectator.Task.PerformSequence(angrySpectator);
+                        Tools.log("spectator perform sequence");
+                    }
                 };
 
                 foreach (Ped spectator in thirdSongSpectatorsPeds)
@@ -555,44 +561,55 @@ namespace DemagoScript
                     spectator.Task.ClearAllImmediately();
 
                     TaskSequence angrySpectator = new TaskSequence();
-                    angrySpectator.AddTask.TurnTo(player, 1000);
-                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_what_hard", 8f, -1, false, -1f);
-                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_yes_soft", 0.01f, AudioManager.Instance.getLength("degueulasse") - 6000, true, -1f);
-                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_you_soft", 8f, -1, false, -1f);
-                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_no_hard", 8f, -1, true, -1f);
+                    angrySpectator.AddTask.TurnTo(player);
+                    angrySpectator.AddTask.LookAt(player);
+
+                    angrySpectator.AddTask.TurnTo(player);
+                    angrySpectator.AddTask.LookAt(player);
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_what_hard", 8f, random.Next(5000, 30000), false, -1f);
+
+                    angrySpectator.AddTask.TurnTo(player);
+                    angrySpectator.AddTask.LookAt(player);
+
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_yes_soft", 0.1f, random.Next(5000, 30000), false, -1f);
+
+                    angrySpectator.AddTask.TurnTo(player);
+                    angrySpectator.AddTask.LookAt(player);
+
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_you_soft", 8f, random.Next(5000, 30000), false, -1f);
+
+                    angrySpectator.AddTask.TurnTo(player);
+                    angrySpectator.AddTask.LookAt(player);
+
+                    angrySpectator.AddTask.PlayAnimation("gestures@m@standing@casual", "gesture_nod_no_hard", 8f, random.Next(5000, 30000), true, -1f);
                     angrySpectator.Close();
 
                     spectator.Task.PerformSequence(angrySpectator);
+                    Tools.log("spectator perform sequence");
                 }
 
-                Vector3 firstCameraPosition = thirdSongPosition;
-                firstCameraPosition.X += 8;
-                firstCameraPosition.Z += 2;
-                Vector3 secondCameraPosition = firstCameraPosition;
-                secondCameraPosition.X -= 8;
-                secondCameraPosition.Y += 8;
-                Vector3 thirdCameraPosition = secondCameraPosition;
-                thirdCameraPosition.X -= 8;
-                thirdCameraPosition.Y -= 8;
-                Vector3 fourthCameraPosition = thirdCameraPosition;
-                fourthCameraPosition.X += 8;
-                fourthCameraPosition.Y += 8;
+
+                Vector3 firstCameraPosition = new Vector3(thirdSongPosition.X + 8, thirdSongPosition.Y, thirdSongPosition.Z + 2);
+                Vector3 secondCameraPosition = new Vector3(firstCameraPosition.X - 8, firstCameraPosition.Y + 8, firstCameraPosition.Z);
+                Vector3 thirdCameraPosition = new Vector3(firstCameraPosition.X - 8, firstCameraPosition.Y - 8, firstCameraPosition.Z);
+                Vector3 fourthCameraPosition = new Vector3(firstCameraPosition.X + 5, firstCameraPosition.Y + 5, firstCameraPosition.Z);
+
+                Vector3 fifthCameraPosition = new Vector3(679, 554, 131);
+                Vector3 sixthCameraPosition = new Vector3(664, 457, 145);
+                Vector3 seventhCameraPosition = new Vector3(680, 575, 130);
+                Vector3 eighthCameraPosition = new Vector3(689, 589, 131);
+
+                float shotTime = AudioManager.Instance.getLength("degueulasse") / 6;
 
                 List<CameraShot> cameraShots = new List<CameraShot>();
-
-                CameraShot cameraShot = new CameraTraveling(AudioManager.Instance.getLength("degueulasse") / 3, firstCameraPosition, secondCameraPosition);
-                cameraShot.lookAt(Game.Player.Character);
-                cameraShots.Add(cameraShot);
-
-                cameraShot = new CameraTraveling(AudioManager.Instance.getLength("degueulasse") / 3, secondCameraPosition, thirdCameraPosition);
-                cameraShot.lookAt(Game.Player.Character);
-                cameraShots.Add(cameraShot);
-
-                cameraShot = new CameraTraveling(AudioManager.Instance.getLength("degueulasse") / 3, thirdCameraPosition, fourthCameraPosition);
-                cameraShot.lookAt(Game.Player.Character);
-                cameraShots.Add(cameraShot);
-
-                CameraShotsList.Instance.initialize(cameraShots, AudioManager.Instance.getLength( "degueulasse" ) );
+                cameraShots.Add(new CameraTraveling(shotTime, firstCameraPosition, secondCameraPosition, true));
+                cameraShots.Add(new CameraShot(shotTime, fifthCameraPosition, true));
+                cameraShots.Add(new CameraShot(shotTime, sixthCameraPosition));
+                cameraShots.Add(new CameraShot(shotTime, seventhCameraPosition, true));
+                cameraShots.Add(new CameraTraveling(shotTime, fourthCameraPosition, thirdCameraPosition, true));
+                cameraShots.Add(new CameraTraveling(shotTime, thirdCameraPosition, secondCameraPosition, true));
+                cameraShots.Add(new CameraShot(shotTime, eighthCameraPosition, true));
+                CameraShotsList.Instance.initialize(cameraShots);
 
                 #endregion
             };
@@ -756,8 +773,8 @@ namespace DemagoScript
 
                     float musicTime = AudioManager.Instance.getLength("dialogue0");
                     float musicTimeSplit = musicTime / 3;
-
-                    if (Game.IsKeyPressed(System.Windows.Forms.Keys.Back))
+                    
+                    if (Game.IsControlJustReleased(2, GTA.Control.PhoneCancel))
                     {
                         elapsedMilliseconds = musicTime + 1;
                         playerDown = false;

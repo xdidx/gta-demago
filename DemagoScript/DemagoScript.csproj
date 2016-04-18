@@ -52,8 +52,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ModelManager.cs" />
-    <Compile Include="AudioManager.cs" />
+    <Compile Include="Globals.cs" />
+    <Compile Include="managers\ModelManager.cs" />
+    <Compile Include="managers\AudioManager.cs" />
     <Compile Include="cameras\CameraTraveling.cs" />
     <Compile Include="cameras\CameraShotsList.cs" />
     <Compile Include="cameras\CameraShot.cs" />
@@ -74,21 +75,20 @@
     <Compile Include="GUI\popup\Popup.cs" />
     <Compile Include="GUI\menu\UIMenuEditableNumericItem.cs" />
     <Compile Include="missions\Checkpoint.cs" />
-    <Compile Include="missions\goals\PlayInstrument.cs" />
-    <Compile Include="missions\goals\GoToPosition.cs" />
-    <Compile Include="missions\goals\GoToPositionInVehicle.cs" />
-    <Compile Include="missions\goals\EnterInVehicle.cs" />
-    <Compile Include="missions\goals\SurviveInZone.cs" />
-    <Compile Include="missions\goals\AbstractObjective.cs" />
-    <Compile Include="missions\goals\Wait.cs" />
-    <Compile Include="missions\Justice.cs" />
-    <Compile Include="missions\Joe.cs" />
-    <Compile Include="missions\Kingsman.cs" />
-    <Compile Include="Subtitles.cs" />
-    <Compile Include="Music.cs" />
-    <Compile Include="Timer.cs" />
-    <Compile Include="Tools.cs" />
-    <Compile Include="Mission.cs" />
+    <Compile Include="missions\subObjectives\PlayInstrument.cs" />
+    <Compile Include="missions\subObjectives\GoToPosition.cs" />
+    <Compile Include="missions\subObjectives\GoToPositionInVehicle.cs" />
+    <Compile Include="missions\subObjectives\EnterInVehicle.cs" />
+    <Compile Include="missions\subObjectives\SurviveInZone.cs" />
+    <Compile Include="missions\subObjectives\AbstractObjective.cs" />
+    <Compile Include="missions\subObjectives\Wait.cs" />
+    <Compile Include="missions\scenarios\Justice.cs" />
+    <Compile Include="missions\scenarios\Joe.cs" />
+    <Compile Include="missions\scenarios\Kingsman.cs" />
+    <Compile Include="tools\Subtitles.cs" />
+    <Compile Include="tools\Timer.cs" />
+    <Compile Include="tools\Tools.cs" />
+    <Compile Include="missions\Mission.cs" />
     <Compile Include="GUI\menu\InstructionalButton.cs" />
     <Compile Include="GUI\menu\MenuPool.cs" />
     <Compile Include="GUI\menu\Sprite.cs" />
@@ -100,7 +100,7 @@
     <Compile Include="GUI\menu\UIResRectangle.cs" />
     <Compile Include="GUI\menu\UIResText.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="missions\Speed.cs" />
+    <Compile Include="missions\scenarios\Speed.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ikpMP3.dll" />

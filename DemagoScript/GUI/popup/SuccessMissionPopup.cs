@@ -52,18 +52,5 @@ namespace DemagoScript.GUI.popup
                 GUIManager.Instance.menu.hide();
             }
         }
-
-        public override void OnKeyDown(object sender, KeyEventArgs e)
-        {
-            if (this.isVisible())
-            {
-                if (e.KeyCode == Keys.Enter || e.KeyCode == Keys.Escape)
-                {
-                    this.hide();
-                    Function.Call(Hash.SET_GAME_PAUSED, false);
-                    base.PopupClose();
-                }
-            }
-        }
     }
 }

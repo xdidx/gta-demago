@@ -103,7 +103,6 @@ namespace DemagoScript
 
             if (PlayerPosition != Vector3.Zero && PlayerPosition.DistanceTo(Game.Player.Character.Position) > 10)
             {
-                Tools.log("Teleportplayer");
                 Tools.TeleportPlayer(PlayerPosition);
                 Script.Wait(100);
                 /*

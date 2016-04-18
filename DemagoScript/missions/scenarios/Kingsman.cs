@@ -5,7 +5,6 @@ namespace DemagoScript
 {
     class Kingsman : Mission
     {
-        private Music musicPlaylist = null;
         private string[] musicFile = { "kingsman", "Kingsman.wav" };
 
         public Kingsman()
@@ -17,12 +16,13 @@ namespace DemagoScript
         {
             base.populateDestructibleElements();
 
+            /*
+             * TODO : Utiliser AudioManager
             musicPlaylist = new Music(musicFile);
             musicPlaylist.setVolume(0.9f);
 
             musicPlaylist.playMusic("kingsman");
-
-            //Tools.log("Lancement music Kingsman");
+            */
 
             Ped[] peds = World.GetAllPeds();
             for (int i = 0; i < peds.Length; i++)
@@ -55,9 +55,11 @@ namespace DemagoScript
                     peds[i].MarkAsNoLongerNeeded();
                 }
             }
-
+            /*
+             * TODO : use audiomanager
             musicPlaylist.dispose();
             musicPlaylist = null;
+            */
         }
 
         public override bool update()
