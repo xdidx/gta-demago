@@ -188,14 +188,13 @@ namespace DemagoScript
                         }
 
                         SuccessMissionPopup successPopup = new SuccessMissionPopup(sender.getName(), missionTime);
-                        successPopup.show();
                         successPopup.OnPopupClose += () =>
                         {
                             GUIManager.Instance.popupManager.remove(successPopup);
 
                             AudioManager.Instance.FilesSubFolder = @"joe\joe";
                             AudioManager.Instance.startSound("anticonformiste");
-
+                            
                             NotificationPopup creditsPopup = new NotificationPopup();
                             creditsPopup.add(new UIRectElement(0.5, 0.5, 1, 1, UIColor.BLACK, 200));
                             creditsPopup.add(new UITextElement("GTA Démago", 0.5, 0.2, 1.5, true, Font.Pricedown, UIColor.GTA_YELLOW));
@@ -214,8 +213,11 @@ namespace DemagoScript
                                 AudioManager.Instance.FilesSubFolder = "";
                             };
 
+                            Script.Wait(100);
+
                             creditsPopup.show();
                         };
+                        successPopup.show();
                     };
 
                     newMission.OnEnded += (sender) =>
