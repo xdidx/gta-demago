@@ -75,6 +75,8 @@
     <Compile Include="GUI\popup\Popup.cs" />
     <Compile Include="GUI\menu\UIMenuEditableNumericItem.cs" />
     <Compile Include="missions\Checkpoint.cs" />
+    <Compile Include="missions\scenarios\EveIrene.cs" />
+    <Compile Include="missions\subObjectives\LeaveVehicles.cs" />
     <Compile Include="missions\subObjectives\PlayInstrument.cs" />
     <Compile Include="missions\subObjectives\GoToPosition.cs" />
     <Compile Include="missions\subObjectives\GoToPositionInVehicle.cs" />
