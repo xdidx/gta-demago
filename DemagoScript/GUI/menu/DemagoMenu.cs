@@ -1,17 +1,10 @@
-﻿using DemagoScript.GUI;
-using DemagoScript.GUI.elements;
-using DemagoScript.GUI.popup;
-using GTA;
+﻿using GTA;
 using GTA.Math;
 using GTA.Native;
 using NativeUI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace DemagoScript
@@ -318,7 +311,7 @@ namespace DemagoScript
             var showPositionItem = new UIMenuItem("Afficher la position");
             var showRotationItem = new UIMenuItem("Afficher la rotation");
             
-            var toolsMenu = menuPool.AddSubMenu(mainMenu, "Outils");
+            var toolsMenu = menuPool.AddSubMenu(mainMenu, "");
             toolsMenu.AddItem(wantedLevelItem);
             toolsMenu.AddItem(wantedDownItem);
             toolsMenu.AddItem(wantedUpItem);

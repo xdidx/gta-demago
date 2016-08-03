@@ -8,6 +8,8 @@ using DemagoScript.GUI;
 using DemagoScript.GUI.popup;
 using DemagoScript.GUI.elements;
 using GTA.Native;
+using System.Globalization;
+using System.Threading;
 
 namespace DemagoScript
 {
@@ -26,6 +28,8 @@ namespace DemagoScript
 
         public DemagoScript()
         {
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo("fr-FR");
+
             var date = DateTime.Now;
             Tools.log("-------------Initialisation du mod GTA Démago------------");
             GTA.UI.Notify( "GTA Démago - " + date.Hour + ':' + date.Minute + ':' + date.Second );

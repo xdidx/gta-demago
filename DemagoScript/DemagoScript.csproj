@@ -85,6 +85,21 @@
     <Compile Include="missions\scenarios\Justice.cs" />
     <Compile Include="missions\scenarios\Joe.cs" />
     <Compile Include="missions\scenarios\Kingsman.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Strings.en-US.Designer.cs">
+      <DependentUpon>Strings.en-US.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Properties\Strings.fr-FR.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Strings.fr-FR.resx</DependentUpon>
+    </Compile>
     <Compile Include="tools\Subtitles.cs" />
     <Compile Include="tools\Timer.cs" />
     <Compile Include="tools\Tools.cs" />
@@ -105,6 +120,20 @@
   <ItemGroup>
     <Content Include="ikpMP3.dll" />
     <Content Include="irrKlang.NET4.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Strings.en-US.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.en-US.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Strings.fr-FR.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.fr-FR.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
