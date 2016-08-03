@@ -17,7 +17,7 @@ namespace DemagoScript
     {
         Joe,
         Fouras,
-        Gastrow
+        Eve
     }
 
     class ModelManager
@@ -133,19 +133,19 @@ namespace DemagoScript
                 }
             }
 
-            if (newModel == DemagoModel.Gastrow)
+            if (newModel == DemagoModel.Eve)
             {
                 if ((uint)Game.Player.Character.Model.Hash == (uint)PedHash.Migrant01SFY)
                     return;
 
-                Model gastrowModel = new Model(PedHash.Migrant01SFY);
-                gastrowModel.Request(500);
-                if (gastrowModel.IsInCdImage && gastrowModel.IsValid)
+                Model eveModel = new Model(PedHash.Migrant01SFY);
+                eveModel.Request(500);
+                if (eveModel.IsInCdImage && eveModel.IsValid)
                 {
-                    while (!gastrowModel.IsLoaded)
+                    while (!eveModel.IsLoaded)
                         Script.Wait(0);
 
-                    Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, gastrowModel.Hash);
+                    Function.Call(Hash.SET_PLAYER_MODEL, Game.Player.Handle, eveModel.Hash);
                     Function.Call(Hash.SET_PED_DEFAULT_COMPONENT_VARIATION, Game.Player.Character.Handle);
 
                     Function.Call(Hash.SET_PED_COMPONENT_VARIATION, Game.Player.Character.Handle, 0, 1, 0, 2);

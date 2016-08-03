@@ -146,7 +146,7 @@ namespace DemagoScript
             //Modèles
             var joeModelItem = new UIMenuItem("Joe l'anticonformiste");
             var fourasModelItem = new UIMenuItem("Père Fouras", "La fonctionnalité est en cours de développement");
-            var gastrowModelItem = new UIMenuItem("Gastrow Nomie", "La fonctionnalité est en cours de développement");
+            var eveModelItem = new UIMenuItem("Eve Irène", "La fonctionnalité est en cours de développement");
             var dissociateModelItem = new UIMenuItem("Dissocier", "Dissocier son corps avec le personnage le plus proche");
             var resetModelItem = new UIMenuItem("Récupérer le modèle de base");
 
@@ -154,7 +154,7 @@ namespace DemagoScript
             var modelMenu = menuPool.AddSubMenu(mainMenu, "Modèles");
             modelMenu.AddItem(joeModelItem);
             modelMenu.AddItem(fourasModelItem);
-            modelMenu.AddItem(gastrowModelItem);
+            modelMenu.AddItem(eveModelItem);
             modelMenu.AddItem(dissociateModelItem);
             modelMenu.AddItem(resetModelItem);
 
@@ -212,9 +212,9 @@ namespace DemagoScript
                     ModelManager.Instance.setDemagoModel(DemagoModel.Fouras);
                 }
 
-                if (item == gastrowModelItem)
+                if (item == eveModelItem)
                 {
-                    ModelManager.Instance.setDemagoModel(DemagoModel.Gastrow);
+                    ModelManager.Instance.setDemagoModel(DemagoModel.Eve);
                 }
             };
 
