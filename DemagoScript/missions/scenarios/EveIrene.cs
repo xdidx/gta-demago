@@ -11,29 +11,19 @@ namespace DemagoScript
     class EveIrene : Mission
     {
         #region Positions
-        public static Vector3 eveHomePosition { get; } = new Vector3(1550f, 6323f, 46f);
-        public static Vector3 carPositionAtHome { get; } = new Vector3(1552f, 6325f, 46f);
-        public static Vector3 firstRestaurantPosition { get; } = new Vector3(1584f, 6420f, 46f); 
+        public static Vector3 eveHomePosition { get; } = new Vector3(1523f, 6331f, 24f);
+        public static Vector3 carPositionAtHome { get; } = new Vector3(1537f, 6337f, 24f);
+        public static Vector3 firstRestaurantPosition { get; } = new Vector3(1583f, 6448f, 25f); 
         #endregion
 
         public static Vehicle eveCar = null;
         private Random random = new Random();
 
-        #region Regeneration variables
-        private bool bikeRegen = false;
-        private int playerLifeUpCounter = 0;
-        #endregion
-        
-        #region Intro variables
-        private bool playerDown = false;
-        private bool playerWalked = false;
-        private bool playerMoved = false;
-        #endregion
-
         public EveIrene()
         {
             this.name = "Eve Irène";
             this.isActivated = true;
+            this.introEnded = true;
         }
 
         public List<Ped> getPedsListByName(string entitiesListName)
@@ -53,10 +43,11 @@ namespace DemagoScript
         public override void checkRequiredElements()
         {
             base.checkRequiredElements();
-            
+
+            EveIrene.eveCar = World.CreateVehicle(VehicleHash.Kalahari, carPositionAtHome);
+
             ModelManager.Instance.setDemagoModel(DemagoModel.Eve);
             CameraShotsList.Instance.reset();
-            AudioManager.Instance.FilesSubFolder = @"eve\eve";
         }
 
         protected override void populateDestructibleElements()
@@ -70,15 +61,16 @@ namespace DemagoScript
         private void createAndAddObjectives()
         {
             #region Objectives 
-            GoToPosition goToFirstRestaurantObjective = new GoToPosition(eveHomePosition);
+            GoToPositionInVehicle goToFirstRestaurantObjective = new GoToPositionInVehicle(firstRestaurantPosition);
+            goToFirstRestaurantObjective.setVehicle(EveIrene.eveCar);
             goToFirstRestaurantObjective.Checkpoint = new Checkpoint();
-            goToFirstRestaurantObjective.Checkpoint.addEntity(EveIrene.eveCar, carPositionAtHome, 0);
+            goToFirstRestaurantObjective.Checkpoint.addEntity(EveIrene.eveCar, carPositionAtHome, 90);
             goToFirstRestaurantObjective.Checkpoint.PlayerPosition = eveHomePosition;
             goToFirstRestaurantObjective.Checkpoint.setClockHour(9);
             goToFirstRestaurantObjective.Checkpoint.Armor = 100;
             goToFirstRestaurantObjective.Checkpoint.Weather = Weather.ExtraSunny;
             goToFirstRestaurantObjective.Checkpoint.WantedLevel = 0;
-            goToFirstRestaurantObjective.Checkpoint.Heading = 0;
+            goToFirstRestaurantObjective.Checkpoint.Heading = 75;
 
             VehicleHash[] trailersHashes = new VehicleHash[] { VehicleHash.Trailers, VehicleHash.Trailers2, VehicleHash.Trailers3 };
             LeaveVehicles leaveTrailersObjective = new LeaveVehicles(firstRestaurantPosition, trailersHashes, 2);
@@ -86,7 +78,9 @@ namespace DemagoScript
             leaveTrailersObjective.Checkpoint.Activable = true;
             leaveTrailersObjective.Checkpoint.PlayerPosition = firstRestaurantPosition;
 
-            GoToPositionInVehicle goToHome = new GoToPositionInVehicle(eveHomePosition);
+            GoToPositionInVehicle goToHome = new GoToPositionInVehicle(carPositionAtHome);
+            goToHome.setVehicle(EveIrene.eveCar);
+            goToHome.Checkpoint = new Checkpoint();
             goToHome.Checkpoint.Armor = 100;
             goToHome.Checkpoint.WantedLevel = 2;
             goToHome.Checkpoint.Weather = Weather.Clouds;

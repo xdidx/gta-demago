@@ -135,6 +135,7 @@ namespace DemagoScript
 
                     if (entitiesCollectorHeadings[entity] != -1)
                     {
+                        Tools.log("Heading entity "+ entitiesCollectorHeadings[entity]);
                         entity.Heading = entitiesCollectorHeadings[entity];
                     }
                 }

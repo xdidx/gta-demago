@@ -9,5 +9,6 @@ namespace DemagoScript
     class Globals
     {
         public const bool debug = true;
+        public const bool cheatInMissions = false;
     }
 }

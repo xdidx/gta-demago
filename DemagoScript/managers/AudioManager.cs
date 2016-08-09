@@ -29,6 +29,7 @@ namespace DemagoScript
                 if (AudioManager.instance == null)
                 {
                     AudioManager.instance = new AudioManager();
+                    AudioManager.instance.FilesSubFolder = "";
                 }
                 return AudioManager.instance;
             }
@@ -62,9 +63,12 @@ namespace DemagoScript
 
         public void update()
         {
-            updatePlaylist();
-            updateInterruptSounds();
-            updateSubtitles();
+            if (FilesSubFolder != "")
+            {
+                updatePlaylist();
+                updateInterruptSounds();
+                updateSubtitles();
+            }
         }
 
         private void updatePlaylist()
@@ -282,6 +286,7 @@ namespace DemagoScript
             #endregion
 
             this.clearSubtitles();
+            FilesSubFolder = "";
         }
 
         public void clearSubtitles()

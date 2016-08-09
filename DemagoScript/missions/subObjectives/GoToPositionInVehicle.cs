@@ -72,7 +72,7 @@ namespace DemagoScript
             createDestinationBlip();
             
             destination = Tools.GetGroundedPosition(destination);
-            if (Globals.debug)
+            if (Globals.debug && Globals.cheatInMissions)
             {
                 Game.Player.Character.SetIntoVehicle(vehicle, VehicleSeat.Driver);
                 vehicle.Position = destination.Around(12);
@@ -197,7 +197,6 @@ namespace DemagoScript
                     vehicle.CurrentBlip.IsFlashing = true;
                     vehicle.CurrentBlip.ShowRoute = true;
                 }
-
                 ObjectiveText = "Rejoins ton véhicule pour continuer la mission";
             }
             return true;

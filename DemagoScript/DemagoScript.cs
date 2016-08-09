@@ -17,8 +17,9 @@ namespace DemagoScript
     {
         public static PedHash savedPlayerModelHash = PedHash.Michael;
 
-        private static float scriptTime = 0;   
-        private static List<Mission> missions = null;
+        private static float scriptTime = 0;
+        private static List<Mission> Missions = new List<Mission>();
+
         private static Mission currentMission = null;
         
         private bool isPaused = false;
@@ -30,8 +31,8 @@ namespace DemagoScript
             Tools.log("-------------Initialisation du mod GTA Démago------------");
             GTA.UI.Notify( "GTA Démago - " + date.Hour + ':' + date.Minute + ':' + date.Second );
 
-            this.createMissions();
-            GUIManager.Instance.initialize(missions);
+            DemagoScript.createMissions();
+            GUIManager.Instance.initialize(DemagoScript.Missions);
 
             GUIManager.Instance.menu.OnKeysPressedEvent += (Keys key) => {
                 if (key == Keys.Decimal)
@@ -150,92 +151,94 @@ namespace DemagoScript
             }
         }
 
-        private void createMissions()
+        private static void createMissions()
         {
-            missions = new List<Mission>();
-
-            Type[] missionsClassesList = Assembly.GetExecutingAssembly().GetTypes().Where(type => type.IsSubclassOf(typeof(Mission))).ToArray();
-            foreach (Type missionClass in missionsClassesList)
+            if (DemagoScript.Missions == null || DemagoScript.Missions.Count == 0)
             {
-                Mission newMission = (Mission)Activator.CreateInstance(missionClass);
-
-                if (Globals.debug == true || newMission.getIsActivated())
+                DemagoScript.Missions = new List<Mission>();
+                Type[] missionsClassesList = Assembly.GetExecutingAssembly().GetTypes().Where(type => type.IsSubclassOf(typeof(Mission))).ToArray();
+                foreach (Type missionClass in missionsClassesList)
                 {
-                    newMission.OnStarted += (sender) =>
+                    Mission newMission = (Mission)Activator.CreateInstance(missionClass);
+
+                    if (Globals.debug == true || newMission.getIsActivated())
                     {
-                        if (DemagoScript.currentMission != null)
+                        newMission.OnStarted += (sender) =>
                         {
-                            DemagoScript.currentMission.stop();
-                        }
-
-                        DemagoScript.currentMission = (Mission)sender;
-                        GTA.UI.Notify(sender.getName());
-
-                        if (!Globals.debug)
-                        {
-                            GUIManager.Instance.menu.getMenuPool().hide("Outils");
-                            GUIManager.Instance.menu.getMenuPool().hide("Modèles");
-                            GUIManager.Instance.menu.getMenuPool().hide("Véhicules");
-                        }
-                    };
-
-                    newMission.OnAccomplished += (sender, time) =>
-                    {
-                        string missionTime = "Temps inconnu";
-                        if (Tools.getTextFromMilliSeconds(time) != "")
-                        {
-                            missionTime = "En " + Tools.getTextFromMilliSeconds(time);
-                        }
-
-                        SuccessMissionPopup successPopup = new SuccessMissionPopup(sender.getName(), missionTime);
-                        successPopup.OnPopupClose += () =>
-                        {
-                            GUIManager.Instance.popupManager.remove(successPopup);
-
-                            AudioManager.Instance.FilesSubFolder = @"joe\joe";
-                            AudioManager.Instance.startSound("anticonformiste");
-                            
-                            NotificationPopup creditsPopup = new NotificationPopup();
-                            creditsPopup.add(new UIRectElement(0.5, 0.5, 1, 1, UIColor.BLACK, 200));
-                            creditsPopup.add(new UITextElement("GTA Démago", 0.5, 0.2, 1.5, true, Font.Pricedown, UIColor.GTA_YELLOW));
-                            creditsPopup.add(new UITextElement("Merci d’avoir jouer à GTA Démago !", 0.5, 0.29, 0.7, true, Font.ChaletLondon, UIColor.WHITE));
-                            creditsPopup.add(new UITextElement("De nouvelles missions seront bientôt disponibles alors rejoignez nous sur ", 0.5, 0.33, 0.7, true, Font.ChaletLondon, UIColor.WHITE));
-                            creditsPopup.add(new UITextElement("Twitch : http://twitch.tv/realmyop2", 0.5, 0.39, 0.5, true, Font.ChaletLondon, UIColor.WHITE));
-                            creditsPopup.add(new UITextElement("Facebook : http://facebook.com/realmyop", 0.5, 0.42, 0.5, true, Font.ChaletLondon, UIColor.WHITE));
-                            creditsPopup.add(new UITextElement("Twitter : http://twitter.com/RealMyop", 0.5, 0.45, 0.5, true, Font.ChaletLondon, UIColor.WHITE));
-                            creditsPopup.add(new UITextElement("Venez nombreux !", 0.5, 0.525, 1, true, Font.HouseScript, UIColor.WHITE));
-                            creditsPopup.add(new UITextElement("Entrée pour fermer", 0.5, 0.9, 0.6, true, Font.HouseScript, UIColor.WHITE));
-                            creditsPopup.OnPopupClose += () =>
+                            if (DemagoScript.currentMission != null)
                             {
-                                GUIManager.Instance.popupManager.remove(creditsPopup);
+                                DemagoScript.currentMission.stop();
+                            }
 
-                                AudioManager.Instance.stopAll();
-                                AudioManager.Instance.FilesSubFolder = "";
-                            };
+                            DemagoScript.currentMission = (Mission)sender;
+                            GTA.UI.Notify(sender.getName());
 
-                            Script.Wait(100);
-
-                            creditsPopup.show();
+                            if (!Globals.debug)
+                            {
+                                GUIManager.Instance.menu.getMenuPool().hide("Outils");
+                                GUIManager.Instance.menu.getMenuPool().hide("Modèles");
+                                GUIManager.Instance.menu.getMenuPool().hide("Véhicules");
+                            }
                         };
-                        successPopup.show();
-                    };
 
-                    newMission.OnEnded += (sender) =>
-                    {
-                        DemagoScript.currentMission = null;
-
-                        if (!Globals.debug)
+                        newMission.OnAccomplished += (sender, time) =>
                         {
-                            GUIManager.Instance.menu.getMenuPool().show("Outils");
-                            GUIManager.Instance.menu.getMenuPool().show("Modèles");
-                            GUIManager.Instance.menu.getMenuPool().show("Véhicules");
-                        }
-                    };
+                            string missionTime = "Temps inconnu";
+                            if (Tools.getTextFromMilliSeconds(time) != "")
+                            {
+                                missionTime = "En " + Tools.getTextFromMilliSeconds(time);
+                            }
 
-                    missions.Add(newMission);
+                            SuccessMissionPopup successPopup = new SuccessMissionPopup(sender.getName(), missionTime);
+                            successPopup.OnPopupClose += () =>
+                            {
+                                GUIManager.Instance.popupManager.remove(successPopup);
+
+                                AudioManager.Instance.FilesSubFolder = @"joe\joe";
+                                AudioManager.Instance.startSound("anticonformiste");
+
+                                NotificationPopup creditsPopup = new NotificationPopup();
+                                creditsPopup.add(new UIRectElement(0.5, 0.5, 1, 1, UIColor.BLACK, 200));
+                                creditsPopup.add(new UITextElement("GTA Démago", 0.5, 0.2, 1.5, true, Font.Pricedown, UIColor.GTA_YELLOW));
+                                creditsPopup.add(new UITextElement("Merci d’avoir jouer à GTA Démago !", 0.5, 0.29, 0.7, true, Font.ChaletLondon, UIColor.WHITE));
+                                creditsPopup.add(new UITextElement("De nouvelles missions seront bientôt disponibles alors rejoignez nous sur ", 0.5, 0.33, 0.7, true, Font.ChaletLondon, UIColor.WHITE));
+                                creditsPopup.add(new UITextElement("Twitch : http://twitch.tv/realmyop2", 0.5, 0.39, 0.5, true, Font.ChaletLondon, UIColor.WHITE));
+                                creditsPopup.add(new UITextElement("Facebook : http://facebook.com/realmyop", 0.5, 0.42, 0.5, true, Font.ChaletLondon, UIColor.WHITE));
+                                creditsPopup.add(new UITextElement("Twitter : http://twitter.com/RealMyop", 0.5, 0.45, 0.5, true, Font.ChaletLondon, UIColor.WHITE));
+                                creditsPopup.add(new UITextElement("Venez nombreux !", 0.5, 0.525, 1, true, Font.HouseScript, UIColor.WHITE));
+                                creditsPopup.add(new UITextElement("Entrée pour fermer", 0.5, 0.9, 0.6, true, Font.HouseScript, UIColor.WHITE));
+                                creditsPopup.OnPopupClose += () =>
+                                {
+                                    GUIManager.Instance.popupManager.remove(creditsPopup);
+
+                                    AudioManager.Instance.stopAll();
+                                    AudioManager.Instance.FilesSubFolder = "";
+                                };
+
+                                Script.Wait(100);
+
+                                creditsPopup.show();
+                            };
+                            successPopup.show();
+                        };
+
+                        newMission.OnEnded += (sender) =>
+                        {
+                            DemagoScript.currentMission = null;
+                            AudioManager.Instance.stopAll();
+
+                            if (!Globals.debug)
+                            {
+                                GUIManager.Instance.menu.getMenuPool().show("Outils");
+                                GUIManager.Instance.menu.getMenuPool().show("Modèles");
+                                GUIManager.Instance.menu.getMenuPool().show("Véhicules");
+                            }
+                        };
+
+                        DemagoScript.Missions.Add(newMission);
+                    }
                 }
             }
         }
-
     }
 }
