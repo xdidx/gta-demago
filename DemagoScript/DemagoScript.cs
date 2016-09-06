@@ -24,14 +24,21 @@ namespace DemagoScript
         private bool isPaused = false;
         private bool isSitting = false;
 
+        public static string language = "en";
+
         public DemagoScript()
         {
             var date = DateTime.Now;
             Tools.log("-------------Initialisation du mod GTA Démago------------");
             GTA.UI.Notify( "GTA Démago - " + date.Hour + ':' + date.Minute + ':' + date.Second );
 
-            this.createMissions();
-            GUIManager.Instance.initialize(missions);
+            if (GTA.Game.Language == GTA.Language.French)
+            {
+                DemagoScript.language = "fr";
+            }
+
+            DemagoScript.createMissions();
+            GUIManager.Instance.initialize(DemagoScript.Missions);
 
             GUIManager.Instance.menu.OnKeysPressedEvent += (Keys key) => {
                 if (key == Keys.Decimal)

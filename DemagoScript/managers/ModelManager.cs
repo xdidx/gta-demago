@@ -42,7 +42,10 @@ namespace DemagoScript
             {
                 DemagoScript.pauseCurrentMission();
                 AudioManager.Instance.setAudioPause(true);
-                this.resetPlayerModel();
+                if (DemagoScript.isThereACurrentMission())
+                {
+                    this.resetPlayerModel();
+                }
             }
         }
 
@@ -229,7 +232,7 @@ namespace DemagoScript
                     player.SetIntoVehicle(currentVehicle, VehicleSeat.Driver);
                 }
 
-                if (playerWasDead || playerWasArrested)
+                if ((playerWasDead || playerWasArrested) && DemagoScript.isThereACurrentMission())
                 {
                     #region Hide real player and wait for game recovery
                     player.IsVisible = false;

@@ -149,8 +149,8 @@ namespace DemagoScript
             player.Health = 300;
 
             CameraShotsList.Instance.reset();
-
             AudioManager.Instance.FilesSubFolder = @"joe\joe";
+            Subtitles.SubtitlesPath = @"musics\joe\joe." + DemagoScript.language + ".st";
         }
 
         protected override void populateDestructibleElements()
