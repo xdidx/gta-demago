@@ -8,10 +8,24 @@ namespace DemagoScript
 {
     static class Subtitles
     {
+        /// <summary>
+        /// dictionnaire ayant pour clé le nom de la mission
+        /// et pour valeur un dictionnaire ayant pour clé le temps 
+        /// auquel on doit afficher le sous-titre qui est en valeur
+        /// TODO:translate en
+        /// </summary>
         private static Dictionary<string, Dictionary<int, string>> subtitles = null;
+        public static string SubtitlesPath { get; set; }
 
-        private static void updateSubtitles()
+        private static void getSubtitlesFromFile(string subtitlesPath = "")
         {
+            if (Subtitles.SubtitlesPath == "")
+            {
+                Tools.log("Subtitles path is empty");
+                return;
+            }
+                
+
             subtitles = new Dictionary<string, Dictionary<int, string>>();
 
             string currentSongName = "";
@@ -20,11 +34,12 @@ namespace DemagoScript
 
             try
             {
-                 lines = File.ReadAllLines(@"musics\joe\joeSubtitles.txt");
+                lines = File.ReadAllLines(subtitlesPath);
             }
             catch (Exception e)
             {
-                Tools.log(e.Message);
+                Tools.log("Fichier de sous titre non valide " + e.Message);
+                return;
             }
 
             if (lines != null)
@@ -64,11 +79,25 @@ namespace DemagoScript
                             int totalSeconds = (minutes * 60) + seconds;
 
                             lineIndex++;
-                            currentSongSubtitles.Add(totalSeconds, lines[lineIndex]);
+                            if (currentSongSubtitles.ContainsKey(totalSeconds))
+                            {
+                                Tools.log("Ligne déjà ajoutée : " + totalSeconds + " " + lines[lineIndex]);
+                            }
+                            else
+                            { 
+                                currentSongSubtitles.Add(totalSeconds, lines[lineIndex]);
+                            }
                         }
                         else if (currentLine != "")
                         {
-                            currentSongSubtitles.Add(0, currentLine);
+                            if (currentSongSubtitles.ContainsKey(0))
+                            {
+                                Tools.log("Ligne déjà ajoutée : 0 " + lines[lineIndex]);
+                            }
+                            else
+                            {
+                                currentSongSubtitles.Add(0, currentLine);
+                            }
                         }
                     }
                 }
@@ -79,7 +108,6 @@ namespace DemagoScript
                 }
             }
         }
-
         private static string without = "";
         public static string getSubtitle(string songName, int songTime)
         {
@@ -89,7 +117,7 @@ namespace DemagoScript
 
             if (subtitles == null)
             {
-                updateSubtitles();
+                Subtitles.getSubtitlesFromFile(Subtitles.SubtitlesPath);
             }
 
             if (subtitles != null && subtitles.ContainsKey(songName))
